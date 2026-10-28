@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presupuesto — We · Modificaciones del sitio web · Seim Interactive</title>
+<link rel="icon" href="assets/MARCA-14.png">
+<style>
+  :root {
+    --bg: #000000;
+    --text: #ffffff;
+    --accent-cyan: #AFE3E8;
+    --text-08: rgba(255,255,255,0.8);
+    --text-06: rgba(255,255,255,0.6);
+    --text-04: rgba(255,255,255,0.4);
+    --border-sutil: rgba(255,255,255,0.08);
+    --border-medio: rgba(255,255,255,0.15);
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-weight: 300;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 100% 0%, rgba(175,227,232,0.07), transparent 55%),
+      radial-gradient(ellipse 60% 50% at 0% 100%, rgba(175,227,232,0.04), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .document {
+    position: relative;
+    z-index: 1;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 72px 60px 120px;
+  }
+
+  .label {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-04);
+  }
+
+  .separator {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    margin: 48px 0;
+    border: 0;
+  }
+
+  .doc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 56px;
+  }
+
+  .logo { height: 28px; width: auto; opacity: 0.95; }
+
+  .doc-meta {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .doc-number,
+  .doc-date {
+    font-size: 0.85rem;
+    color: var(--text-06);
+    font-weight: 300;
+    outline: none;
+  }
+
+  .doc-number { color: var(--text); font-weight: 400; }
+  .client-block { margin-bottom: 44px; }
+
+  .client-name {
+    font-size: clamp(2.4rem, 5vw, 3.5rem);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-top: 16px;
+    margin-bottom: 20px;
+    background: linear-gradient(to right, #fff 0%, rgba(255,255,255,0.9) 65%, var(--accent-cyan) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    outline: none;
+  }
+
+  .client-contact {
+    font-size: 0.95rem;
+    color: var(--text-06);
+    outline: none;
+  }
+
+  .intro {
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: var(--text-08);
+    max-width: 700px;
+    outline: none;
+  }
+
+  .intro p + p { margin-top: 14px; }
+  .section-head { margin-bottom: 24px; }
+
+  .section-title {
+    font-size: clamp(1.6rem, 3.5vw, 2.1rem);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-top: 14px;
+  }
+
+  .section-sub {
+    font-size: 0.98rem;
+    color: var(--text-06);
+    max-width: 640px;
+    margin-top: 12px;
+  }
+
+  .mod {
+    position: relative;
+    padding: 20px 28px;
+    border: 1px solid var(--border-sutil);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.015);
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+
+  .mod::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
+  }
+
+  .mod-top {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+
+  .mod-num {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    color: var(--accent-cyan);
+    min-width: 30px;
+  }
+
+  .mod-title {
+    font-size: 1.12rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  .mod-desc {
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--text-08);
+    margin-left: 44px;
+  }
+
+  .io-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .includes {
+    padding: 24px 28px;
+    border: 1px solid var(--border-sutil);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.015);
+  }
+
+  .includes .label { margin-bottom: 14px; }
+  .includes ul, .terms ul { list-style: none; }
+
+  .includes li,
+  .terms li {
+    position: relative;
+    padding-left: 22px;
+    margin-bottom: 8px;
+    font-size: 0.87rem;
+    line-height: 1.55;
+    color: var(--text-06);
+  }
+
+  .includes li::before,
+  .terms li::before {
+    content: "◇";
+    position: absolute;
+    left: 0;
+    top: 1px;
+    color: var(--accent-cyan);
+    font-size: 0.72rem;
+  }
+
+  .includes.excludes li::before {
+    content: "\2715";
+    color: var(--text-04);
+  }
+
+  .invest-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .invest-card {
+    padding: 30px;
+    border: 1px solid var(--border-medio);
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(175,227,232,0.04), rgba(255,255,255,0.01));
+  }
+
+  .invest-card .label { margin-bottom: 14px; }
+
+  .invest-amount {
+    font-size: 2.25rem;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .invest-amount .cur {
+    font-size: 0.85rem;
+    color: var(--text-04);
+    letter-spacing: 0.05em;
+    margin-left: 6px;
+  }
+
+  .invest-note {
+    font-size: 0.85rem;
+    color: var(--text-06);
+    margin-top: 14px;
+    line-height: 1.6;
+  }
+
+  .pay-plan {
+    padding: 26px 30px;
+    border: 1px solid var(--border-sutil);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.015);
+    margin-bottom: 28px;
+  }
+
+  .pay-plan .label { margin-bottom: 16px; }
+
+  .pay-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-sutil);
+  }
+
+  .pay-row:last-child { border-bottom: 0; }
+  .pay-when { font-size: 0.92rem; color: var(--text-08); }
+  .pay-when small { display: block; font-size: 0.75rem; color: var(--text-04); margin-top: 2px; }
+  .pay-amount { font-size: 1.15rem; font-weight: 400; }
+  .terms .label { margin-bottom: 16px; }
+  .terms li { margin-bottom: 10px; font-size: 0.9rem; line-height: 1.65; }
+
+  .doc-footer {
+    margin-top: 36px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-sutil);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-04);
+  }
+
+  .print-btn {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 100;
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border-medio);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 0.85rem;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 4px 16px rgba(0,0,0,0.4);
+  }
+
+  .print-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--accent-cyan); }
+
+  @media (max-width: 768px) {
+    .document { padding: 48px 24px 80px; }
+    .doc-header { flex-direction: column; gap: 32px; }
+    .doc-meta { text-align: left; }
+    .mod-desc { margin-left: 0; }
+    .io-grid, .invest-grid { grid-template-columns: 1fr; }
+    .doc-footer { flex-direction: column; gap: 12px; align-items: flex-start; }
+    .print-btn { bottom: 16px; right: 16px; padding: 10px 16px; }
+  }
+
+  @media print {
+    @page { size: A4; margin: 0; }
+
+    html, body {
+      background: var(--bg) !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      color-adjust: exact;
+    }
+
+    body::before, .print-btn { display: none; }
+    .document { padding: 0; max-width: 100%; margin: 0; }
+
+    .page {
+      padding: 13mm 14mm;
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .page:last-child { page-break-after: auto; break-after: auto; }
+    .doc-header { flex-direction: row; margin-bottom: 24px; }
+    .doc-meta { text-align: right; }
+    .client-block { margin-bottom: 22px; }
+
+    .client-name {
+      background: none !important;
+      -webkit-text-fill-color: var(--text) !important;
+      color: var(--text) !important;
+    }
+
+    .intro p + p { margin-top: 10px; }
+    .separator { margin: 20px 0; }
+    .section-head { margin-bottom: 14px; }
+    .section-sub { margin-top: 8px; }
+    .mod { padding: 17px 24px; margin-bottom: 10px; break-inside: avoid; page-break-inside: avoid; }
+    .mod-desc { margin-left: 44px; }
+    .io-grid { grid-template-columns: 1fr 1fr; margin-top: 14px; }
+    .includes { padding: 20px 24px; }
+    .includes li { margin-bottom: 6px; }
+    .invest-grid { grid-template-columns: 1fr; margin-bottom: 12px; }
+    .invest-card { padding: 24px 26px; }
+    .pay-plan { padding: 20px 26px; margin-bottom: 22px; }
+    .pay-row { padding: 8px 0; }
+    .mod, .io-grid, .includes, .invest-grid, .invest-card, .pay-plan, .terms {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .doc-footer { flex-direction: row; margin-top: 24px; }
+    [contenteditable]:focus { outline: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<main class="document">
+
+  <section class="page">
+    <header class="doc-header">
+      <img class="logo" src="assets/MARCA-14.png" alt="Seim Interactive">
+      <div class="doc-meta">
+        <span class="label">Presupuesto</span>
+        <span class="doc-number" contenteditable="true">N.º 2026-061</span>
+        <span class="doc-date" contenteditable="true">10 de septiembre de 2026</span>
+      </div>
+    </header>
+
+    <section class="client-block">
+      <span class="label">Cliente</span>
+      <h1 class="client-name" contenteditable="true">We</h1>
+      <p class="client-contact" contenteditable="true">Modificaciones y mejoras sobre el sitio web existente</p>
+    </section>
+
+    <section class="intro">
+      <p contenteditable="true">Gracias por la confianza. Presentamos la propuesta para implementar una serie de ajustes de contenido, navegación e interfaz sobre el sitio web actual de <b>We</b>.</p>
+      <p contenteditable="true">El trabajo busca mejorar la jerarquía de la información, facilitar el acceso a proyectos y novedades, y hacer más claras algunas interacciones del sitio.</p>
+    </section>
+
+    <hr class="separator">
+
+    <div class="section-head">
+      <span class="label">Alcance · Parte 1</span>
+      <h2 class="section-title">Reorganización y contenido</h2>
+    </div>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">01</span><span class="mod-title">Reubicar la sección Novedades</span></div>
+      <p class="mod-desc">Mover la sección de novedades para que aparezca antes de “Cómo trabajamos”, manteniendo el diseño y el comportamiento responsive.</p>
+    </article>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">02</span><span class="mod-title">Logos y enlaces en Empresas</span></div>
+      <p class="mod-desc">Incorporar los logos correspondientes en el sector donde hoy se muestran los nombres de las empresas y vincular cada elemento con su enlace.</p>
+    </article>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">03</span><span class="mod-title">Ajuste de texto en Estrategia</span></div>
+      <p class="mod-desc">Eliminar la frase “Diseño de” del punto 3 de la sección Estrategia, conservando la composición visual existente.</p>
+    </article>
+  </section>
+
+  <section class="page">
+    <div class="section-head">
+      <span class="label">Alcance · Parte 2</span>
+      <h2 class="section-title">Interacción y navegación</h2>
+      <p class="section-sub">Ajustes orientados a mejorar la visibilidad, claridad y funcionamiento de distintos elementos del sitio.</p>
+    </div>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">04</span><span class="mod-title">Mejoras en la sección Cursos</span></div>
+      <p class="mod-desc">Hacer más visible el indicador de avance y reforzar visualmente el cambio de imágenes para que la interacción se comprenda con mayor facilidad.</p>
+    </article>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">05</span><span class="mod-title">Eliminar badge “Agenda”</span></div>
+      <p class="mod-desc">Quitar el badge “Agenda” de la card de Estrategia y Transformación, reajustando el espacio resultante.</p>
+    </article>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">06</span><span class="mod-title">Contacto de reunión por email</span></div>
+      <p class="mod-desc">Modificar el botón de contacto de reunión para que abra la aplicación de correo del usuario con un nuevo mensaje dirigido a la casilla indicada.</p>
+    </article>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">07</span><span class="mod-title">Botón de Empresas hacia Novedades</span></div>
+      <p class="mod-desc">Cambiar el texto del botón a “Nuestros trabajos” y hacer que dirija a la sección Novedades del sitio.</p>
+    </article>
+
+    <div class="io-grid">
+      <div class="includes">
+        <span class="label">Incluye</span>
+        <ul>
+          <li>Implementación de los siete ajustes</li>
+          <li>Adaptación responsive</li>
+          <li>Pruebas en desktop y mobile</li>
+          <li>Publicación de los cambios</li>
+        </ul>
+      </div>
+      <div class="includes excludes">
+        <span class="label">No incluye</span>
+        <ul>
+          <li>Rediseño general del sitio</li>
+          <li>Nuevas secciones o funcionalidades</li>
+          <li>Producción de logos o imágenes</li>
+          <li>Mantenimiento posterior</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="page">
+    <div class="section-head">
+      <span class="label">Inversión</span>
+      <h2 class="section-title">Valor del trabajo</h2>
+      <p class="section-sub">Precio final por la implementación completa del alcance detallado.</p>
+    </div>
+
+    <div class="invest-grid">
+      <div class="invest-card">
+        <span class="label">Total · pago contra entrega</span>
+        <div class="invest-amount">$ 70.000<span class="cur">ARS</span></div>
+        <p class="invest-note">Incluye desarrollo, revisión responsive, pruebas y publicación de los cambios.</p>
+      </div>
+    </div>
+
+    <div class="pay-plan">
+      <span class="label">Forma de pago</span>
+      <div class="pay-row">
+        <span class="pay-when">Pago único — contra entrega <small>Revisión final y publicación de las modificaciones</small></span>
+        <span class="pay-amount">$ 70.000</span>
+      </div>
+    </div>
+
+    <section class="terms">
+      <span class="label">Términos</span>
+      <ul>
+        <li>Validez del presupuesto: 15 días desde la fecha de emisión.</li>
+        <li>El precio corresponde al conjunto completo de modificaciones detalladas en este documento.</li>
+        <li>Precios en pesos argentinos (ARS), finales y por única vez.</li>
+        <li>El cliente proveerá los logos, enlaces, dirección de email y demás contenidos necesarios.</li>
+        <li>Incluye una ronda de ajustes menores sobre la implementación entregada. Los cambios de alcance se cotizan por separado.</li>
+        <li>No incluye costos de dominio, hosting ni servicios de terceros.</li>
+      </ul>
+    </section>
+
+    <footer class="doc-footer">
+      <span>Seim Interactive · Software studio</span>
+      <span>hello@seiminteractive.io</span>
+    </footer>
+  </section>
+
+</main>
+
+<button class="print-btn" onclick="window.print()">Imprimir / Guardar PDF</button>
+
+</body>
+</html>

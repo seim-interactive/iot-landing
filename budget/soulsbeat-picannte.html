@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presupuesto — Soulsbeat & Picannte · Seim Interactive</title>
+<link rel="icon" href="assets/MARCA-14.png">
+<style>
+  :root {
+    --bg: #000000;
+    --text: #ffffff;
+    --accent-cyan: #AFE3E8;
+    --accent-green: #06f62e;
+    --text-08: rgba(255,255,255,0.8);
+    --text-06: rgba(255,255,255,0.6);
+    --text-04: rgba(255,255,255,0.4);
+    --text-025: rgba(255,255,255,0.25);
+    --border-sutil: rgba(255,255,255,0.08);
+    --border-medio: rgba(255,255,255,0.15);
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-weight: 300;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 100% 0%, rgba(175,227,232,0.07), transparent 55%),
+      radial-gradient(ellipse 60% 50% at 0% 100%, rgba(175,227,232,0.04), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .document {
+    position: relative;
+    z-index: 1;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 72px 60px 120px;
+  }
+
+  .label {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-04);
+  }
+
+  .separator {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    margin: 56px 0;
+    border: 0;
+  }
+
+  .doc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 64px;
+  }
+
+  .logo { height: 28px; width: auto; opacity: 0.95; }
+
+  .doc-meta {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .doc-meta .doc-number,
+  .doc-meta .doc-date {
+    font-size: 0.85rem;
+    color: var(--text-06);
+    font-weight: 300;
+    outline: none;
+  }
+  .doc-meta .doc-number { color: var(--text); font-weight: 400; }
+
+  .client-block { margin-bottom: 56px; }
+
+  .client-name {
+    font-size: clamp(2.4rem, 5vw, 3.5rem);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-top: 16px;
+    margin-bottom: 20px;
+    background: linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0.9) 60%, var(--accent-cyan) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    outline: none;
+  }
+
+  .client-contact {
+    font-size: 0.95rem;
+    color: var(--text-06);
+    font-weight: 300;
+    outline: none;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 28px;
+    padding: 10px 18px;
+    border: 1px solid var(--border-sutil);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.02);
+  }
+  .badge .label { font-size: 0.6rem; }
+  .badge .badge-text { font-size: 0.9rem; color: var(--text-08); font-weight: 300; }
+  .badge .badge-text b { color: var(--text); font-weight: 400; }
+
+  .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent-green);
+    box-shadow: 0 0 8px var(--accent-green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+  }
+
+  .intro {
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: var(--text-08);
+    font-weight: 300;
+    max-width: 700px;
+    outline: none;
+  }
+  .intro p + p { margin-top: 18px; }
+
+  .section-head { margin-bottom: 32px; }
+  .section-title {
+    font-size: clamp(1.6rem, 3.5vw, 2.1rem);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-top: 14px;
+    color: var(--text);
+  }
+  .section-sub {
+    font-size: 0.98rem;
+    color: var(--text-06);
+    font-weight: 300;
+    max-width: 640px;
+    margin-top: 12px;
+  }
+
+  /* ── Módulos ── */
+  .mod {
+    position: relative;
+    padding: 20px 28px;
+    border: 1px solid var(--border-sutil);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.015);
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .mod::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
+  }
+  .mod-top { display: flex; align-items: baseline; gap: 14px; margin-bottom: 8px; }
+  .mod-num {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    color: var(--accent-cyan);
+    min-width: 30px;
+  }
+  .mod-title {
+    font-size: 1.18rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+  .mod-desc {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--text-08);
+    font-weight: 300;
+    margin-left: 44px;
+    margin-bottom: 10px;
+  }
+  .mod-feats {
+    list-style: none;
+    margin-left: 44px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 24px;
+  }
+  .mod-feats li {
+    position: relative;
+    padding-left: 18px;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--text-06);
+    font-weight: 300;
+  }
+  .mod-feats li::before {
+    content: "◇";
+    position: absolute;
+    left: 0; top: 1px;
+    color: var(--accent-cyan);
+    font-size: 0.7rem;
+  }
+  .mod-note { font-size:0.85rem; color:var(--text-06); font-weight:300; margin-left:44px; margin-top:12px; line-height:1.6; }
+
+  /* ── Inversión ── */
+  .invest-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .invest-card {
+    padding: 32px 30px;
+    border: 1px solid var(--border-medio);
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(175,227,232,0.04), rgba(255,255,255,0.01));
+  }
+  .invest-card .label { margin-bottom: 14px; }
+  .invest-amount {
+    font-size: 2.2rem;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1;
+  }
+  .invest-amount .cur { font-size: 0.85rem; color: var(--text-04); font-weight: 300; letter-spacing: 0.05em; margin-left: 6px; }
+  .invest-note { font-size: 0.85rem; color: var(--text-06); font-weight: 300; margin-top: 14px; line-height: 1.6; }
+
+  /* ── Paquete combinado ── */
+  .combo {
+    position: relative;
+    padding: 34px 32px;
+    border: 1px solid var(--accent-cyan);
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(175,227,232,0.09), rgba(255,255,255,0.01));
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .combo-head { display:flex; justify-content:space-between; align-items:baseline; gap:16px; flex-wrap:wrap; margin-bottom: 18px; }
+  .combo-title { font-size: 1.25rem; font-weight: 400; color: var(--text); letter-spacing:-0.01em; }
+  .combo-tag {
+    font-size: 0.66rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase;
+    color: #000; background: var(--accent-cyan); padding: 5px 12px; border-radius: 999px;
+  }
+  .combo-rows { border-top: 1px solid var(--border-sutil); }
+  .combo-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 12px 0; border-bottom: 1px solid var(--border-sutil);
+  }
+  .combo-row .r-label { font-size: 0.92rem; color: var(--text-08); font-weight: 300; }
+  .combo-row .r-val { font-size: 1.05rem; color: var(--text-08); font-weight: 300; letter-spacing:-0.01em; }
+  .combo-row.strike .r-label,
+  .combo-row.strike .r-val { color: var(--text-04); }
+  .combo-row.strike .r-val { text-decoration: line-through; }
+  .combo-row.save .r-label,
+  .combo-row.save .r-val { color: var(--accent-green); }
+  .combo-row.final { border-bottom: 0; padding-top: 18px; align-items: flex-end; }
+  .combo-row.final .r-label { font-size: 0.65rem; font-weight:500; letter-spacing:0.25em; text-transform:uppercase; color: var(--text-04); }
+  .combo-row.final .r-val { font-size: 2.4rem; font-weight: 300; color: var(--text); letter-spacing: -0.02em; line-height:1; }
+  .combo-row.final .r-val .cur { font-size: 0.85rem; color: var(--text-04); letter-spacing:0.05em; margin-left:6px; }
+  .combo-note { font-size: 0.85rem; color: var(--text-06); font-weight: 300; margin-top: 16px; line-height: 1.6; }
+
+  .pay-plan {
+    padding: 28px 30px;
+    border: 1px solid var(--border-sutil);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.015);
+    margin-bottom: 16px;
+  }
+  .pay-plan .label { margin-bottom: 20px; }
+  .pay-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-sutil);
+  }
+  .pay-row:last-child { border-bottom: 0; }
+  .pay-when { font-size: 0.92rem; color: var(--text-08); font-weight: 300; }
+  .pay-when small { display: block; font-size: 0.75rem; color: var(--text-04); margin-top: 2px; }
+  .pay-amount { font-size: 1.15rem; font-weight: 400; color: var(--text); letter-spacing: -0.01em; }
+
+  .includes {
+    padding: 28px 30px;
+    border: 1px solid var(--border-sutil);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.015);
+  }
+  .includes .label { margin-bottom: 16px; }
+  .includes ul { list-style: none; padding: 0; }
+  .includes li {
+    position: relative;
+    padding-left: 22px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--text-06);
+    font-weight: 300;
+  }
+  .includes li::before {
+    content: "◇";
+    position: absolute;
+    left: 0; top: 1px;
+    color: var(--accent-cyan);
+    font-size: 0.72rem;
+  }
+  .includes.excludes li::before { content:"\2715"; color: var(--text-04); font-size: 0.72rem; }
+  .io-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  /* ── Tabla comparativa ── */
+  .table-wrap { overflow-x: auto; }
+  table.comp { width:100%; border-collapse:collapse; }
+  table.comp th, table.comp td { padding:10px 10px; text-align:center; border-bottom:1px solid var(--border-sutil); vertical-align:middle; }
+  table.comp thead th { border-bottom:1px solid var(--border-medio); padding-bottom:14px; }
+  th.feat-head, td.feat { text-align:left; }
+  td.feat { color:var(--text-08); font-size:0.9rem; font-weight:300; }
+  .plan-name { font-size:0.98rem; font-weight:500; color:var(--text); letter-spacing:-0.01em; line-height:1.25; display:block; }
+  .plan-tag { display:block; font-size:0.68rem; color:var(--text-04); margin-top:4px; font-weight:300; }
+  .plan-price { display:block; margin-top:6px; font-size:0.82rem; color:var(--accent-cyan); font-weight:400; }
+  tr.group td { text-align:left; padding:18px 10px 6px; }
+  .chk { color:var(--accent-cyan); font-size:1rem; }
+  .no { color:var(--text-025); font-size:1rem; }
+  .txt { font-size:0.78rem; color:var(--text-06); font-weight:300; }
+  tr.invest td { padding:16px 10px; border-bottom:0; }
+  tr.invest .feat { font-size:0.95rem; color:var(--text); font-weight:400; }
+  tr.invest .val { font-size:1.15rem; color:var(--text); font-weight:400; letter-spacing:-0.01em; }
+  .colhi { background:rgba(175,227,232,0.04); }
+
+  .terms .label { margin-bottom: 18px; }
+  .terms ul { list-style: none; padding: 0; }
+  .terms li {
+    position: relative;
+    padding-left: 22px;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--text-06);
+    font-weight: 300;
+  }
+  .terms li::before {
+    content: "◇";
+    position: absolute;
+    left: 0; top: 1px;
+    color: var(--accent-cyan);
+    font-size: 0.72rem;
+  }
+  .terms-block { margin-top: 36px; }
+
+  .doc-footer {
+    margin-top: 56px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border-sutil);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-04);
+    font-weight: 300;
+    letter-spacing: 0.02em;
+  }
+
+  .print-btn {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 100;
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border-medio);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 0.85rem;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 4px 16px rgba(0,0,0,0.4);
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+  .print-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--accent-cyan); }
+
+  @media (max-width: 768px) {
+    .document { padding: 48px 24px 80px; }
+    .doc-header { flex-direction: column; gap: 32px; align-items: flex-start; }
+    .doc-meta { text-align: left; }
+    .mod-desc, .mod-feats, .mod-note { margin-left: 0; }
+    .mod-feats { grid-template-columns: 1fr; }
+    .invest-grid, .io-grid { grid-template-columns: 1fr; }
+    .combo-row.final { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .doc-footer { flex-direction: column; gap: 12px; align-items: flex-start; }
+    .print-btn { bottom: 16px; right: 16px; padding: 10px 16px; font-size: 0.8rem; }
+  }
+
+  /* ══════════════════════════════════════════════
+     IMPRESIÓN — una hoja A4 por sección .page.
+     En el diálogo: Márgenes = "Ninguno" y destildar
+     "Encabezados y pies de página".
+     ══════════════════════════════════════════════ */
+  @media print {
+    @page { size: A4; margin: 0; }
+    html, body {
+      background: var(--bg) !important;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact;
+    }
+    body::before { display: none; }
+    .print-btn { display: none; }
+    .dot { display: none !important; }
+    .document { padding: 0; max-width: 100%; margin: 0; }
+
+    .page {
+      padding: 13mm 14mm;
+      page-break-after: always;
+      break-after: page;
+    }
+    .page:last-child { page-break-after: auto; break-after: auto; }
+
+    .separator { display: block; margin: 22px 0; }
+    /* La hoja A4 mide menos de 768px y dispara la regla mobile:
+       forzamos el layout de escritorio en el encabezado. */
+    .doc-header { flex-direction: row; align-items: flex-start; gap: 24px; margin-bottom: 28px; }
+    .doc-meta { text-align: right; }
+    .client-block { margin-bottom: 24px; }
+    .client-name {
+      background: none !important;
+      -webkit-text-fill-color: var(--text) !important;
+      color: var(--text) !important;
+    }
+    .section-head { margin-bottom: 16px; }
+    .mod-desc, .mod-feats, .mod-note { margin-left: 44px; }
+    .mod-feats { grid-template-columns: 1fr 1fr; }
+    .invest-grid { grid-template-columns: 1fr 1fr; margin-bottom: 12px; }
+    .io-grid { grid-template-columns: 1fr 1fr; }
+    .invest-card { padding: 22px 26px; }
+    .invest-note { margin-top: 10px; }
+    .combo { padding: 26px 28px; margin-bottom: 12px; }
+    .pay-plan { padding: 20px 26px; margin-bottom: 12px; }
+    .pay-plan .label { margin-bottom: 14px; }
+    .pay-row { padding: 9px 0; }
+    .includes { padding: 20px 26px; }
+    .includes .label { margin-bottom: 12px; }
+    .includes li { margin-bottom: 7px; }
+    .mod { margin-bottom: 12px; break-inside: avoid; page-break-inside: avoid; }
+    .table-wrap { overflow: visible; }
+    table.comp th, table.comp td { padding: 8px 8px; }
+    .invest-grid, .invest-card, .combo, .pay-plan, .includes, .terms {
+      break-inside: avoid; page-break-inside: avoid;
+    }
+    .doc-footer { flex-direction: row; align-items: center; gap: 0; margin-top: 28px; }
+    [contenteditable]:focus { outline: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<main class="document">
+
+  <!-- ═════════ HOJA 1 · PORTADA ═════════ -->
+  <section class="page">
+
+    <header class="doc-header">
+      <img class="logo" src="assets/MARCA-14.png" alt="Seim Interactive">
+      <div class="doc-meta">
+        <span class="label">Presupuesto</span>
+        <span class="doc-number" contenteditable="true">N.º 2026-060</span>
+        <span class="doc-date" contenteditable="true">4 de septiembre de 2026</span>
+      </div>
+    </header>
+
+    <section class="client-block">
+      <span class="label">Cliente</span>
+      <h1 class="client-name" contenteditable="true">Soulsbeat &amp; Picannte</h1>
+      <p class="client-contact" contenteditable="true">Dos landings a medida — booking de talentos y agencia de viajes</p>
+      <div class="badge">
+        <span class="label">Paquete</span>
+        <span class="badge-text">Los dos proyectos juntos: <b>$ 1.100.000</b> en lugar de $ 1.300.000</span>
+        <span class="dot"></span>
+      </div>
+    </section>
+
+    <section class="intro">
+      <p contenteditable="true">Gracias por la confianza. A continuación presentamos la propuesta para el desarrollo de dos sitios web independientes: <b>Soulsbeat</b>, la agencia de booking y management, y <b>Picannte</b>, la agencia de viajes.</p>
+      <p contenteditable="true">Cada proyecto se puede tomar por separado, pero al contratar los dos juntos aplicamos un descuento sobre el total: comparten el mismo proceso de diseño, la misma base técnica y una única puesta en producción, y ese ahorro de tiempo lo trasladamos al precio.</p>
+    </section>
+
+    <hr class="separator">
+
+    <div class="section-head">
+      <span class="label">Las dos propuestas</span>
+      <h2 class="section-title">Un vistazo rápido</h2>
+    </div>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">01</span><span class="mod-title">Soulsbeat · Booking &amp; Management</span></div>
+      <p class="mod-desc">Landing para mostrar el roster de talentos —DJs, actores, influencers y demás— cada uno con su perfil, su información y su vía de contacto para contratación.</p>
+    </article>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">02</span><span class="mod-title">Picannte · Agencia de viajes</span></div>
+      <p class="mod-desc">Landing para publicar packs y ofertas —hoteles, viajes, packs a fiestas, entradas de fútbol— cada uno con su información y contacto directo por WhatsApp, más un panel de administración para cargar, modificar y eliminar los ítems.</p>
+    </article>
+
+  </section>
+
+  <!-- ═════════ HOJA 2 · SOULSBEAT ═════════ -->
+  <section class="page">
+
+    <div class="section-head">
+      <span class="label">Propuesta 01 · Soulsbeat</span>
+      <h2 class="section-title">Qué incluye la web de Soulsbeat</h2>
+    </div>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">01</span><span class="mod-title">Diseño y estructura del sitio</span></div>
+      <p class="mod-desc">Sitio moderno, responsive y adaptado a móviles, con la identidad de Soulsbeat.</p>
+      <ul class="mod-feats">
+        <li>Diseño personalizado</li>
+        <li>Responsive / adaptado a móviles</li>
+        <li>Portada de presentación</li>
+        <li>Sección institucional</li>
+      </ul>
+    </article>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">02</span><span class="mod-title">Roster de talentos</span></div>
+      <p class="mod-desc">Listado de las personas representadas, agrupadas por rubro.</p>
+      <ul class="mod-feats">
+        <li>Grilla de talentos con foto</li>
+        <li>Categorías: DJs, actores, influencers</li>
+        <li>Filtro por categoría</li>
+        <li>Buscador por nombre</li>
+      </ul>
+    </article>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">03</span><span class="mod-title">Ficha del talento</span></div>
+      <p class="mod-desc">Al seleccionar a una persona se abre su ficha con la info y el contacto.</p>
+      <ul class="mod-feats">
+        <li>Foto y categoría</li>
+        <li>Descripción breve</li>
+        <li>Redes sociales</li>
+        <li>Botón de contratación</li>
+      </ul>
+    </article>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">04</span><span class="mod-title">Contacto y contratación</span></div>
+      <p class="mod-desc">Vías de contacto para contratar a un talento del roster.</p>
+      <ul class="mod-feats">
+        <li>Formulario de contratación</li>
+        <li>Talento preseleccionado</li>
+        <li>Contacto directo por WhatsApp</li>
+        <li>Redes de la agencia</li>
+      </ul>
+    </article>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">05</span><span class="mod-title">Carga inicial y puesta en producción</span></div>
+      <p class="mod-desc">Dejamos el sitio publicado y con el roster cargado, listo para compartir.</p>
+      <ul class="mod-feats">
+        <li>Carga inicial del roster</li>
+        <li>Optimización de imágenes</li>
+        <li>SEO básico y metadatos</li>
+        <li>Publicación en el dominio</li>
+      </ul>
+      <p class="mod-note">Las altas y bajas de talentos posteriores se hacen a pedido.</p>
+    </article>
+
+  </section>
+
+  <!-- ═════════ HOJA 3 · PICANNTE ═════════ -->
+  <section class="page">
+
+    <div class="section-head">
+      <span class="label">Propuesta 02 · Picannte</span>
+      <h2 class="section-title">Qué incluye la web de Picannte</h2>
+    </div>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">01</span><span class="mod-title">Diseño y estructura del sitio</span></div>
+      <p class="mod-desc">Sitio moderno, responsive y adaptado a móviles, con la identidad de Picannte.</p>
+      <ul class="mod-feats">
+        <li>Diseño personalizado</li>
+        <li>Responsive / adaptado a móviles</li>
+        <li>Portada con ofertas destacadas</li>
+        <li>Sección institucional</li>
+      </ul>
+    </article>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">02</span><span class="mod-title">Catálogo de packs y ofertas</span></div>
+      <p class="mod-desc">Listado de los ítems publicados, agrupados por rubro.</p>
+      <ul class="mod-feats">
+        <li>Grilla de packs y ofertas</li>
+        <li>Hoteles, viajes, fiestas, fútbol</li>
+        <li>Filtro por categoría</li>
+        <li>Destacados en portada</li>
+      </ul>
+    </article>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">03</span><span class="mod-title">Ficha del ítem</span></div>
+      <p class="mod-desc">Al seleccionar un pack u oferta se abre su ficha con la info y el contacto.</p>
+      <ul class="mod-feats">
+        <li>Foto y categoría</li>
+        <li>Descripción y precio</li>
+        <li>Fechas o vigencia</li>
+        <li>Botón a WhatsApp</li>
+      </ul>
+    </article>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">04</span><span class="mod-title">Panel de administración</span></div>
+      <p class="mod-desc">Panel privado para gestionar el contenido sin depender de nosotros.</p>
+      <ul class="mod-feats">
+        <li>Acceso con usuario y contraseña</li>
+        <li>Crear, modificar y eliminar ítems</li>
+        <li>Carga de imágenes</li>
+        <li>Gestión de categorías</li>
+        <li>Publicar, despublicar y destacar</li>
+        <li>Reordenar el listado</li>
+      </ul>
+      <p class="mod-note">Los cambios impactan en el sitio al instante, sin tocar código.</p>
+    </article>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">05</span><span class="mod-title">Puesta en producción y capacitación</span></div>
+      <p class="mod-desc">Dejamos el sitio publicado y al equipo usando el panel.</p>
+      <ul class="mod-feats">
+        <li>Base de datos y almacenamiento</li>
+        <li>Carga inicial de ítems</li>
+        <li>SEO básico y metadatos</li>
+        <li>Capacitación de uso del panel</li>
+      </ul>
+    </article>
+
+  </section>
+
+  <!-- ═════════ HOJA 4 · COMPARATIVA + ALCANCE ═════════ -->
+  <section class="page">
+
+    <div class="section-head">
+      <span class="label">Comparativa</span>
+      <h2 class="section-title">Qué tiene cada sitio</h2>
+    </div>
+
+    <div class="table-wrap">
+      <table class="comp">
+        <thead>
+          <tr>
+            <th class="feat-head"><span class="label">Funcionalidad</span></th>
+            <th><span class="plan-name">Soulsbeat</span><span class="plan-tag">Booking &amp; management</span><span class="plan-price">$ 500.000</span></th>
+            <th class="colhi"><span class="plan-name">Picannte</span><span class="plan-tag">Agencia de viajes</span><span class="plan-price">$ 800.000</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="group"><td colspan="3"><span class="label">Sitio público</span></td></tr>
+          <tr><td class="feat">Diseño personalizado y responsive</td><td><span class="chk">✓</span></td><td class="colhi"><span class="chk">✓</span></td></tr>
+          <tr><td class="feat">Listado con categorías y filtros</td><td><span class="txt">Roster</span></td><td class="colhi"><span class="txt">Packs y ofertas</span></td></tr>
+          <tr><td class="feat">Detalle individual</td><td><span class="txt">Ficha del talento</span></td><td class="colhi"><span class="txt">Ficha del pack</span></td></tr>
+          <tr><td class="feat">Buscador</td><td><span class="chk">✓</span></td><td class="colhi"><span class="chk">✓</span></td></tr>
+          <tr><td class="feat">Destacados en portada</td><td><span class="chk">✓</span></td><td class="colhi"><span class="chk">✓</span></td></tr>
+          <tr class="group"><td colspan="3"><span class="label">Contacto</span></td></tr>
+          <tr><td class="feat">Contacto por WhatsApp</td><td><span class="chk">✓</span></td><td class="colhi"><span class="chk">✓</span></td></tr>
+          <tr><td class="feat">Formulario de consulta por email</td><td><span class="chk">✓</span></td><td class="colhi"><span class="no">—</span></td></tr>
+          <tr class="group"><td colspan="3"><span class="label">Gestión de contenido</span></td></tr>
+          <tr><td class="feat">Panel de administración</td><td><span class="no">—</span></td><td class="colhi"><span class="chk">✓</span></td></tr>
+          <tr><td class="feat">Alta, baja y modificación por el cliente</td><td><span class="no">—</span></td><td class="colhi"><span class="chk">✓</span></td></tr>
+          <tr><td class="feat">Carga de contenido</td><td><span class="txt">La hacemos nosotros</span></td><td class="colhi"><span class="txt">Autogestionada</span></td></tr>
+          <tr><td class="feat">Base de datos</td><td><span class="no">—</span></td><td class="colhi"><span class="chk">✓</span></td></tr>
+          <tr class="invest"><td class="feat">Inversión</td><td class="val">$ 500.000</td><td class="val colhi">$ 800.000</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </section>
+
+  <!-- ═════════ HOJA 5 · INCLUYE / NO INCLUYE ═════════ -->
+  <section class="page">
+
+    <div class="section-head">
+      <span class="label">Alcance</span>
+      <h2 class="section-title">Qué incluye y qué no</h2>
+      <p class="section-sub">Aplica a los dos proyectos, salvo donde se aclara lo contrario.</p>
+    </div>
+
+    <div class="io-grid">
+      <div class="includes">
+        <span class="label">Incluye</span>
+        <ul>
+          <li>Diseño personalizado por marca</li>
+          <li>Diseño responsive</li>
+          <li>Desarrollo frontend completo</li>
+          <li>Listados con filtros y buscador</li>
+          <li>Ficha de detalle por ítem</li>
+          <li>Integración con WhatsApp</li>
+          <li>Formulario de contacto (Soulsbeat)</li>
+          <li>Panel de administración (Picannte)</li>
+          <li>Base de datos y almacenamiento de imágenes (Picannte)</li>
+          <li>Carga inicial de contenido</li>
+          <li>SEO básico y metadatos</li>
+          <li>Puesta en producción</li>
+        </ul>
+      </div>
+      <div class="includes excludes">
+        <span class="label">No incluye</span>
+        <ul>
+          <li>Compra de dominio y hosting</li>
+          <li>Producción de fotos y video</li>
+          <li>Redacción de textos y biografías</li>
+          <li>Diseño de identidad de marca / logo</li>
+          <li>Pasarela de pago o venta online</li>
+          <li>Reservas con disponibilidad en tiempo real</li>
+          <li>Integraciones con sistemas externos</li>
+          <li>Panel de administración para Soulsbeat</li>
+          <li>Campañas de pauta o marketing</li>
+          <li>Mantenimiento evolutivo posterior</li>
+        </ul>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ═════════ HOJA 6 · INVERSIÓN ═════════ -->
+  <section class="page">
+
+    <div class="section-head">
+      <span class="label">Inversión</span>
+      <h2 class="section-title">Valor de los proyectos</h2>
+    </div>
+
+    <div class="invest-grid">
+      <div class="invest-card">
+        <span class="label">Soulsbeat · por separado</span>
+        <div class="invest-amount">$ 500.000<span class="cur">ARS</span></div>
+        <p class="invest-note">Landing de booking con roster, perfiles individuales y contacto para contratación.</p>
+      </div>
+      <div class="invest-card">
+        <span class="label">Picannte · por separado</span>
+        <div class="invest-amount">$ 800.000<span class="cur">ARS</span></div>
+        <p class="invest-note">Landing de packs y ofertas con fichas, contacto por WhatsApp y panel de administración.</p>
+      </div>
+    </div>
+
+    <div class="combo">
+      <div class="combo-head">
+        <span class="combo-title">Los dos proyectos juntos</span>
+        <span class="combo-tag">Descuento por paquete</span>
+      </div>
+      <div class="combo-rows">
+        <div class="combo-row"><span class="r-label">Soulsbeat · Booking &amp; Management</span><span class="r-val">$ 500.000</span></div>
+        <div class="combo-row"><span class="r-label">Picannte · Agencia de viajes</span><span class="r-val">$ 800.000</span></div>
+        <div class="combo-row strike"><span class="r-label">Suma de ambos por separado</span><span class="r-val">$ 1.300.000</span></div>
+        <div class="combo-row save"><span class="r-label">Descuento por tomar los dos</span><span class="r-val">− $ 200.000</span></div>
+        <div class="combo-row final"><span class="r-label">Total del paquete</span><span class="r-val">$ 1.100.000<span class="cur">ARS</span></span></div>
+      </div>
+      <p class="combo-note">Un ahorro de $ 200.000 (15% sobre el total). El descuento aplica únicamente si se contratan los dos proyectos en conjunto.</p>
+    </div>
+
+  </section>
+
+  <!-- ═════════ HOJA 7 · PAGOS Y TÉRMINOS ═════════ -->
+  <section class="page">
+
+    <div class="section-head">
+      <span class="label">Condiciones</span>
+      <h2 class="section-title">Plan de pagos</h2>
+    </div>
+
+    <div class="pay-plan">
+      <span class="label">Paquete completo — $ 1.100.000</span>
+      <div class="pay-row"><span class="pay-when">Anticipo — al inicio <small>Firma y arranque del diseño</small></span><span class="pay-amount">$ 550.000</span></div>
+      <div class="pay-row"><span class="pay-when">Saldo — contra entrega <small>Entrega final y puesta en producción de ambos sitios</small></span><span class="pay-amount">$ 550.000</span></div>
+      <div class="pay-row"><span class="pay-when">Si se toma un solo proyecto <small>Mismo esquema 50% + 50% sobre el valor individual</small></span><span class="pay-amount">$ 500.000 / $ 800.000</span></div>
+    </div>
+
+    <section class="terms">
+      <span class="label">Términos</span>
+      <ul>
+        <li>Validez del presupuesto: 15 días desde la fecha de emisión.</li>
+        <li>Forma de pago: 50% al inicio del proyecto y 50% contra entrega final.</li>
+        <li>El precio de $ 1.100.000 corresponde a la contratación conjunta. Por separado, cada proyecto mantiene su valor individual de $ 500.000 y $ 800.000.</li>
+        <li>Precios en pesos argentinos (ARS), finales, por única vez y sin mantenimiento mensual incluido.</li>
+        <li>Los textos, fotos y logos de cada talento, pack u oferta los provee el cliente.</li>
+        <li>No incluye dominio, hosting ni servicios de terceros, que se cotizan aparte.</li>
+        <li>Incluye una ronda de ajustes sobre el diseño aprobado. Cambios de alcance posteriores se cotizan por separado.</li>
+      </ul>
+    </section>
+
+    <footer class="doc-footer">
+      <span>Seim Interactive · Software studio</span>
+      <span>hello@seiminteractive.io</span>
+    </footer>
+
+  </section>
+
+</main>
+
+<button class="print-btn" onclick="window.print()">Imprimir / Guardar PDF</button>
+
+</body>
+</html>

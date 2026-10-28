@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contrato — Soulsbeat &amp; Picannte · Seim Interactive & Byloa</title>
+<link rel="icon" href="assets/MARCA-14.png">
+<style>
+  :root {
+    --bg: #000000;
+    --text: #ffffff;
+    --accent-cyan: #AFE3E8;
+    --text-08: rgba(255,255,255,0.8);
+    --text-06: rgba(255,255,255,0.6);
+    --text-04: rgba(255,255,255,0.4);
+    --text-025: rgba(255,255,255,0.25);
+    --border-sutil: rgba(255,255,255,0.08);
+    --border-medio: rgba(255,255,255,0.15);
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-weight: 300;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 100% 0%, rgba(175,227,232,0.07), transparent 55%),
+      radial-gradient(ellipse 60% 50% at 0% 100%, rgba(175,227,232,0.04), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .document {
+    position: relative;
+    z-index: 1;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 72px 60px 120px;
+  }
+
+  .label {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-04);
+  }
+
+  /* ── Encabezado con las dos marcas ── */
+  .doc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border-sutil);
+    margin-bottom: 36px;
+  }
+
+  .brands { display: flex; align-items: center; gap: 18px; }
+  /* Seim es apaisado (6:1) y Byloa casi cuadrado (2.25:1): se igualan
+     por altura óptica, no por altura de caja, para que pesen parejo. */
+  .brands .logo-seim { height: 28px; width: auto; opacity: 0.95; }
+  .brands .logo-byloa { height: 32px; width: auto; opacity: 0.95; }
+  .brands .brand-sep { width: 1px; height: 28px; background: var(--border-medio); }
+
+  .doc-meta { text-align: right; display: flex; flex-direction: column; gap: 6px; }
+  .doc-meta .doc-number,
+  .doc-meta .doc-date { font-size: 0.85rem; color: var(--text-06); outline: none; }
+  .doc-meta .doc-number { color: var(--text); font-weight: 400; }
+
+  /* ── Título ── */
+  .title-block { margin-bottom: 38px; }
+  .contract-title {
+    font-size: clamp(2rem, 4.5vw, 2.8rem);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-top: 14px;
+    background: linear-gradient(to right, #fff 0%, rgba(255,255,255,0.9) 60%, var(--accent-cyan) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    outline: none;
+  }
+  .contract-sub { font-size: 0.95rem; color: var(--text-06); margin-top: 12px; outline: none; }
+
+  /* ── Partes ── */
+  .parties { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 38px; }
+  .party {
+    padding: 22px 26px;
+    border: 1px solid var(--border-sutil);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.015);
+  }
+  .party .label { margin-bottom: 12px; }
+  .party-name { font-size: 1.05rem; font-weight: 400; color: var(--text); outline: none; }
+  .party-data { font-size: 0.85rem; color: var(--text-06); margin-top: 6px; line-height: 1.6; outline: none; }
+
+  /* ── Cláusulas ── */
+  .clause { margin-bottom: 34px; }
+  .clause-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 16px; }
+  .clause-num {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    color: var(--accent-cyan);
+    min-width: 30px;
+  }
+  .clause-title { font-size: 1.18rem; font-weight: 400; letter-spacing: -0.01em; }
+  .clause-body { margin-left: 44px; }
+  .clause-text { font-size: 0.92rem; line-height: 1.65; color: var(--text-08); outline: none; }
+  .clause-text + .clause-text { margin-top: 14px; }
+
+  /* Listado de funcionalidades: dos columnas para ganar altura */
+  .feats {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 26px;
+    margin-top: 16px;
+  }
+  .feats li {
+    position: relative;
+    padding-left: 20px;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--text-06);
+    outline: none;
+  }
+  .feats li::before {
+    content: "◇";
+    position: absolute;
+    left: 0;
+    top: 2px;
+    color: var(--accent-cyan);
+    font-size: 0.72rem;
+  }
+
+  /* ── Plan de pagos ── */
+  .pay-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--border-sutil);
+  }
+  .pay-row:last-child { border-bottom: 0; }
+  .pay-when { font-size: 0.92rem; color: var(--text-08); }
+  .pay-when small { display: block; font-size: 0.78rem; color: var(--text-04); margin-top: 3px; }
+  .pay-amount { font-size: 1.1rem; font-weight: 400; white-space: nowrap; }
+
+  .total-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 18px 24px;
+    margin-top: 18px;
+    border: 1px solid var(--border-medio);
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(175,227,232,0.06), rgba(255,255,255,0.01));
+  }
+  .total-line .label { margin: 0; }
+  .total-amount { font-size: 1.5rem; font-weight: 300; letter-spacing: -0.02em; }
+  .total-amount .editable { outline: none; border-bottom: 1px dashed var(--text-025); padding: 0 2px; }
+  .total-amount .editable:focus { border-bottom-color: var(--accent-cyan); }
+  .total-amount .cur { font-size: 0.8rem; color: var(--text-04); letter-spacing: 0.05em; margin-left: 6px; }
+
+  /* ── Condiciones ── */
+  .conds { list-style: none; }
+  .conds li {
+    position: relative;
+    padding-left: 22px;
+    margin-bottom: 13px;
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: var(--text-06);
+    outline: none;
+  }
+  .conds li:last-child { margin-bottom: 0; }
+  .conds li::before {
+    content: "◇";
+    position: absolute;
+    left: 0;
+    top: 2px;
+    color: var(--accent-cyan);
+    font-size: 0.72rem;
+  }
+
+  /* ── Firmas ── */
+  .signatures {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border-sutil);
+  }
+  .sign-box { display: flex; flex-direction: column; }
+  .sign-line { height: 54px; border-bottom: 1px solid var(--border-medio); }
+  .sign-name { font-size: 0.9rem; color: var(--text-08); margin-top: 12px; outline: none; }
+  .sign-role { font-size: 0.78rem; color: var(--text-04); margin-top: 3px; }
+
+  /* Encabezado corto que identifica la hoja 2 (el logo no se repite) */
+  .running-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-sutil);
+    margin-bottom: 38px;
+    font-size: 0.78rem;
+    color: var(--text-04);
+    letter-spacing: 0.02em;
+  }
+  .running-head .rh-client { color: var(--text-06); outline: none; }
+
+  .doc-footer {
+    margin-top: 44px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-sutil);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-04);
+  }
+
+  .print-btn {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 100;
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border-medio);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 4px 16px rgba(0,0,0,0.4);
+  }
+  .print-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--accent-cyan); }
+
+  /* ── Funcionalidades agrupadas por sitio ──
+     Son dos proyectos distintos, así que en vez de una sola grilla
+     corrida se usa una columna por sitio: cada ítem queda bajo su
+     marca y no se intercalan al fluir la grilla. ── */
+  .feats-split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 26px; margin-top: 18px; }
+  .feats-cap {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-cyan);
+    margin-bottom: 10px;
+  }
+  .feats-list { list-style: none; }
+  .feats-list li {
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 8px;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--text-06);
+  }
+  .feats-list li:last-child { margin-bottom: 0; }
+  .feats-list li::before {
+    content: "◇";
+    position: absolute;
+    left: 0;
+    top: 2px;
+    color: var(--accent-cyan);
+    font-size: 0.72rem;
+  }
+  .feats-shared { margin-top: 18px; color: var(--text-06) !important; }
+
+  @media (max-width: 768px) { .feats-split { grid-template-columns: 1fr; } }
+  @media print { .feats-split { grid-template-columns: 1fr 1fr; break-inside: avoid; } }
+
+  /* Separación entre hojas sólo en pantalla, para que se vean como hojas */
+  .page + .page {
+    margin-top: 56px;
+    padding-top: 56px;
+    border-top: 1px solid var(--border-sutil);
+  }
+
+  @media (max-width: 768px) {
+    .document { padding: 40px 22px 80px; }
+    .doc-header { flex-direction: column; gap: 22px; }
+    .doc-meta { text-align: left; }
+    .parties, .feats, .signatures { grid-template-columns: 1fr; }
+    .clause-body { margin-left: 0; }
+    .doc-footer { flex-direction: column; gap: 10px; align-items: flex-start; }
+    .print-btn { bottom: 16px; right: 16px; padding: 10px 16px; }
+  }
+
+  /* ══════════════════════════════════════════════
+     IMPRESIÓN — una hoja A4 por cada sección .page.
+     El contrato está pensado en dos hojas y con aire:
+     si se agrega contenido, conviene mover cláusulas
+     de una .page a otra antes que apretar el interlineado.
+     En el diálogo: Márgenes = "Ninguno" y destildar
+     "Encabezados y pies de página".
+     ══════════════════════════════════════════════ */
+  @media print {
+    @page { size: A4; margin: 0; }
+
+    html, body {
+      background: var(--bg) !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      color-adjust: exact;
+    }
+
+    body::before, .print-btn { display: none; }
+    .document { padding: 0; max-width: 100%; margin: 0; }
+
+    .page {
+      padding: 16mm 15mm;
+      page-break-after: always;
+      break-after: page;
+    }
+    .page:last-child { page-break-after: auto; break-after: auto; }
+    .page + .page { margin-top: 0; padding-top: 16mm; border-top: 0; }
+
+    /* La A4 mide menos de 768px y dispararía el layout mobile:
+       se fuerza el de escritorio para conservar las dos columnas. */
+    .doc-header { flex-direction: row; }
+    .doc-meta { text-align: right; }
+    .parties, .feats, .signatures { grid-template-columns: 1fr 1fr; }
+    .clause-body { margin-left: 44px; }
+    .doc-footer { flex-direction: row; }
+
+    /* El degradado recortado al texto se rompe en PDF: blanco sólido. */
+    .contract-title {
+      background: none !important;
+      -webkit-text-fill-color: var(--text) !important;
+      color: var(--text) !important;
+      font-size: 2.2rem;
+    }
+
+    .clause, .parties, .party, .signatures, .total-line, .feats {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .total-amount .editable { border-bottom: none; }
+    [contenteditable]:focus { outline: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!--
+  ════════════════════════════════════════════════════════════
+  PLANTILLA DE CONTRATO — SEIM INTERACTIVE & BYLOA
+  ════════════════════════════════════════════════════════════
+  1. Copiar:  cp _template.html nombre-cliente.html
+  2. Abrir con doble click y editar en pantalla (todo el
+     documento es contenteditable).
+  3. El monto total se escribe una sola vez en "Precio total":
+     las tres cuotas (50% / 25% / 25%) se calculan solas.
+  4. Ctrl+P o el botón inferior derecho para guardar el PDF.
+     Márgenes = "Ninguno", sin encabezados ni pies.
+
+  Cada <section class="page"> es una hoja A4. El contrato está
+  armado en dos hojas y con aire: si se agrega mucho contenido,
+  mover cláusulas de una hoja a la otra (o sumar una tercera
+  .page) antes que achicar tipografías o interlineados.
+
+  Marcadores: [CLIENTE] [PROYECTO] [NUMERO] [FECHA]
+              [CLIENTE-DATOS] [PLAZO] [FIRMANTE-CLIENTE]
+  ════════════════════════════════════════════════════════════
+-->
+
+<main class="document">
+
+  <!-- ═════════ HOJA 1 · PARTES Y OBJETO ═════════ -->
+  <section class="page">
+
+    <header class="doc-header">
+      <div class="brands">
+        <img class="logo-seim" src="assets/MARCA-14.png" alt="Seim Interactive">
+        <span class="brand-sep"></span>
+        <img class="logo-byloa" src="assets/logoByloa.png" alt="Byloa Agency">
+      </div>
+      <div class="doc-meta">
+        <span class="label">Contrato</span>
+        <span class="doc-number" contenteditable="true">N.º C-2026-001</span>
+        <span class="doc-date" contenteditable="true">11 de septiembre de 2026</span>
+      </div>
+    </header>
+
+    <div class="title-block">
+      <span class="label">Contrato de desarrollo</span>
+      <h1 class="contract-title" contenteditable="true">Soulsbeat &amp; Picannte</h1>
+      <p class="contract-sub" contenteditable="true">Dos landings a medida — booking de talentos y agencia de viajes · Ref. presupuesto N.º 2026-060</p>
+    </div>
+
+    <div class="parties">
+      <div class="party">
+        <span class="label">Prestador</span>
+        <div class="party-name" contenteditable="true">Seim Interactive &amp; Byloa</div>
+        <div class="party-data" contenteditable="true">hello@seiminteractive.io</div>
+      </div>
+      <div class="party">
+        <span class="label">Cliente</span>
+        <div class="party-name" contenteditable="true">Soulsbeat &amp; Picannte</div>
+        <div class="party-data" contenteditable="true">soulsbeatpro@gmail.com</div>
+      </div>
+    </div>
+
+    <article class="clause">
+      <div class="clause-head"><span class="clause-num">01</span><span class="clause-title">Objeto y funcionalidades</span></div>
+      <div class="clause-body">
+        <p class="clause-text" contenteditable="true">El Prestador desarrollará para el Cliente dos sitios web independientes, que comprenden las siguientes funcionalidades:</p>
+        <div class="feats-split" contenteditable="true">
+          <div class="feats-col">
+            <span class="feats-cap">Soulsbeat · Booking &amp; Management</span>
+            <ul class="feats-list">
+              <li>Diseño a medida y responsive</li>
+              <li>Roster de talentos por categoría</li>
+              <li>Ficha de talento con redes</li>
+              <li>Contacto de contratación</li>
+            </ul>
+          </div>
+          <div class="feats-col">
+            <span class="feats-cap">Picannte · Agencia de viajes</span>
+            <ul class="feats-list">
+              <li>Diseño a medida y responsive</li>
+              <li>Catálogo de packs y ofertas</li>
+              <li>Ficha con precio y vigencia</li>
+              <li>Panel de administración de contenido</li>
+            </ul>
+          </div>
+        </div>
+        <p class="clause-text feats-shared" contenteditable="true">En ambos sitios: contacto directo por WhatsApp, SEO básico y metadatos, puesta en producción y capacitación de uso del panel.</p>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- ═════════ HOJA 2 · REVISIONES Y PAGOS ═════════ -->
+  <section class="page">
+
+    <div class="running-head">
+      <span>Contrato de desarrollo · <span class="rh-client" contenteditable="true">Soulsbeat &amp; Picannte</span></span>
+      <span contenteditable="true">N.º C-2026-001</span>
+    </div>
+
+    <article class="clause">
+      <div class="clause-head"><span class="clause-num">02</span><span class="clause-title">Revisiones y plazos</span></div>
+      <div class="clause-body">
+        <p class="clause-text" contenteditable="true">El Cliente dispone de <b>3 (tres) rondas de revisión</b> incluidas sobre el trabajo entregado. Las revisiones adicionales, o cualquier pedido que amplíe las funcionalidades de la cláusula 01, se presupuestan por separado.</p>
+        <p class="clause-text" contenteditable="true">Plazo estimado de entrega: <b>15 días</b>, contado desde la acreditación del pago inicial y la recepción de los materiales a cargo del Cliente.</p>
+      </div>
+    </article>
+
+    <article class="clause">
+      <div class="clause-head"><span class="clause-num">03</span><span class="clause-title">Precio y forma de pago</span></div>
+      <div class="clause-body">
+        <div class="pay-row">
+          <span class="pay-when">Pago inicial — 50% <small>A la firma del contrato, para iniciar el trabajo</small></span>
+          <span class="pay-amount" data-share="50">—</span>
+        </div>
+        <div class="pay-row">
+          <span class="pay-when">Contra entrega — 25% <small>Al entregarse el trabajo finalizado</small></span>
+          <span class="pay-amount" data-share="25">—</span>
+        </div>
+        <div class="pay-row">
+          <span class="pay-when">A 30 días — 25% <small>Treinta días corridos después de la entrega</small></span>
+          <span class="pay-amount" data-share="25">—</span>
+        </div>
+        <div class="total-line">
+          <span class="label">Precio total</span>
+          <span class="total-amount">$ <span class="editable" contenteditable="true" data-total>1.100.000</span><span class="cur">ARS</span></span>
+        </div>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- ═════════ HOJA 3 · CONDICIONES Y FIRMAS ═════════ -->
+  <section class="page">
+
+    <div class="running-head">
+      <span>Contrato de desarrollo · <span class="rh-client" contenteditable="true">Soulsbeat &amp; Picannte</span></span>
+      <span contenteditable="true">N.º C-2026-001</span>
+    </div>
+
+    <article class="clause">
+      <div class="clause-head"><span class="clause-num">04</span><span class="clause-title">Condiciones generales</span></div>
+      <div class="clause-body">
+        <ul class="conds" contenteditable="true">
+          <li>El precio corresponde a la contratación conjunta; por separado valen $ 500.000 y $ 800.000.</li>
+          <li>Soulsbeat no incluye panel de administración: las altas y bajas de talentos se hacen a pedido.</li>
+          <li>El Cliente provee los textos, fotos y logos. Las demoras en su entrega extienden el plazo.</li>
+          <li>No se incluyen dominio, hosting, pasarela de pago ni servicios de terceros, que se abonan aparte.</li>
+          <li>La propiedad se transfiere al Cliente con el pago total; el Prestador puede exhibir el trabajo en su portfolio.</li>
+          <li>Ambas partes mantendrán la confidencialidad de la información del proyecto.</li>
+          <li>No se incluye mantenimiento evolutivo posterior; puede contratarse por separado.</li>
+        </ul>
+      </div>
+    </article>
+
+    <div class="signatures">
+      <div class="sign-box">
+        <span class="sign-line"></span>
+        <span class="sign-name" contenteditable="true">Seim Interactive &amp; Byloa</span>
+        <span class="sign-role">Prestador</span>
+      </div>
+      <div class="sign-box">
+        <span class="sign-line"></span>
+        <span class="sign-name" contenteditable="true">Soulsbeat &amp; Picannte</span>
+        <span class="sign-role">Cliente</span>
+      </div>
+    </div>
+
+    <footer class="doc-footer">
+      <span>Seim Interactive &amp; Byloa</span>
+      <span>hello@seiminteractive.io</span>
+    </footer>
+
+  </section>
+
+</main>
+
+<button class="print-btn" onclick="window.print()">Imprimir / Guardar PDF</button>
+
+<script>
+  (function () {
+    const totalEl = document.querySelector('[data-total]');
+    const fmt = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 });
+
+    const parse = (text) => parseInt(String(text).replace(/[^\d]/g, ''), 10) || 0;
+
+    function recalc() {
+      const total = parse(totalEl.textContent);
+      document.querySelectorAll('.pay-amount[data-share]').forEach(el => {
+        const share = parseInt(el.dataset.share, 10) / 100;
+        el.textContent = total ? '$ ' + fmt.format(Math.round(total * share)) : '—';
+      });
+    }
+
+    totalEl.addEventListener('input', recalc);
+    recalc();
+  })();
+</script>
+
+</body>
+</html>

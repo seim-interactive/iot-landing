@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Propuesta — Gastón Edul · Censo Nacional de Hinchas · Seim Interactive</title>
+<link rel="icon" href="assets/MARCA-14.png">
+<style>
+  :root {
+    --bg: #000000;
+    --text: #ffffff;
+    --accent-cyan: #AFE3E8;
+    --text-08: rgba(255,255,255,0.8);
+    --text-06: rgba(255,255,255,0.6);
+    --text-04: rgba(255,255,255,0.4);
+    --border-sutil: rgba(255,255,255,0.08);
+    --border-medio: rgba(255,255,255,0.15);
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-weight: 300;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 100% 0%, rgba(175,227,232,0.07), transparent 55%),
+      radial-gradient(ellipse 60% 50% at 0% 100%, rgba(175,227,232,0.04), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .document {
+    position: relative;
+    z-index: 1;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 72px 60px 120px;
+  }
+
+  .page + .page { margin-top: 56px; }
+
+  .label {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-04);
+  }
+
+  .separator {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    margin: 48px 0;
+    border: 0;
+  }
+
+  .doc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 56px;
+  }
+
+  .logo { height: 28px; width: auto; opacity: 0.95; }
+
+  .doc-meta {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .doc-number,
+  .doc-date {
+    font-size: 0.85rem;
+    color: var(--text-06);
+    font-weight: 300;
+    outline: none;
+  }
+
+  .doc-number { color: var(--text); font-weight: 400; }
+  .client-block { margin-bottom: 44px; }
+
+  .client-name {
+    font-size: clamp(2.4rem, 5vw, 3.5rem);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-top: 16px;
+    margin-bottom: 20px;
+    background: linear-gradient(to right, #fff 0%, rgba(255,255,255,0.9) 65%, var(--accent-cyan) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    outline: none;
+  }
+
+  .client-contact {
+    font-size: 0.95rem;
+    color: var(--text-06);
+    outline: none;
+  }
+
+  .intro {
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: var(--text-08);
+    max-width: 700px;
+    outline: none;
+  }
+
+  .intro p + p { margin-top: 14px; }
+  .section-head { margin-bottom: 24px; }
+
+  .section-title {
+    font-size: clamp(1.6rem, 3.5vw, 2.1rem);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-top: 14px;
+  }
+
+  .section-sub {
+    font-size: 0.98rem;
+    color: var(--text-06);
+    max-width: 640px;
+    margin-top: 12px;
+  }
+
+  .block-gap { margin-top: 40px; }
+
+  /* Tarjetas del modelo de colaboración */
+  .model-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .model-card {
+    padding: 24px 26px;
+    border: 1px solid var(--border-medio);
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(175,227,232,0.04), rgba(255,255,255,0.01));
+  }
+
+  .model-card .label { margin-bottom: 10px; }
+
+  .model-title {
+    font-size: 1.15rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+
+  .model-desc {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--text-06);
+  }
+
+  /* Datos clave del alcance */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .stat {
+    padding: 18px 18px 16px;
+    border: 1px solid var(--border-sutil);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.015);
+  }
+
+  .stat-val {
+    font-size: 1.45rem;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--text);
+  }
+
+  .stat-desc {
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--text-06);
+    margin-top: 8px;
+  }
+
+  /* Pasos del flujo de usuario */
+  .mod {
+    position: relative;
+    padding: 16px 24px;
+    border: 1px solid var(--border-sutil);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.015);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+
+  .mod::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
+  }
+
+  .mod-top {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 4px;
+  }
+
+  .mod-num {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    color: var(--accent-cyan);
+    min-width: 30px;
+  }
+
+  .mod-title {
+    font-size: 1.05rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  .mod-desc {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--text-08);
+    margin-left: 44px;
+  }
+
+  /* Grilla de características (seguridad / privacidad / tecnología) */
+  .feat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .feat {
+    position: relative;
+    padding: 16px 20px;
+    border: 1px solid var(--border-sutil);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.015);
+    overflow: hidden;
+  }
+
+  .feat::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
+  }
+
+  .feat-title {
+    font-size: 0.95rem;
+    font-weight: 400;
+    margin-bottom: 4px;
+  }
+
+  .feat-title::before {
+    content: "◇";
+    color: var(--accent-cyan);
+    font-size: 0.72rem;
+    margin-right: 8px;
+    position: relative;
+    top: -1px;
+  }
+
+  .feat-desc {
+    font-size: 0.83rem;
+    line-height: 1.55;
+    color: var(--text-06);
+  }
+
+  .feat.wide { grid-column: 1 / -1; }
+
+  .io-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .includes {
+    padding: 22px 26px;
+    border: 1px solid var(--border-sutil);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.015);
+  }
+
+  .includes .label { margin-bottom: 14px; }
+  .includes ul, .terms ul { list-style: none; }
+
+  .includes li,
+  .terms li {
+    position: relative;
+    padding-left: 22px;
+    margin-bottom: 8px;
+    font-size: 0.87rem;
+    line-height: 1.55;
+    color: var(--text-06);
+  }
+
+  .includes li::before,
+  .terms li::before {
+    content: "◇";
+    position: absolute;
+    left: 0;
+    top: 1px;
+    color: var(--accent-cyan);
+    font-size: 0.72rem;
+  }
+
+  .includes.excludes li::before {
+    content: "\2715";
+    color: var(--text-04);
+  }
+
+  /* Costos */
+  .invest-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .invest-card {
+    padding: 28px 30px;
+    border: 1px solid var(--border-medio);
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(175,227,232,0.04), rgba(255,255,255,0.01));
+  }
+
+  .invest-card.soft {
+    border-color: var(--border-sutil);
+    background: rgba(255,255,255,0.015);
+  }
+
+  .invest-card .label { margin-bottom: 14px; }
+
+  .invest-amount {
+    font-size: 2.1rem;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+
+  .invest-amount .cur {
+    font-size: 0.85rem;
+    color: var(--text-04);
+    letter-spacing: 0.05em;
+    margin-left: 6px;
+  }
+
+  .invest-note {
+    font-size: 0.85rem;
+    color: var(--text-06);
+    margin-top: 14px;
+    line-height: 1.6;
+  }
+
+  .pay-plan {
+    padding: 22px 30px;
+    border: 1px solid var(--border-sutil);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.015);
+    margin-bottom: 16px;
+  }
+
+  .pay-plan .label { margin-bottom: 12px; }
+
+  .pay-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-sutil);
+  }
+
+  .pay-row:last-child { border-bottom: 0; }
+  .pay-when { font-size: 0.92rem; color: var(--text-08); }
+  .pay-when small { display: block; font-size: 0.75rem; color: var(--text-04); margin-top: 2px; }
+  .pay-amount { font-size: 1.1rem; font-weight: 400; white-space: nowrap; }
+  .pay-row.hi .pay-amount { color: var(--accent-cyan); }
+  .pay-row.muted .pay-amount { color: var(--text-06); }
+
+  .terms .label { margin-bottom: 16px; }
+  .terms li { margin-bottom: 10px; font-size: 0.9rem; line-height: 1.65; }
+
+  .closing {
+    padding: 26px 30px;
+    border: 1px solid var(--border-medio);
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(175,227,232,0.05), rgba(255,255,255,0.01));
+  }
+
+  .closing .label { margin-bottom: 12px; }
+
+  .closing p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--text-08);
+  }
+
+  .closing p + p { margin-top: 10px; }
+
+  .doc-footer {
+    margin-top: 36px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-sutil);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-04);
+  }
+
+  .print-btn {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 100;
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border-medio);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 0.85rem;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 4px 16px rgba(0,0,0,0.4);
+  }
+
+  .print-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--accent-cyan); }
+
+  @media (max-width: 768px) {
+    .document { padding: 48px 24px 80px; }
+    .doc-header { flex-direction: column; gap: 32px; }
+    .doc-meta { text-align: left; }
+    .mod-desc { margin-left: 0; }
+    .model-grid, .feat-grid, .io-grid, .invest-grid { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: 1fr 1fr; }
+    .doc-footer { flex-direction: column; gap: 12px; align-items: flex-start; }
+    .print-btn { bottom: 16px; right: 16px; padding: 10px 16px; }
+  }
+
+  @media print {
+    @page { size: A4; margin: 0; }
+
+    html, body {
+      background: var(--bg) !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      color-adjust: exact;
+    }
+
+    body::before, .print-btn { display: none; }
+    .document { padding: 0; max-width: 100%; margin: 0; }
+
+    .page {
+      padding: 13mm 14mm;
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .page + .page { margin-top: 0; }
+    .page:last-child { page-break-after: auto; break-after: auto; }
+    .doc-header { flex-direction: row; margin-bottom: 24px; }
+    .doc-meta { text-align: right; }
+    .client-block { margin-bottom: 22px; }
+
+    .client-name {
+      background: none !important;
+      -webkit-text-fill-color: var(--text) !important;
+      color: var(--text) !important;
+    }
+
+    .intro { font-size: 0.98rem; line-height: 1.65; }
+    .intro p + p { margin-top: 10px; }
+    .separator { margin: 20px 0; }
+    .block-gap { margin-top: 20px; }
+    .section-head { margin-bottom: 14px; }
+    .section-sub { margin-top: 8px; }
+    .model-grid { grid-template-columns: 1fr 1fr; }
+    .model-card { padding: 20px 22px; }
+    .stats { grid-template-columns: repeat(4, 1fr); }
+    .stat { padding: 14px 16px; }
+    .mod { padding: 10px 22px; margin-bottom: 7px; }
+    .mod-top { margin-bottom: 1px; }
+    .mod-desc { font-size: 0.84rem; }
+    .mod-desc { margin-left: 44px; }
+    .feat-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .feat { padding: 11px 16px; }
+    .feat-desc { font-size: 0.8rem; line-height: 1.5; }
+    .io-grid { grid-template-columns: 1fr 1fr; margin-top: 12px; }
+    .includes { padding: 18px 22px; }
+    .includes li { margin-bottom: 6px; }
+    .invest-grid { grid-template-columns: 1.3fr 1fr; margin-bottom: 12px; }
+    .invest-card { padding: 22px 24px; }
+    .pay-plan { padding: 16px 26px; margin-bottom: 12px; }
+    .pay-row { padding: 8px 0; }
+    .terms li { margin-bottom: 7px; font-size: 0.86rem; line-height: 1.55; }
+    .closing { padding: 20px 24px; }
+    .model-card, .stat, .mod, .feat, .io-grid, .includes, .invest-grid, .invest-card, .pay-plan, .terms, .closing {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .doc-footer { flex-direction: row; margin-top: 20px; }
+    [contenteditable]:focus { outline: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<main class="document">
+
+  <!-- Página 1 · Presentación y modelo -->
+  <section class="page">
+    <header class="doc-header">
+      <img class="logo" src="assets/MARCA-14.png" alt="Seim Interactive">
+      <div class="doc-meta">
+        <span class="label">Propuesta</span>
+        <span class="doc-number" contenteditable="true">N.º 2026-062</span>
+        <span class="doc-date" contenteditable="true">18 de octubre de 2026</span>
+      </div>
+    </header>
+
+    <section class="client-block">
+      <span class="label">Para</span>
+      <h1 class="client-name" contenteditable="true">Gastón Edul</h1>
+      <p class="client-contact" contenteditable="true">Censo Nacional de Hinchas — propuesta de colaboración</p>
+    </section>
+
+    <section class="intro">
+      <p contenteditable="true">Queremos construir el <b>Censo Nacional de Hinchas de Fútbol</b>: una web donde todos los argentinos puedan declarar de qué equipo son hinchas, con validación de identidad, resistente al fraude masivo y respetuosa de la privacidad.</p>
+      <p contenteditable="true">La idea es simple de usar y seria en lo técnico. Lo que buscamos es alguien con llegada y credibilidad en el fútbol que la impulse, la difunda y nos ayude a sumar patrocinadores.</p>
+    </section>
+
+    <hr class="separator">
+
+    <div class="section-head">
+      <span class="label">El modelo</span>
+      <h2 class="section-title">Cómo planteamos la colaboración</h2>
+    </div>
+
+    <div class="model-grid">
+      <div class="model-card">
+        <span class="label">Desarrollo</span>
+        <h3 class="model-title">No cobramos por desarrollar la plataforma</h3>
+        <p class="model-desc">Lo hacemos por posicionamiento y publicidad: a cambio, buscamos ser reconocidos públicamente como el equipo que desarrolló la app.</p>
+      </div>
+      <div class="model-card">
+        <span class="label">Infraestructura</span>
+        <h3 class="model-title">Solo hay que financiar los servidores</h3>
+        <p class="model-desc">Los costos de infraestructura son bajos para la escala del proyecto y se pueden cubrir con patrocinadores.</p>
+      </div>
+    </div>
+
+    <div class="section-head block-gap">
+      <span class="label">Alcance</span>
+      <h2 class="section-title">Quiénes pueden participar</h2>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-val">30 M</div>
+        <p class="stat-desc">Escala prevista: hasta 30 millones de participantes.</p>
+      </div>
+      <div class="stat">
+        <div class="stat-val">1 DNI</div>
+        <p class="stat-desc">Un DNI, un voto.</p>
+      </div>
+      <div class="stat">
+        <div class="stat-val">Familias</div>
+        <p class="stat-desc">Abierto a menores: un adulto puede registrar a sus hijos desde su cuenta.</p>
+      </div>
+      <div class="stat">
+        <div class="stat-val">Argentinos</div>
+        <p class="stat-desc">Haber nacido en Argentina se pide como declaración jurada.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Página 2 · Experiencia y seguridad -->
+  <section class="page">
+    <div class="section-head">
+      <span class="label">Experiencia</span>
+      <h2 class="section-title">Cómo funciona para el usuario</h2>
+      <p class="section-sub">Un flujo corto, pensado para hacerse desde el celular en pocos minutos.</p>
+    </div>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">01</span><span class="mod-title">Inicia sesión con Google</span></div>
+      <p class="mod-desc">Usa su cuenta de Google, sin crear usuario ni contraseña nuevos.</p>
+    </article>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">02</span><span class="mod-title">Escanea el frente de su DNI</span></div>
+      <p class="mod-desc">Con la cámara del celular, en vivo.</p>
+    </article>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">03</span><span class="mod-title">Los datos se completan solos</span></div>
+      <p class="mod-desc">El sistema lee el código de barras del DNI y completa la información automáticamente.</p>
+    </article>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">04</span><span class="mod-title">Elige su equipo y vota</span></div>
+      <p class="mod-desc">Un único voto por DNI.</p>
+    </article>
+
+    <article class="mod">
+      <div class="mod-top"><span class="mod-num">05</span><span class="mod-title">Resultados con metodología a la vista</span></div>
+      <p class="mod-desc">Los resultados se publican periódicamente, junto con la metodología utilizada.</p>
+    </article>
+
+    <div class="section-head block-gap">
+      <span class="label">Seguridad</span>
+      <h2 class="section-title">Resistente al fraude, sin costo por voto</h2>
+      <p class="section-sub">Varias capas que se combinan para que el fraude masivo sea caro, detectable y reversible. Se publican la metodología y cuántos votos se anularon.</p>
+    </div>
+
+    <div class="feat-grid">
+      <div class="feat">
+        <div class="feat-title">Login con Google</div>
+        <p class="feat-desc">Crear miles de cuentas reales es difícil, y cada cuenta puede registrar pocos DNIs (una familia).</p>
+      </div>
+      <div class="feat">
+        <div class="feat-title">Escaneo obligatorio en vivo</div>
+        <p class="feat-desc">Lectura del código de barras del DNI con la cámara en vivo.</p>
+      </div>
+      <div class="feat">
+        <div class="feat-title">Chequeos de coherencia</div>
+        <p class="feat-desc">Entre los datos del código (DNI, trámite, nombre, sexo, nacimiento, ejemplar, emisión) y el número impreso.</p>
+      </div>
+      <div class="feat">
+        <div class="feat-title">Imágenes repetidas</div>
+        <p class="feat-desc">Detección de imágenes duplicadas para identificar falsificaciones en masa.</p>
+      </div>
+      <div class="feat">
+        <div class="feat-title">Barreras contra bots</div>
+        <p class="feat-desc">Captcha invisible, prueba de trabajo en el navegador y límites por red y dispositivo.</p>
+      </div>
+      <div class="feat">
+        <div class="feat-title">Cuarentena y reclamos</div>
+        <p class="feat-desc">Cuarentena silenciosa de votos sospechosos, detección de patrones anormales y reclamo si alguien usó tu DNI.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Página 3 · Privacidad, tecnología y limitaciones -->
+  <section class="page">
+    <div class="section-head">
+      <span class="label">Privacidad</span>
+      <h2 class="section-title">El voto es anónimo</h2>
+      <p class="section-sub">Pensado desde el inicio para cuidar los datos de cada participante.</p>
+    </div>
+
+    <div class="feat-grid">
+      <div class="feat">
+        <div class="feat-title">No se guarda el DNI</div>
+        <p class="feat-desc">Ni ningún dato personal: solo un hash criptográfico que permite detectar duplicados sin saber de quién es.</p>
+      </div>
+      <div class="feat">
+        <div class="feat-title">Identidad y voto separados</div>
+        <p class="feat-desc">Se guardan por separado, de modo que el voto queda anónimo.</p>
+      </div>
+      <div class="feat">
+        <div class="feat-title">Imágenes descartadas</div>
+        <p class="feat-desc">Las imágenes del DNI se procesan y se descartan en el momento.</p>
+      </div>
+      <div class="feat">
+        <div class="feat-title">Marco legal</div>
+        <p class="feat-desc">Diseñado para cumplir la Ley 25.326 de Protección de Datos Personales.</p>
+      </div>
+    </div>
+
+    <div class="section-head block-gap">
+      <span class="label">Tecnología</span>
+      <h2 class="section-title">Preparada para los picos de tráfico</h2>
+      <p class="section-sub">La plataforma escala automáticamente cuando la difusión genera picos de participación.</p>
+    </div>
+
+    <div class="feat-grid">
+      <div class="feat">
+        <div class="feat-title">Login con Google</div>
+        <p class="feat-desc">Autenticación conocida y confiable para el usuario.</p>
+      </div>
+      <div class="feat">
+        <div class="feat-title">Lectura en el celular</div>
+        <p class="feat-desc">El DNI se lee en el dispositivo del usuario.</p>
+      </div>
+      <div class="feat">
+        <div class="feat-title">Cloudflare</div>
+        <p class="feat-desc">Capa de entrada: CDN, protección DDoS y captcha.</p>
+      </div>
+      <div class="feat">
+        <div class="feat-title">Amazon Web Services</div>
+        <p class="feat-desc">Servidor y base de datos, con escalado automático.</p>
+      </div>
+    </div>
+
+    <div class="section-head block-gap">
+      <span class="label">Limitaciones</span>
+      <h2 class="section-title">Lo que conviene saber</h2>
+      <p class="section-sub">Preferimos plantearlo desde el principio.</p>
+    </div>
+
+    <div class="io-grid">
+      <div class="includes excludes">
+        <span class="label">Fraude</span>
+        <ul>
+          <li>Ningún sistema es 100% a prueba de fraude. El objetivo es que el fraude masivo sea caro, detectable y reversible.</li>
+        </ul>
+      </div>
+      <div class="includes excludes">
+        <span class="label">Cobertura</span>
+        <ul>
+          <li>Quienes solo tienen la libreta de DNI vieja (sin código de barras) no pueden participar.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Página 4 · Costos y próximos pasos -->
+  <section class="page">
+    <div class="section-head">
+      <span class="label">Costos</span>
+      <h2 class="section-title">Infraestructura</h2>
+      <p class="section-sub">Es lo único que hay que financiar. Valores estimados de referencia.</p>
+    </div>
+
+    <div class="invest-grid">
+      <div class="invest-card">
+        <span class="label">Un mes · 30 millones de votos</span>
+        <div class="invest-amount">USD 1.000–2.500<span class="cur">/ mes</span></div>
+        <p class="invest-note">Más un margen de seguridad. Se puede cubrir con patrocinadores.</p>
+      </div>
+      <div class="invest-card soft">
+        <span class="label">Costo por voto</span>
+        <div class="invest-amount">&lt; USD 0,0001</div>
+        <p class="invest-note">Las capas de seguridad no agregan costo por voto.</p>
+      </div>
+    </div>
+
+    <div class="pay-plan">
+      <span class="label">Para comparar · validación de 30 millones de votos</span>
+      <div class="pay-row hi">
+        <span class="pay-when">Este proyecto <small>Infraestructura propia sobre Cloudflare + AWS</small></span>
+        <span class="pay-amount">USD 1.000–2.500</span>
+      </div>
+      <div class="pay-row muted">
+        <span class="pay-when">Validar cada DNI contra RENAPER</span>
+        <span class="pay-amount">~ ARS 630 millones</span>
+      </div>
+      <div class="pay-row muted">
+        <span class="pay-when">Validación facial con un proveedor comercial</span>
+        <span class="pay-amount">~ USD 6 millones</span>
+      </div>
+    </div>
+
+    <section class="terms">
+      <span class="label">A tener en cuenta</span>
+      <ul>
+        <li>Los costos son estimaciones de referencia y pueden variar según el tráfico real.</li>
+        <li>No incluyen difusión, asesoramiento legal ni soporte durante la campaña.</li>
+        <li>El desarrollo de la plataforma no tiene costo; a cambio, Seim Interactive figura públicamente como desarrollador de la app.</li>
+      </ul>
+    </section>
+
+    <hr class="separator">
+
+    <div class="closing">
+      <span class="label">Qué te proponemos</span>
+      <p contenteditable="true">Nosotros ponemos el desarrollo y la tecnología. Lo que buscamos es que impulses el proyecto, lo difundas y nos ayudes a conseguir los patrocinadores que cubran la infraestructura.</p>
+      <p contenteditable="true">Nos encantaría coordinar una reunión para mostrarte la propuesta en detalle y avanzar con los próximos pasos.</p>
+    </div>
+
+    <footer class="doc-footer">
+      <span>Seim Interactive · Software studio</span>
+      <span>hello@seiminteractive.io</span>
+    </footer>
+  </section>
+
+</main>
+
+<button class="print-btn" onclick="window.print()">Imprimir / Guardar PDF</button>
+
+</body>
+</html>
