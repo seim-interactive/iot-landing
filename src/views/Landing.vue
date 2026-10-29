@@ -1,9 +1,9 @@
 <template>
-  <div id="app">
-    <!-- Navbar Component -->
+  <div ref="rootEl" class="landing">
     <Navbar />
-    
-    <main class="hero">
+
+    <!-- ==================== HERO ==================== -->
+    <main id="top" class="hero">
       <!-- Contenedor de luz con conic gradients - SOLO EN HERO -->
       <div class="light-container">
         <div class="conic-light conic-light-top"></div>
@@ -18,7 +18,7 @@
           La nueva era<br>
           de la Industria Inteligente
         </p>
-        
+
         <a href="#solution" class="announcement-button">
           <span class="dot"></span>
           Conocé nuestra Solución IoT
@@ -29,527 +29,398 @@
       </div>
 
       <!-- Scroll indicator -->
-      <a class="scroll-indicator" href="#services">
+      <a class="scroll-indicator" href="#services" aria-label="Ir a servicios">
         <svg viewBox="0 0 24 24" fill="none">
           <path d="M12 5V19M12 19L5 12M12 19L19 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </a>
     </main>
 
-    <!-- Services Section -->
-    <section id="services" class="services-section">
-      <!-- Decorative Elements - Left Vertical (Desktop only) -->
-      <div class="deco-left">
-        <span class="deco-text-vertical">SEIM</span>
-        <div class="deco-line-vertical"></div>
-      </div>
-      
-      <!-- Desktop Content -->
-      <div class="services-content-wrapper desktop-services">
-        <!-- Left Side - Navigation -->
-        <div class="services-nav">
-          <div class="nav-header">
-            <span class="nav-label">SERVICIOS</span>
-          </div>
-          
-          <ul class="services-list">
-            <li 
-              v-for="(service, index) in services" 
-              :key="index"
-              class="service-item"
-              :class="{ 'active': activeIndex === index }"
-              @click="setActiveService(index)"
-            >
-              {{ service.name }}
+    <!-- ==================== SERVICIOS ==================== -->
+    <section id="services" ref="servicesEl" class="section services">
+      <div class="container">
+        <header class="section-head" data-reveal>
+          <h2 class="section-title">
+            Ingeniería de punta a punta.
+            <span class="muted">Del PLC a la inteligencia artificial.</span>
+          </h2>
+          <p class="section-lead">
+            Un solo equipo responsable de toda la cadena: integración en planta, infraestructura cloud, visualización, IA, seguridad y operación continua.
+          </p>
+        </header>
+
+        <!-- Desktop: pestañas con avance automático -->
+        <div
+          class="services-panel desktop-services"
+          :class="{ 'is-paused': servicesPaused }"
+          data-reveal
+          @mouseenter="hoverPaused = true"
+          @mouseleave="hoverPaused = false"
+          @focusin="hoverPaused = true"
+          @focusout="hoverPaused = false"
+        >
+          <ul class="services-tabs" role="tablist" aria-label="Servicios">
+            <li v-for="(service, index) in services" :key="service.name">
+              <button
+                :id="`service-tab-${index}`"
+                type="button"
+                role="tab"
+                class="service-tab"
+                :class="{ 'is-active': activeIndex === index }"
+                :aria-selected="activeIndex === index"
+                :aria-controls="`service-panel-${index}`"
+                @click="setActiveService(index)"
+              >
+                {{ service.name }}
+                <span class="tab-progress" aria-hidden="true">
+                  <span class="tab-progress-fill" @animationend="nextService"></span>
+                </span>
+              </button>
             </li>
           </ul>
+
+          <div class="service-stage">
+            <article
+              v-for="(service, index) in services"
+              :id="`service-panel-${index}`"
+              :key="service.name"
+              role="tabpanel"
+              class="service-detail"
+              :class="{ 'is-active': activeIndex === index }"
+              :aria-labelledby="`service-tab-${index}`"
+              :aria-hidden="activeIndex !== index"
+            >
+              <h3 class="detail-title">{{ service.title }}</h3>
+              <p class="detail-desc">{{ service.mainDescription }}</p>
+              <p class="detail-note">{{ service.secondaryDescription }}</p>
+            </article>
+          </div>
         </div>
 
-        <!-- Center - Main Content -->
-        <div class="services-main">
-          <Transition name="fade-slide" mode="out-in">
-            <div :key="activeIndex" class="service-detail">
-              <h2 class="service-title">
-                {{ services[activeIndex].title.toUpperCase() }}
-              </h2>
-              <p class="service-description">
-                {{ services[activeIndex].mainDescription }}
-              </p>
-              <p class="service-secondary" v-if="services[activeIndex].secondaryDescription">
-                {{ services[activeIndex].secondaryDescription }}
-              </p>
-            </div>
-          </Transition>
-        </div>
-
-        <!-- Right Side - Dots Navigation -->
-        <div class="dots-nav">
-          <span 
-            v-for="(_, index) in services" 
-            :key="index"
-            class="dot-indicator"
-            :class="{ 'active': activeIndex === index }"
-            @click="setActiveService(index)"
-          ></span>
-        </div>
-      </div>
-
-      <!-- Mobile Carousel -->
-      <div class="mobile-services-carousel">
-        <div class="carousel-header">
-          <span class="carousel-label">SERVICIOS</span>
-          <span class="carousel-counter">{{ activeIndex + 1 }} / {{ services.length }}</span>
-        </div>
-        
-        <div 
-          class="carousel-track"
-          @touchstart="handleTouchStart"
-          @touchmove="handleTouchMove"
-          @touchend="handleTouchEnd"
+        <!-- Mobile: carrusel con swipe -->
+        <div
+          class="mobile-services-carousel"
+          :class="{ 'is-paused': servicesPaused }"
+          data-reveal
         >
-          <Transition :name="swipeDirection" mode="out-in">
-            <div :key="activeIndex" class="carousel-slide">
-              <h2 class="carousel-title">
-                {{ services[activeIndex].title }}
-              </h2>
-              <p class="carousel-description">
-                {{ services[activeIndex].mainDescription }}
-              </p>
-              <p class="carousel-secondary" v-if="services[activeIndex].secondaryDescription">
-                {{ services[activeIndex].secondaryDescription }}
-              </p>
-            </div>
-          </Transition>
-        </div>
-        
-        <!-- Swipe hint -->
-        <div class="carousel-hint">
-          <i class="pi pi-arrow-left"></i>
-          <span>Deslizá para ver más</span>
-          <i class="pi pi-arrow-right"></i>
-        </div>
-        
-        <!-- Dots -->
-        <div class="carousel-dots">
-          <span 
-            v-for="(_, index) in services" 
-            :key="index"
-            class="carousel-dot"
-            :class="{ 'active': activeIndex === index }"
-            @click="setActiveService(index)"
-          ></span>
+          <span class="carousel-progress" aria-hidden="true">
+            <span :key="activeIndex" class="carousel-progress-fill" @animationend="nextService"></span>
+          </span>
+
+          <div
+            class="carousel-track"
+            :class="swipeDirection"
+            @touchstart.passive="handleTouchStart"
+            @touchmove.passive="handleTouchMove"
+            @touchend="handleTouchEnd"
+            @touchcancel="handleTouchEnd"
+          >
+            <article
+              v-for="(service, index) in services"
+              :key="service.name"
+              class="carousel-slide"
+              :class="{ 'is-active': activeIndex === index }"
+              :aria-hidden="activeIndex !== index"
+            >
+              <h3 class="carousel-title">{{ service.title }}</h3>
+              <p class="carousel-description">{{ service.mainDescription }}</p>
+              <p class="carousel-secondary">{{ service.secondaryDescription }}</p>
+            </article>
+          </div>
+
+          <div class="carousel-dots">
+            <button
+              v-for="(service, index) in services"
+              :key="service.name"
+              type="button"
+              class="carousel-dot"
+              :class="{ 'is-active': activeIndex === index }"
+              :aria-label="`Ver ${service.name}`"
+              @click="setActiveService(index)"
+            ></button>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Solution Section -->
-    <section id="solution" class="solution-section">
-      <!-- Simple light gradient from bottom -->
-      <div class="solution-light"></div>
+    <!-- ==================== SOLUCIÓN ==================== -->
+    <section id="solution" class="section solution">
+      <div class="solution-glow" aria-hidden="true"></div>
 
-      <div class="solution-container">
-        <!-- Column 1 - Overview / Descripción -->
-        <div class="solution-column solution-column-left">
-          <span class="solution-label">NUESTRA SOLUCIÓN IOT</span>
-          <h3 class="solution-column-title">Solución IoT Industrial a Medida</h3>
-          <p class="solution-text">
-            Diseñamos e implementamos soluciones de telemetría industrial que conectan los sistemas de planta con la nube de forma segura y confiable.
-          </p>
-          <p class="solution-text">
-            Nuestro enfoque combina integración industrial, arquitectura cloud y visualización inteligente para brindar visibilidad real sobre la operación.
-          </p>
-          <p class="solution-text">
-            Cada solución es diseñada a medida, respetando los procesos existentes y acompañando la toma de decisiones operativas y estratégicas.
-          </p>
-          <p class="solution-text">
+      <div class="container">
+        <header class="section-head section-head--center" data-reveal>
+          <h2 class="section-title">Plataforma de Control Industrial</h2>
+          <p class="section-lead">
             La plataforma que entregamos es privada, dedicada y adaptada a cada cliente, funcionando como el punto central de control y análisis de la operación.
           </p>
+        </header>
+
+        <div class="solution-showcase">
+          <figure class="device">
+            <img
+              src="@/assets/capturaLoginPlataforma02.png"
+              alt="Plataforma de Control Industrial"
+              class="device-image"
+              width="3024"
+              height="1722"
+              loading="lazy"
+              decoding="async"
+            />
+          </figure>
+          <p class="device-caption">Vista unificada de métricas, estados y variables críticas de la operación industrial.</p>
         </div>
 
-        <!-- Separator Line -->
-        <div class="solution-separator"></div>
-
-        <!-- Column 2 - Núcleo / Plataforma -->
-        <div class="solution-column solution-column-center">
-          <span class="solution-label">PLATAFORMA IOT</span>
-          <h2 class="solution-main-title">Plataforma de Control Industrial</h2>
-          
-          <div class="solution-device">
-            <div class="solution-device-inner">
-              <img src="@/assets/capturaLoginPlataforma02.png" alt="Plataforma de Control Industrial" class="device-image" loading="lazy" decoding="async" />
-            </div>
+        <div class="solution-grid">
+          <div class="solution-copy" data-reveal>
+            <h3 class="block-title">Solución IoT Industrial a Medida</h3>
+            <p>Nuestro enfoque combina integración industrial, arquitectura cloud y visualización inteligente para brindar visibilidad real sobre la operación.</p>
+            <p>Cada solución es diseñada a medida, respetando los procesos existentes y acompañando la toma de decisiones operativas y estratégicas.</p>
           </div>
 
-          <p class="solution-device-caption">
-            Vista unificada de métricas, estados y variables críticas de la operación industrial.
-          </p>
-        </div>
-
-        <!-- Separator Line -->
-        <div class="solution-separator"></div>
-
-        <!-- Column 3 - Overview / Capacidades -->
-        <div class="solution-column">
-          <span class="solution-label">CAPACIDADES IOT</span>
-          <h3 class="solution-column-title">Capacidades de la Plataforma</h3>
-          
-          <ul class="solution-features">
-            <li class="feature-item">
-              <span class="feature-icon">◇</span>
-              <span>Integración con PLCs y sistemas industriales</span>
-            </li>
-            <li class="feature-item">
-              <span class="feature-icon">◇</span>
-              <span>Arquitectura cloud privada y escalable</span>
-            </li>
-            <li class="feature-item">
-              <span class="feature-icon">◇</span>
-              <span>Dashboards operativos a medida</span>
-            </li>
-            <li class="feature-item">
-              <span class="feature-icon">◇</span>
-              <span>Métricas en tiempo real</span>
-            </li>
-            <li class="feature-item">
-              <span class="feature-icon">◇</span>
-              <span>Seguridad industrial y de datos</span>
-            </li>
-            <li class="feature-item">
-              <span class="feature-icon">◇</span>
-              <span>Inteligencia artificial aplicada</span>
-            </li>
-            <li class="feature-item">
-              <span class="feature-icon">◇</span>
-              <span>Soporte y operación continua</span>
-            </li>
-          </ul>
+          <div class="capabilities" data-reveal>
+            <h3 class="block-title">Capacidades de la Plataforma</h3>
+            <ul class="capability-list">
+              <li v-for="capability in capabilities" :key="capability" class="capability">{{ capability }}</li>
+            </ul>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Use Cases Section -->
-    <section id="use-cases" class="use-cases-section">
-      <div class="use-cases-container">
-        <div class="use-cases-header">
-          <span class="use-cases-label">APLICACIONES IOT</span>
-          <h2 class="use-cases-title">Casos de Uso de IoT en la Industria</h2>
-          <p class="use-cases-subtitle">Soluciones IoT para monitoreo de producción, mantenimiento predictivo y eficiencia operativa en plantas industriales.</p>
-        </div>
+    <!-- ==================== CASOS DE USO ==================== -->
+    <section id="use-cases" class="section use-cases">
+      <div class="container">
+        <header class="section-head section-head--split" data-reveal>
+          <h2 class="section-title">Casos de Uso de IoT en la Industria</h2>
+          <p class="section-lead">
+            Soluciones IoT para monitoreo de producción, mantenimiento predictivo y eficiencia operativa en plantas industriales.
+          </p>
+        </header>
 
-        <!-- Desktop Grid -->
+        <!-- Desktop: grilla -->
         <div class="use-cases-grid desktop-use-cases">
-          <!-- Card 1 -->
-          <div class="use-case-card">
-            <div class="card-border"></div>
-            <div class="card-content">
-              <div class="card-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <path d="M3 12h4l3-9 4 18 3-9h4" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-              <h3 class="card-title">Monitoreo de Producción</h3>
-              <p class="card-description">Visibilidad en tiempo real del estado de líneas y procesos.</p>
-            </div>
-          </div>
-
-          <!-- Card 2 -->
-          <div class="use-case-card">
-            <div class="card-border"></div>
-            <div class="card-content">
-              <div class="card-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-              <h3 class="card-title">Eficiencia Operativa y OEE</h3>
-              <p class="card-description">Indicadores clave (OEE, KPIs) para optimizar el desempeño industrial.</p>
-            </div>
-          </div>
-
-          <!-- Card 3 -->
-          <div class="use-case-card">
-            <div class="card-border"></div>
-            <div class="card-content">
-              <div class="card-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
-                  <path d="M12 6v6l4 2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-              <h3 class="card-title">Continuidad Operativa y Alertas en Tiempo Real</h3>
-              <p class="card-description">Supervisión 24/7 con alertas tempranas para asegurar estabilidad y previsibilidad.</p>
-            </div>
-          </div>
-
-          <!-- Card 4 -->
-          <div class="use-case-card">
-            <div class="card-border"></div>
-            <div class="card-content">
-              <div class="card-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-              <h3 class="card-title">Mantenimiento Predictivo con IA</h3>
-              <p class="card-description">Anticipación de fallas basada en datos operativos y modelos de IA predictivos.</p>
-            </div>
-          </div>
-
-          <!-- Card 5 -->
-          <div class="use-case-card">
-            <div class="card-border"></div>
-            <div class="card-content">
-              <div class="card-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <circle cx="12" cy="12" r="10"/>
-                  <line x1="2" y1="12" x2="22" y2="12"/>
-                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                </svg>
-              </div>
-              <h3 class="card-title">Gestión Multi-Planta</h3>
-              <p class="card-description">Control centralizado de múltiples plantas o líneas.</p>
-            </div>
-          </div>
-
-          <!-- Card 6 -->
-          <div class="use-case-card">
-            <div class="card-border"></div>
-            <div class="card-content">
-              <div class="card-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <ellipse cx="12" cy="5" rx="9" ry="3"/>
-                  <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
-                  <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
-                </svg>
-              </div>
-              <h3 class="card-title">Inteligencia Artificial Aplicada a la Industria</h3>
-              <p class="card-description">Insights automáticos, análisis predictivo y detección de patrones para decisiones estratégicas.</p>
-            </div>
-          </div>
+          <article v-for="useCase in useCases" :key="useCase.title" class="use-case-card" data-reveal>
+            <svg class="card-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" v-html="useCase.icon"></svg>
+            <h3 class="card-title">{{ useCase.title }}</h3>
+            <p class="card-description">{{ useCase.summary }}</p>
+          </article>
         </div>
 
-        <!-- Mobile Accordion -->
-        <Accordion type="single" collapsible class="mobile-use-cases-accordion" default-value="item-0">
-          <AccordionItem 
-            v-for="(useCase, index) in useCases" 
-            :key="index"
+        <!-- Mobile: acordeón -->
+        <Accordion type="single" collapsible class="mobile-use-cases-accordion" default-value="item-0" data-reveal>
+          <AccordionItem
+            v-for="(useCase, index) in useCases"
+            :key="useCase.title"
             :value="`item-${index}`"
             class="accordion-item"
-            :class="{ 'active': activeUseCaseIndex === index }"
-            @update:open="(open) => { if (open) activeUseCaseIndex = index }"
           >
             <AccordionTrigger class="accordion-header">
-              <div class="accordion-header-left">
-                <span class="accordion-number">0{{ index + 1 }}</span>
-                <i :class="['pi', useCase.icon, 'accordion-icon']"></i>
-                <span class="accordion-title">{{ useCase.title }}</span>
-              </div>
-              <div class="accordion-toggle">
-                <i class="pi pi-plus"></i>
-              </div>
+              <span class="accordion-title">{{ useCase.title }}</span>
+              <span class="accordion-toggle" aria-hidden="true"></span>
             </AccordionTrigger>
             <AccordionContent class="accordion-content">
-              <div class="accordion-content-inner">
-                <p class="accordion-description">{{ useCase.description }}</p>
-              </div>
+              <p class="accordion-description">{{ useCase.description }}</p>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
       </div>
     </section>
 
-    <!-- Technology Section - Timeline -->
-    <section id="technology" class="technology-section">
-      <!-- Contenedor de luz - igual que hero pero lado izquierdo -->
-      <div class="tech-light-container">
-        <div class="tech-conic-light tech-conic-light-top"></div>
-        <div class="tech-conic-light tech-conic-light-bottom"></div>
-      </div>
+    <!-- ==================== CÓMO FUNCIONA ==================== -->
+    <section id="technology" class="flow" aria-labelledby="flow-title">
+      <div ref="flowTrack" class="flow-track" :style="{ '--steps': flowSteps.length }">
+        <div class="flow-sticky">
+          <div class="flow-beam" aria-hidden="true"></div>
 
-      <div class="technology-container">
-        
-        <!-- Header -->
-        <div class="technology-header">
-          <div class="header-line-wrapper">
-            <div class="header-line"></div>
-            <span class="technology-label">TECNOLOGÍA</span>
-          </div>
-          <h2 class="technology-title">Cómo funciona</h2>
-          <p class="technology-subtitle">El flujo de datos desde la planta hasta la inteligencia operativa.</p>
-        </div>
+          <div class="container flow-layout">
+            <header class="flow-head">
+              <h2 id="flow-title" class="section-title">Cómo funciona</h2>
+              <p class="section-lead">El flujo de datos desde la planta hasta la inteligencia operativa.</p>
+            </header>
 
-        <!-- Timeline Container -->
-        <div class="timeline-container">
-          
-          <!-- Timeline Line -->
-          <div class="timeline-line">
-            <div class="timeline-line-progress"></div>
-          </div>
-
-          <!-- Timeline Items -->
-          <div class="timeline-items">
-            
-            <!-- Step 1 - Top -->
-            <div class="timeline-item item-top">
-              <div class="timeline-dot"><div class="dot-inner"></div></div>
-              <div class="vertical-line"></div>
-              <div class="timeline-card">
-                <span class="step-label">Paso 1</span>
-                <h4 class="step-title">PLCs y Sistemas Industriales</h4>
-                <p class="step-description">Los datos nacen en los PLCs y sistemas de control que gobiernan la operación industrial.</p>
-              </div>
+            <!-- Paso activo (visual). El contenido completo para lectores de pantalla
+                 y buscadores está en la lista .flow-all. -->
+            <div class="flow-detail" aria-hidden="true">
+              <article
+                v-for="(step, index) in flowSteps"
+                :key="step.title"
+                class="flow-step"
+                :class="{ 'is-active': activeStep === index, 'is-past': index < activeStep }"
+              >
+                <h3 class="flow-step-title">{{ step.title }}</h3>
+                <p class="flow-step-desc">{{ step.description }}</p>
+              </article>
             </div>
 
-            <!-- Step 2 - Bottom -->
-            <div class="timeline-item item-bottom">
-              <div class="timeline-dot"><div class="dot-inner"></div></div>
-              <div class="vertical-line"></div>
-              <div class="timeline-card">
-                <span class="step-label">Paso 2</span>
-                <h4 class="step-title">Gateway Industrial</h4>
-                <p class="step-description">Un gateway industrial captura la información en planta y la envía de forma segura hacia la nube.</p>
-              </div>
-            </div>
+            <!-- Órbita: los datos entran por el anillo exterior (la planta) y avanzan
+                 en espiral hacia el núcleo (la inteligencia). -->
+            <div class="flow-visual" aria-hidden="true">
+              <svg class="orbit" viewBox="0 0 640 640">
+                <defs>
+                  <radialGradient id="orbit-ambient">
+                    <stop offset="0%" stop-color="#afe3e8" stop-opacity="0.14" />
+                    <stop offset="100%" stop-color="#afe3e8" stop-opacity="0" />
+                  </radialGradient>
+                  <radialGradient id="orbit-core">
+                    <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+                    <stop offset="25%" stop-color="#afe3e8" stop-opacity="0.85" />
+                    <stop offset="100%" stop-color="#afe3e8" stop-opacity="0" />
+                  </radialGradient>
+                  <filter id="orbit-glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="5" />
+                  </filter>
+                </defs>
 
-            <!-- Step 3 - Top -->
-            <div class="timeline-item item-top">
-              <div class="timeline-dot"><div class="dot-inner"></div></div>
-              <div class="vertical-line"></div>
-              <div class="timeline-card">
-                <span class="step-label">Paso 3</span>
-                <h4 class="step-title">Nube Industrial</h4>
-                <p class="step-description">La información se procesa, organiza y almacena en una infraestructura cloud privada y escalable.</p>
-              </div>
-            </div>
+                <circle cx="320" cy="320" r="318" fill="url(#orbit-ambient)" />
 
-            <!-- Step 4 - Bottom -->
-            <div class="timeline-item item-bottom">
-              <div class="timeline-dot"><div class="dot-inner"></div></div>
-              <div class="vertical-line"></div>
-              <div class="timeline-card">
-                <span class="step-label">Paso 4</span>
-                <h4 class="step-title">Plataforma de Datos</h4>
-                <p class="step-description">Los datos se transforman en métricas claras y estados operativos accesibles en tiempo real.</p>
-              </div>
-            </div>
+                <g
+                  v-for="(radius, index) in orbitRadii"
+                  :key="radius"
+                  class="ring"
+                  :class="{ 'is-reached': index <= activeStep, 'is-current': index === activeStep }"
+                >
+                  <circle class="ring-glow" cx="320" cy="320" :r="radius" filter="url(#orbit-glow)" />
+                  <circle class="ring-line" cx="320" cy="320" :r="radius" />
+                </g>
 
-            <!-- Step 5 - Top -->
-            <div class="timeline-item item-top">
-              <div class="timeline-dot"><div class="dot-inner"></div></div>
-              <div class="vertical-line"></div>
-              <div class="timeline-card">
-                <span class="step-label">Paso 5</span>
-                <h4 class="step-title">Dashboards Operativos</h4>
-                <p class="step-description">Visualizaciones diseñadas a medida permiten entender el estado de la operación de un vistazo.</p>
-              </div>
-            </div>
+                <circle data-orbit-core class="orbit-core" cx="320" cy="320" r="96" fill="url(#orbit-core)" />
 
-            <!-- Step 6 - Bottom -->
-            <div class="timeline-item item-bottom">
-              <div class="timeline-dot"><div class="dot-inner"></div></div>
-              <div class="vertical-line"></div>
-              <div class="timeline-card">
-                <span class="step-label">Paso 6</span>
-                <h4 class="step-title">Inteligencia Artificial</h4>
-                <p class="step-description">La inteligencia artificial analiza patrones y comportamientos para generar insights relevantes.</p>
-              </div>
-            </div>
+                <g data-orbit-trail>
+                  <circle v-for="n in 18" :key="n" class="trail-dot" cx="320" cy="320" :r="3.6 - n * 0.16" />
+                </g>
+                <circle data-orbit-particle class="particle" cx="320" cy="40" r="5" />
 
+                <text
+                  v-for="(radius, index) in orbitRadii"
+                  :key="`label-${radius}`"
+                  class="ring-label"
+                  :class="{ 'is-reached': index <= activeStep, 'is-current': index === activeStep }"
+                  x="320"
+                  :y="320 - radius - 12"
+                  text-anchor="middle"
+                  @click="scrollToStep(index)"
+                >{{ flowSteps[index].short }}</text>
+              </svg>
+            </div>
           </div>
         </div>
-
       </div>
+
+      <ol class="flow-all">
+        <li v-for="step in flowSteps" :key="step.title">
+          <h3 class="flow-step-title">{{ step.title }}</h3>
+          <p class="flow-step-desc">{{ step.description }}</p>
+        </li>
+      </ol>
     </section>
 
-    <!-- Contact Section -->
-    <section id="contact" class="contact-section">
-      <div class="contact-container">
-        <div class="contact-content">
-          <span class="contact-label">CONTACTO</span>
-          
-          <h2 class="contact-title">Trabajemos juntos</h2>
-          <p class="contact-subtitle">
-            Conectá con nuestro equipo para explorar cómo podemos<br>
-            transformar tu operación industrial.
-          </p>
-          
-          <div class="contact-options">
-            <!-- WhatsApp -->
-            <a href="https://wa.me/5493413551507" target="_blank" rel="noopener" class="contact-btn contact-btn-primary">
-              <div class="contact-btn-content">
-                <i class="pi pi-whatsapp whatsapp-icon-white"></i>
-                <span>Escribinos por WhatsApp</span>
-              </div>
-              <i class="pi pi-arrow-up-right contact-btn-arrow"></i>
-            </a>
+    <!-- ==================== CONTACTO ==================== -->
+    <section id="contact" class="section contact">
+      <div class="container">
+        <div class="contact-panel" data-reveal>
+          <div class="contact-glow" aria-hidden="true"></div>
 
-            <!-- Email -->
-            <a href="mailto:hello@seiminteractive.io" class="contact-btn contact-btn-secondary">
-              <div class="contact-btn-content">
-                <i class="pi pi-envelope"></i>
-                <span>Envianos un email</span>
-              </div>
-              <i class="pi pi-arrow-up-right contact-btn-arrow"></i>
-            </a>
+          <div class="contact-main">
+            <h2 class="contact-title">Trabajemos juntos.</h2>
+            <p class="section-lead">
+              Conectá con nuestro equipo para explorar cómo podemos transformar tu operación industrial.
+            </p>
+
+            <div class="contact-actions">
+              <a href="https://wa.me/5493413551507" target="_blank" rel="noopener" class="btn btn-primary">
+                <i class="pi pi-whatsapp" aria-hidden="true"></i>
+                Escribinos por WhatsApp
+              </a>
+              <a href="mailto:hello@seiminteractive.io" class="btn btn-ghost">
+                <i class="pi pi-envelope" aria-hidden="true"></i>
+                Envianos un email
+              </a>
+            </div>
           </div>
 
-          <p class="contact-note">
-            Respondemos en menos de 24 horas
-          </p>
+          <dl class="contact-meta">
+            <div>
+              <dt>Email</dt>
+              <dd><a href="mailto:hello@seiminteractive.io">hello@seiminteractive.io</a></dd>
+            </div>
+            <div>
+              <dt>WhatsApp</dt>
+              <dd><a href="https://wa.me/5493413551507" target="_blank" rel="noopener">+54 9 341 355-1507</a></dd>
+            </div>
+            <div>
+              <dt>Respuesta</dt>
+              <dd>Respondemos en menos de 24 horas</dd>
+            </div>
+            <div>
+              <dt>Cobertura</dt>
+              <dd>Toda Argentina, on-site y remoto</dd>
+            </div>
+          </dl>
         </div>
       </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="main-footer">
-      <!-- Light effect -->
-      <div class="footer-light"></div>
-      
-      <div class="footer-container">
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="footer">
+      <div class="footer-light" aria-hidden="true"></div>
+
+      <div class="container">
         <div class="footer-grid">
-          <!-- Column 1 - Logo & About -->
-          <div class="footer-column footer-brand">
-            <img src="@/assets/MARCA-14.png" alt="SEIM" class="footer-logo" loading="lazy" decoding="async" />
+          <div class="footer-brand">
+            <img src="@/assets/MARCA-14.png" alt="Seim Interactive" class="footer-logo" loading="lazy" decoding="async" />
             <p class="footer-about">
               Soluciones de telemetría industrial que conectan planta y nube de forma segura y confiable.
             </p>
           </div>
 
-          <!-- Column 2 - Servicios -->
-          <div class="footer-column">
-            <h4 class="footer-title">SERVICIOS</h4>
+          <nav class="footer-column" aria-label="Servicios">
+            <h4 class="footer-title">Servicios</h4>
             <ul class="footer-links">
               <li><a href="#services">Integración Industrial</a></li>
               <li><a href="#services">Arquitectura Cloud</a></li>
               <li><a href="#services">Visualización</a></li>
               <li><a href="#services">Inteligencia Artificial</a></li>
             </ul>
-          </div>
+          </nav>
 
-          <!-- Column 3 - Secciones -->
-          <div class="footer-column">
-            <h4 class="footer-title">SECCIONES</h4>
+          <nav class="footer-column" aria-label="Secciones">
+            <h4 class="footer-title">Secciones</h4>
             <ul class="footer-links">
               <li><a href="#solution">Solución</a></li>
               <li><a href="#use-cases">Casos de Uso</a></li>
-              <li><a href="#technology">Tecnología</a></li>
+              <li><a href="#technology">Cómo funciona</a></li>
               <li><a href="#contact">Contacto</a></li>
             </ul>
-          </div>
+          </nav>
 
-          <!-- Column 4 - Contacto -->
-          <div class="footer-column footer-contact-column">
-            <h4 class="footer-title">CONTACTO</h4>
+          <nav class="footer-column footer-contact-column" aria-label="Contacto">
+            <h4 class="footer-title">Contacto</h4>
             <ul class="footer-links">
-              <li><a href="https://wa.me/5493413551507" target="_blank">WhatsApp</a></li>
+              <li><a href="https://wa.me/5493413551507" target="_blank" rel="noopener">WhatsApp</a></li>
               <li><a href="mailto:hello@seiminteractive.io">Email</a></li>
             </ul>
-          </div>
+          </nav>
         </div>
+      </div>
 
-        <!-- Bottom bar -->
+      <!-- Marca a todo el ancho: el texto se ajusta exacto al ancho disponible -->
+      <svg class="footer-wordmark" viewBox="0 0 1000 124" aria-hidden="true">
+        <defs>
+          <linearGradient id="wordmark-fade" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.2" />
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        <text x="0" y="104" textLength="1000" lengthAdjust="spacingAndGlyphs" fill="url(#wordmark-fade)">Seim Interactive</text>
+      </svg>
+
+      <div class="container">
         <div class="footer-bottom">
-          <span class="footer-copyright">© 2026 Seim Interactive. Todos los derechos reservados.</span>
+          <span>© 2026 Seim Interactive. Todos los derechos reservados.</span>
+          <div class="footer-bottom-links">
+            <a href="https://seiminteractive.io/" class="footer-bottom-link">Parte de Seim Interactive</a>
+            <a href="#top" class="footer-bottom-link">Volver arriba</a>
+          </div>
         </div>
       </div>
     </footer>
@@ -557,16 +428,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import Navbar from '@/components/Navbar.vue'
-import { useHeroAnimations } from '@/composables/useHeroAnimations'
-import { useServicesAnimations } from '@/composables/useServicesAnimations'
-import { useSolutionAnimations } from '@/composables/useSolutionAnimations'
-import { useUseCasesAnimations } from '@/composables/useUseCasesAnimations'
-import { useTechnologyAnimations } from '@/composables/useTechnologyAnimations'
-import { useContactAnimations } from '@/composables/useContactAnimations'
-import { useFooterAnimations } from '@/composables/useFooterAnimations'
-import { useScrollAnimations } from '@/composables/useScrollAnimations'
+import { useLandingMotion } from '@/composables/useLandingMotion'
+import { useFlowScroll } from '@/composables/useFlowScroll'
 import {
   Accordion,
   AccordionContent,
@@ -574,66 +439,162 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 
-// Usar animaciones
-useHeroAnimations()
-useServicesAnimations()
-useSolutionAnimations()
-useUseCasesAnimations()
-useTechnologyAnimations()
-useContactAnimations()
-useFooterAnimations()
+const rootEl = ref(null)
+const servicesEl = ref(null)
+const flowTrack = ref(null)
 
 const services = [
   {
     name: 'Integración Industrial',
     title: 'Integración Industrial',
     mainDescription: 'Conectamos PLCs (Siemens, Allen Bradley, Rockwell) y sistemas industriales existentes de forma segura y no invasiva. Trabajamos con protocolos OPC-UA, MQTT y Modbus, respetando la operación y evitando interrupciones en planta.',
-    secondaryDescription: 'La integración IoT se adapta a cada entorno industrial, capturando datos críticos desde el origen.'
+    secondaryDescription: 'La integración IoT se adapta a cada entorno industrial, capturando datos críticos desde el origen.',
   },
   {
     name: 'Arquitectura Cloud',
     title: 'Arquitectura Cloud Industrial',
     mainDescription: 'Diseñamos y operamos arquitecturas cloud robustas, escalables y seguras para entornos industriales. Cada solución IoT se construye según la criticidad de la operación.',
-    secondaryDescription: 'La infraestructura cloud industrial está preparada para crecer junto a la planta, manteniendo estabilidad y control.'
+    secondaryDescription: 'La infraestructura cloud industrial está preparada para crecer junto a la planta, manteniendo estabilidad y control.',
   },
   {
     name: 'Visualización',
     title: 'Dashboards y Visualización',
     mainDescription: 'Creamos dashboards industriales claros con KPIs, OEE y métricas en tiempo real, enfocados en cada rol y proceso. La información se presenta de forma simple, priorizando la toma de decisiones.',
-    secondaryDescription: 'No mostramos datos por mostrar: estructuramos la información para reflejar el estado real de la operación industrial.'
+    secondaryDescription: 'No mostramos datos por mostrar: estructuramos la información para reflejar el estado real de la operación industrial.',
   },
   {
     name: 'Inteligencia Artificial',
     title: 'Inteligencia Artificial Aplicada',
     mainDescription: 'Incorporamos inteligencia artificial y machine learning para analizar patrones, detectar anomalías y generar insights sobre los datos industriales y de producción.',
-    secondaryDescription: 'El objetivo no es reemplazar decisiones humanas, sino potenciar el criterio operativo con información contextualizada por IA.'
+    secondaryDescription: 'El objetivo no es reemplazar decisiones humanas, sino potenciar el criterio operativo con información contextualizada por IA.',
   },
   {
     name: 'Seguridad',
     title: 'Ciberseguridad OT',
     mainDescription: 'La ciberseguridad OT es un pilar central de cada implementación IoT. Aplicamos aislamiento de red, control de accesos y protección de datos industriales con buenas prácticas IEC 62443.',
-    secondaryDescription: 'Cada entorno es privado y diseñado específicamente para el cliente, evitando exposiciones innecesarias.'
+    secondaryDescription: 'Cada entorno es privado y diseñado específicamente para el cliente, evitando exposiciones innecesarias.',
   },
   {
     name: 'Soporte y Operación',
     title: 'Soporte y Operación 24/7',
     mainDescription: 'Operamos y monitoreamos la plataforma IoT de forma continua 24/7, asegurando disponibilidad, performance y correcto funcionamiento de la solución.',
-    secondaryDescription: 'La operación no termina en la implementación: es un proceso vivo con soporte técnico continuo.'
+    secondaryDescription: 'La operación no termina en la implementación: es un proceso vivo con soporte técnico continuo.',
   },
   {
     name: 'Consultoría y Evolución',
     title: 'Consultoría Industria 4.0',
     mainDescription: 'Acompañamos a empresas argentinas en la evolución de su madurez digital y transformación hacia la Industria 4.0. Analizamos procesos, métricas y roadmap futuro.',
-    secondaryDescription: 'La plataforma IoT y el servicio evolucionan junto a la operación y al negocio.'
-  }
+    secondaryDescription: 'La plataforma IoT y el servicio evolucionan junto a la operación y al negocio.',
+  },
 ]
 
+const capabilities = [
+  'Integración con PLCs y sistemas industriales',
+  'Arquitectura cloud privada y escalable',
+  'Dashboards operativos a medida',
+  'Métricas en tiempo real',
+  'Seguridad industrial y de datos',
+  'Inteligencia artificial aplicada',
+  'Soporte y operación continua',
+]
+
+// summary: texto de la card en desktop. description: texto del acordeón en mobile.
+const useCases = [
+  {
+    title: 'Monitoreo de Producción',
+    summary: 'Visibilidad en tiempo real del estado de líneas y procesos.',
+    description: 'Visibilidad en tiempo real del estado de líneas y procesos productivos. Seguimiento continuo de métricas clave para tomar decisiones informadas.',
+    icon: '<path d="M3 12h4l3-9 4 18 3-9h4"/>',
+  },
+  {
+    title: 'Eficiencia Operativa y OEE',
+    summary: 'Indicadores clave (OEE, KPIs) para optimizar el desempeño industrial.',
+    description: 'Indicadores clave (OEE, KPIs) para optimizar el desempeño industrial. Identificación de cuellos de botella y oportunidades de mejora continua.',
+    icon: '<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>',
+  },
+  {
+    title: 'Continuidad Operativa y Alertas en Tiempo Real',
+    summary: 'Supervisión 24/7 con alertas tempranas para asegurar estabilidad y previsibilidad.',
+    description: 'Supervisión 24/7 con alertas tempranas para asegurar estabilidad y previsibilidad de variables críticas.',
+    icon: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  },
+  {
+    title: 'Mantenimiento Predictivo con IA',
+    summary: 'Anticipación de fallas basada en datos operativos y modelos de IA predictivos.',
+    description: 'Anticipación de fallas basada en datos operativos y modelos de IA predictivos. Reducción de paradas no planificadas y optimización de recursos de mantenimiento.',
+    icon: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+  },
+  {
+    title: 'Gestión Multi-Planta',
+    summary: 'Control centralizado de múltiples plantas o líneas.',
+    description: 'Control centralizado de múltiples plantas o líneas. Comparativas de rendimiento y estandarización de procesos entre ubicaciones.',
+    icon: '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+  },
+  {
+    title: 'Inteligencia Artificial Aplicada a la Industria',
+    summary: 'Insights automáticos, análisis predictivo y detección de patrones para decisiones estratégicas.',
+    description: 'Insights automáticos, análisis predictivo y detección de patrones en grandes volúmenes de datos para decisiones estratégicas.',
+    icon: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>',
+  },
+]
+
+const flowSteps = [
+  {
+    short: 'PLCs',
+    title: 'PLCs y Sistemas Industriales',
+    description: 'Los datos nacen en los PLCs y sistemas de control que gobiernan la operación industrial.',
+  },
+  {
+    short: 'Gateway',
+    title: 'Gateway Industrial',
+    description: 'Un gateway industrial captura la información en planta y la envía de forma segura hacia la nube.',
+  },
+  {
+    short: 'Nube',
+    title: 'Nube Industrial',
+    description: 'La información se procesa, organiza y almacena en una infraestructura cloud privada y escalable.',
+  },
+  {
+    short: 'Datos',
+    title: 'Plataforma de Datos',
+    description: 'Los datos se transforman en métricas claras y estados operativos accesibles en tiempo real.',
+  },
+  {
+    short: 'Dashboards',
+    title: 'Dashboards Operativos',
+    description: 'Visualizaciones diseñadas a medida permiten entender el estado de la operación de un vistazo.',
+  },
+  {
+    short: 'IA',
+    title: 'Inteligencia Artificial',
+    description: 'La inteligencia artificial analiza patrones y comportamientos para generar insights relevantes.',
+  },
+]
+
+// Radio de cada anillo de la órbita (en unidades del viewBox 640×640), de afuera
+// hacia adentro: un anillo por paso.
+const orbitRadii = [280, 228, 176, 124, 76, 30]
+
+const activeStep = ref(0)
+
+useLandingMotion(rootEl)
+const { scrollToStep } = useFlowScroll(flowTrack, { radii: orbitRadii, center: 320, activeStep })
+
+// ---------- Servicios: avance automático ----------
+// El temporizador ES la animación CSS de la barra de progreso de la pestaña activa:
+// al terminar (animationend) se pasa al siguiente servicio. Pausar la barra pausa el
+// avance, así que barra y contenido nunca se desincronizan. Con movimiento reducido
+// la barra no se anima y no hay avance automático.
 const activeIndex = ref(0)
-let autoScrollInterval = null
+const swipeDirection = ref('slide-left')
+const hoverPaused = ref(false)
+const touchPaused = ref(false)
+const servicesInView = ref(false)
+const servicesPaused = computed(() => hoverPaused.value || touchPaused.value || !servicesInView.value)
 
 const setActiveService = (index) => {
+  swipeDirection.value = index >= activeIndex.value ? 'slide-left' : 'slide-right'
   activeIndex.value = index
-  resetAutoScroll()
 }
 
 const nextService = () => {
@@ -646,74 +607,13 @@ const prevService = () => {
   activeIndex.value = (activeIndex.value - 1 + services.length) % services.length
 }
 
-const startAutoScroll = () => {
-  autoScrollInterval = setInterval(nextService, 5000)
-}
-
-const resetAutoScroll = () => {
-  if (autoScrollInterval) {
-    clearInterval(autoScrollInterval)
-  }
-  startAutoScroll()
-}
-
-// Touch/Swipe handling for mobile carousel
-const swipeDirection = ref('slide-left')
 let touchStartX = 0
 let touchEndX = 0
 
-// Use Cases data for mobile accordion
-const useCases = [
-  {
-    icon: 'pi-chart-line',
-    title: 'Monitoreo de Producción',
-    description: 'Visibilidad en tiempo real del estado de líneas y procesos productivos. Seguimiento continuo de métricas clave para tomar decisiones informadas.'
-  },
-  {
-    icon: 'pi-bolt',
-    title: 'Eficiencia Operativa y OEE',
-    description: 'Indicadores clave (OEE, KPIs) para optimizar el desempeño industrial. Identificación de cuellos de botella y oportunidades de mejora continua.'
-  },
-  {
-    icon: 'pi-clock',
-    title: 'Continuidad Operativa y Alertas en Tiempo Real',
-    description: 'Supervisión 24/7 con alertas tempranas para asegurar estabilidad y previsibilidad de variables críticas.'
-  },
-  {
-    icon: 'pi-wrench',
-    title: 'Mantenimiento Predictivo con IA',
-    description: 'Anticipación de fallas basada en datos operativos y modelos de IA predictivos. Reducción de paradas no planificadas y optimización de recursos de mantenimiento.'
-  },
-  {
-    icon: 'pi-globe',
-    title: 'Gestión Multi-Planta',
-    description: 'Control centralizado de múltiples plantas o líneas. Comparativas de rendimiento y estandarización de procesos entre ubicaciones.'
-  },
-  {
-    icon: 'pi-sparkles',
-    title: 'Inteligencia Artificial Aplicada a la Industria',
-    description: 'Insights automáticos, análisis predictivo y detección de patrones en grandes volúmenes de datos para decisiones estratégicas.'
-  }
-]
-
-const activeUseCaseIndex = ref(null)
-let removeViewportHeightListeners = null
-let lastViewportWidth = 0
-
-const toggleUseCase = (index) => {
-  if (activeUseCaseIndex.value === index) {
-    activeUseCaseIndex.value = null
-  } else {
-    activeUseCaseIndex.value = index
-  }
-}
-
 const handleTouchStart = (e) => {
   touchStartX = e.touches[0].clientX
-  // Pause auto-scroll while touching
-  if (autoScrollInterval) {
-    clearInterval(autoScrollInterval)
-  }
+  touchEndX = touchStartX
+  touchPaused.value = true
 }
 
 const handleTouchMove = (e) => {
@@ -721,27 +621,25 @@ const handleTouchMove = (e) => {
 }
 
 const handleTouchEnd = () => {
-  const swipeThreshold = 50
   const diff = touchStartX - touchEndX
-  
-  if (Math.abs(diff) > swipeThreshold) {
-    if (diff > 0) {
-      // Swipe left - next
-      nextService()
-    } else {
-      // Swipe right - previous
-      prevService()
-    }
+
+  if (Math.abs(diff) > 50) {
+    if (diff > 0) nextService()
+    else prevService()
   }
-  
-  // Resume auto-scroll
-  startAutoScroll()
+
+  touchPaused.value = false
 }
 
+let servicesObserver = null
+
+// ---------- Alto de viewport estable en mobile ----------
+let removeViewportHeightListeners = null
+let lastViewportWidth = 0
+
 const updateAppHeight = () => {
-  const viewportHeight = window.innerHeight
   lastViewportWidth = window.innerWidth
-  document.documentElement.style.setProperty('--app-height', `${viewportHeight}px`)
+  document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`)
 }
 
 const setupViewportHeight = () => {
@@ -757,13 +655,8 @@ const setupViewportHeight = () => {
   }
 
   const handleResize = () => {
-    const widthDelta = Math.abs(window.innerWidth - lastViewportWidth)
-
-    // Ignore mobile browser chrome changes that only affect viewport height.
-    if (widthDelta < 80) {
-      return
-    }
-
+    // Ignorar cambios de alto causados por la barra del navegador mobile.
+    if (Math.abs(window.innerWidth - lastViewportWidth) < 80) return
     applyHeight()
   }
 
@@ -782,31 +675,42 @@ const setupViewportHeight = () => {
 }
 
 onMounted(() => {
-  startAutoScroll()
   removeViewportHeightListeners = setupViewportHeight()
+
+  servicesObserver = new IntersectionObserver(
+    ([entry]) => {
+      servicesInView.value = entry.isIntersecting
+    },
+    { threshold: 0.35 }
+  )
+  if (servicesEl.value) servicesObserver.observe(servicesEl.value)
 })
 
 onUnmounted(() => {
-  if (autoScrollInterval) {
-    clearInterval(autoScrollInterval)
-  }
-
+  servicesObserver?.disconnect()
   removeViewportHeightListeners?.()
 })
 </script>
 
 <style>
-/* Estilos globales sin scoped para afectar html y body */
+/* Global (sin scoped) para afectar html y body */
 :root {
   --app-height: 100vh;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   width: 100%;
   background: #000;
   scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 </style>
 
@@ -817,16 +721,153 @@ html, body {
   box-sizing: border-box;
 }
 
-#app {
+/* ==================== TOKENS ==================== */
+.landing {
+  --text: #fff;
+  --text-2: rgba(255, 255, 255, 0.68);
+  --text-3: rgba(255, 255, 255, 0.45);
+  --text-4: rgba(255, 255, 255, 0.28);
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.14);
+  --accent: #afe3e8;
+  --accent-soft: rgba(175, 227, 232, 0.12);
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  /* 1520 = a 1440px de ancho el contenido queda a 60px, igual que el hero */
+  --container: 1520px;
+  --gutter: 60px;
+  --header-h: 72px;
+  --section-pad: clamp(112px, 12vw, 168px);
+
+  position: relative;
   width: 100%;
   min-height: 100vh;
   background: #000;
-  color: #fff;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  position: relative;
+  color: var(--text);
+  font-family: var(--font);
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* clip (y no hidden) para no romper position: sticky en "Cómo funciona" */
   overflow-x: hidden;
+  overflow-x: clip;
 }
 
+.container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.section {
+  position: relative;
+  padding: var(--section-pad) 0;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ==================== PRIMITIVAS ==================== */
+.section-head {
+  max-width: 820px;
+  margin-bottom: clamp(56px, 7vw, 96px);
+}
+
+.section-title {
+  font-size: clamp(34px, 4.4vw, 60px);
+  font-weight: 400;
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.section-title .muted {
+  color: var(--text-4);
+}
+
+.section-lead {
+  margin-top: 24px;
+  max-width: 580px;
+  font-size: clamp(16px, 1.25vw, 18px);
+  line-height: 1.65;
+  color: var(--text-2);
+  text-wrap: pretty;
+}
+
+.section-head--center {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.section-head--center .section-lead {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section-head--split {
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 48px;
+}
+
+.section-head--split .section-lead {
+  justify-self: end;
+  margin-top: 0;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 50px;
+  padding: 0 24px;
+  border-radius: 8px;
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 400;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease;
+}
+
+.btn .pi {
+  font-size: 15px;
+}
+
+.btn-primary {
+  background: #fff;
+  color: #000;
+}
+
+.btn-primary:hover {
+  background: var(--accent);
+}
+
+.btn-ghost {
+  border: 1px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+}
+
+.btn-ghost:hover {
+  border-color: rgba(255, 255, 255, 0.32);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* ==================== HERO (original) ==================== */
 /* Contenedor de luz - Extendido para cubrir hero y parte de services */
 .light-container {
   position: absolute;
@@ -840,8 +881,8 @@ html, body {
   z-index: 1;
   filter: blur(20px);
   mask-image: radial-gradient(
-    ellipse 120% 120% at 100% 40%, 
-    rgb(255, 255, 255) 0%, 
+    ellipse 120% 120% at 100% 40%,
+    rgb(255, 255, 255) 0%,
     rgba(255, 255, 255, 0.95) 10%,
     rgba(255, 255, 255, 0.9) 20%,
     rgba(255, 255, 255, 0.8) 30%,
@@ -854,8 +895,8 @@ html, body {
     rgba(255, 255, 255, 0) 100%
   );
   -webkit-mask-image: radial-gradient(
-    ellipse 120% 120% at 100% 40%, 
-    rgb(255, 255, 255) 0%, 
+    ellipse 120% 120% at 100% 40%,
+    rgb(255, 255, 255) 0%,
     rgba(255, 255, 255, 0.95) 10%,
     rgba(255, 255, 255, 0.9) 20%,
     rgba(255, 255, 255, 0.8) 30%,
@@ -869,13 +910,11 @@ html, body {
   );
 }
 
-/* Gradientes cónicos - Luz superior */
 .conic-light {
   flex: 1;
   width: 100%;
 }
 
-/* Gradientes cónicos - Luz superior (IoT cyan medio) */
 .conic-light-top {
   background: conic-gradient(
     from 180deg at 99.78% 35%,
@@ -890,7 +929,6 @@ html, body {
   );
 }
 
-/* Gradientes cónicos - Luz inferior (IoT cyan medio) */
 .conic-light-bottom {
   background: conic-gradient(
     from 0deg at 99.78% 65%,
@@ -905,10 +943,6 @@ html, body {
   );
 }
 
-
-
-
-/* Hero Section */
 .hero {
   position: relative;
   width: 100%;
@@ -921,7 +955,6 @@ html, body {
   background: #000;
 }
 
-/* Hero Content */
 .hero-content {
   position: relative;
   z-index: 10;
@@ -969,7 +1002,6 @@ html, body {
   background-clip: text;
 }
 
-/* Announcement Button enhanced */
 .announcement-button {
   display: inline-flex;
   align-items: center;
@@ -983,15 +1015,25 @@ html, body {
   font-weight: 400;
   letter-spacing: 0.08em;
   cursor: pointer;
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  transition: background-color 0.25s ease, border-color 0.3s ease, color 0.3s ease;
   text-decoration: none;
   position: relative;
   overflow: hidden;
 }
 
 .announcement-button svg {
-  transition: transform 0.3s ease;
+  transition: transform 0.25s ease;
   opacity: 0.6;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .announcement-button:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .announcement-button:hover svg {
+    transform: translateX(4px);
+  }
 }
 
 .dot {
@@ -1014,7 +1056,6 @@ html, body {
   }
 }
 
-/* Scroll Indicator */
 .scroll-indicator {
   position: absolute;
   bottom: 40px;
@@ -1047,1817 +1088,930 @@ html, body {
   }
 }
 
-/* Documentation Button - Liquid Glass */
-.documentation-button {
-  position: absolute;
-  bottom: 40px;
-  right: 60px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.8);
-  padding: 8px 18px;
-  border-radius: 30px;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.6px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 
-    inset 0 1px 1px rgba(255, 255, 255, 0.1),
-    0 4px 12px rgba(0, 0, 0, 0.1);
+/* ==================== SERVICIOS ==================== */
+.services-panel {
+  display: grid;
+  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+  gap: clamp(40px, 6vw, 112px);
+  align-items: stretch;
 }
 
-.documentation-button:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.3);
-  color: rgba(255, 255, 255, 0.95);
-  box-shadow: 
-    inset 0 1px 1px rgba(255, 255, 255, 0.15),
-    0 6px 16px rgba(0, 0, 0, 0.15);
-}
-
-.documentation-button svg {
-  transition: transform 0.3s ease;
-  width: 14px;
-  height: 14px;
-}
-
-.documentation-button:hover svg {
-  transform: translateX(3px);
-}
-
-/* ==================== SERVICES SECTION ==================== */
-.services-section {
-  position: relative;
-  width: 100%;
-  min-height: 100vh;
-  background: #000;
-}
-
-/* Decorative Elements - Left Vertical */
-.deco-left {
-  position: absolute;
-  left: 1.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 20;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.deco-text-vertical {
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  font-size: 0.65rem;
-  letter-spacing: 0.4em;
-  color: rgba(255, 255, 255, 0.25);
-  text-transform: uppercase;
-}
-
-.deco-line-vertical {
-  width: 1px;
-  height: 80px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
-}
-
-/* Decorative Elements - Top Right */
-.deco-top-right {
-  position: absolute;
-  top: 2rem;
-  right: 3rem;
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.deco-text-small {
-  font-size: 0.6rem;
-  letter-spacing: 0.05em;
-  color: rgba(255, 255, 255, 0.4);
-  text-transform: uppercase;
-}
-
-.deco-text-brand {
-  font-size: 0.7rem;
-  letter-spacing: 0.15em;
-  color: rgba(255, 255, 255, 0.7);
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.deco-text-accent {
-  font-size: 0.65rem;
-  letter-spacing: 0.1em;
-  color: #AFE3E8;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.deco-cross {
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.3);
-  margin-left: 1rem;
-}
-
-.services-content-wrapper {
-  position: relative;
-  z-index: 10;
-  display: flex;
-  width: 100%;
-  min-height: 100vh;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 60px;
-}
-
-/* Left Navigation */
-.services-nav {
-  width: 280px;
-  padding: 3rem 2rem 3rem 0;
-  padding-left: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 2rem;
-  flex-shrink: 0;
-}
-
-.nav-header {
-  margin-bottom: 1rem;
-}
-
-.nav-label {
-  font-size: 0.7rem;
-  letter-spacing: 0.3em;
-  color: rgba(255, 255, 255, 0.4);
-  text-transform: uppercase;
-}
-
-.services-list {
+.services-tabs {
   list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
 }
 
-.service-item {
-  font-size: 0.95rem;
+.service-tab {
+  position: relative;
+  width: 100%;
+  display: block;
+  padding: 18px 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: none;
+  color: var(--text-3);
+  font-family: var(--font);
+  font-size: 17px;
   font-weight: 300;
-  color: rgba(255, 255, 255, 0.4);
+  text-align: left;
   cursor: pointer;
-  transition: color 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  padding-left: 0;
-  letter-spacing: 0.02em;
+  transition: color 0.35s ease;
 }
 
-.service-item::before {
-  content: '';
-  position: absolute;
-  left: -1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 2px;
-  height: 0;
-  background: #AFE3E8;
-  transition: height 0.3s ease;
+.service-tab:hover {
+  color: var(--text-2);
 }
 
-.service-item.active {
-  color: #fff;
-  font-weight: 500;
-}
-
-.service-item.active::before {
-  height: 100%;
-}
-
-/* Main Content */
-.services-main {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 4rem 4rem 4rem 6rem;
-}
-
-.service-detail {
-  max-width: 600px;
-  position: relative;
-}
-
-.service-title {
-  font-size: clamp(2rem, 4vw, 3rem);
+.service-tab.is-active {
+  color: var(--text);
   font-weight: 400;
-  letter-spacing: 0.1em;
-  color: #fff;
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
-  margin-bottom: 2rem;
-  line-height: 1.15;
 }
 
-.service-description {
-  font-size: 1rem;
-  font-weight: 300;
-  line-height: 1.8;
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 1.25rem;
-  max-width: 480px;
-}
-
-.service-secondary {
-  font-size: 0.9rem;
-  font-weight: 300;
-  line-height: 1.7;
-  color: rgba(255, 255, 255, 0.5);
-  font-style: italic;
-}
-
-/* Dots Navigation */
-.dots-nav {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.75rem;
-  z-index: 20;
-  padding-right: 2rem;
-}
-
-.dot-indicator {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.25);
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.dot-indicator:hover {
-  background: rgba(255, 255, 255, 0.5);
-  transform: scale(1.2);
-}
-
-.dot-indicator.active {
-  background: #AFE3E8;
-  box-shadow: 0 0 12px rgba(175, 227, 232, 0.6);
-  transform: scale(1.2);
-}
-
-/* Transitions */
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.fade-slide-enter-from {
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateY(-20px);
-}
-
-/* ==================== MOBILE SERVICES CAROUSEL ==================== */
-.mobile-services-carousel {
-  display: none;
-  flex-direction: column;
-  padding: 0;
-  width: 72%;
-  max-width: 320px;
-  margin: 0 auto;
-  min-height: 380px;
-}
-
-.carousel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.75rem;
-}
-
-.carousel-label {
-  font-size: 0.6rem;
-  font-weight: 500;
-  letter-spacing: 0.25em;
-  color: #AFE3E8;
-}
-
-.carousel-counter {
-  font-size: 0.7rem;
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.3);
-  font-family: monospace;
-}
-
-.carousel-track {
-  display: flex;
-  align-items: flex-start;
-  touch-action: pan-y;
-  user-select: none;
-  height: 300px;
+.tab-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
   overflow: hidden;
 }
 
-.carousel-slide {
+.tab-progress-fill {
+  display: block;
   width: 100%;
+  height: 100%;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.service-tab.is-active .tab-progress-fill {
+  animation: service-timer 7s linear forwards;
+}
+
+.services-panel.is-paused .tab-progress-fill,
+.mobile-services-carousel.is-paused .carousel-progress-fill {
+  animation-play-state: paused;
+}
+
+@keyframes service-timer {
+  to { transform: scaleX(1); }
+}
+
+/* Todos los paneles se apilan en la misma celda: el alto lo marca el más largo,
+   así que cambiar de servicio nunca mueve el resto de la página. */
+.service-stage {
+  position: relative;
+  display: grid;
+  align-items: center;
+}
+
+.service-detail {
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(16px);
+  transition: opacity 0.4s ease, transform 0.6s var(--ease-out), visibility 0s linear 0.6s;
+}
+
+.service-detail.is-active {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 0.55s ease 0.1s, transform 0.8s var(--ease-out) 0.1s, visibility 0s;
+}
+
+.detail-title {
+  font-size: clamp(32px, 3.4vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.detail-desc {
+  margin-top: 24px;
+  max-width: 620px;
+  font-size: 18px;
+  line-height: 1.7;
+  color: var(--text-2);
+}
+
+.detail-note {
+  margin-top: 18px;
+  max-width: 580px;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--text-3);
+}
+
+/* Carrusel mobile */
+.mobile-services-carousel {
+  display: none;
+  flex-direction: column;
+}
+
+.carousel-progress {
+  display: block;
+  height: 1px;
+  margin-bottom: 28px;
+  background: var(--line-strong);
+  overflow: hidden;
+}
+
+.carousel-progress-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: service-timer 7s linear forwards;
+}
+
+.carousel-track {
+  display: grid;
+  touch-action: pan-y;
+  user-select: none;
+  --slide-from: 28px;
+}
+
+.carousel-track.slide-right {
+  --slide-from: -28px;
+}
+
+.carousel-slide {
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(var(--slide-from));
+  transition: opacity 0.3s ease, transform 0.5s var(--ease-out), visibility 0s linear 0.5s;
+}
+
+.carousel-slide.is-active {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 0.45s ease 0.08s, transform 0.6s var(--ease-out) 0.08s, visibility 0s;
 }
 
 .carousel-title {
-  font-size: 1.4rem;
-  font-weight: 300;
-  color: #fff;
-  margin-bottom: 1.35rem;
-  line-height: 1.35;
-  letter-spacing: -0.01em;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
 }
 
 .carousel-description {
-  font-size: 0.88rem;
-  font-weight: 300;
-  line-height: 1.8;
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 1.1rem;
+  margin-top: 18px;
+  font-size: 15.5px;
+  line-height: 1.7;
+  color: var(--text-2);
 }
 
 .carousel-secondary {
-  font-size: 0.82rem;
-  font-weight: 300;
-  font-style: italic;
-  line-height: 1.7;
-  color: rgba(255, 255, 255, 0.35);
-}
-
-.carousel-hint {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin: 1.75rem 0 1.1rem;
-  color: rgba(255, 255, 255, 0.2);
-  font-size: 0.65rem;
-  font-weight: 300;
-}
-
-.carousel-hint i {
-  font-size: 0.55rem;
+  margin-top: 14px;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--text-3);
 }
 
 .carousel-dots {
   display: flex;
-  justify-content: center;
-  gap: 7px;
+  gap: 6px;
+  margin-top: 36px;
 }
 
 .carousel-dot {
   width: 6px;
   height: 6px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  cursor: pointer;
-  transition: background-color 0.3s ease, width 0.3s ease, border-radius 0.3s ease;
-}
-
-.carousel-dot.active {
-  background: #AFE3E8;
-  width: 18px;
+  padding: 0;
+  border: 0;
   border-radius: 3px;
+  background: rgba(255, 255, 255, 0.16);
+  cursor: pointer;
+  transition: width 0.4s var(--ease-out), background-color 0.3s ease;
 }
 
-/* Slide transitions */
-.slide-left-enter-active,
-.slide-left-leave-active,
-.slide-right-enter-active,
-.slide-right-leave-active {
-  transition: opacity 0.35s ease, transform 0.35s ease;
+.carousel-dot.is-active {
+  width: 22px;
+  background: var(--accent);
 }
 
-.slide-left-enter-from {
-  opacity: 0;
-  transform: translateX(30px);
-}
-
-.slide-left-leave-to {
-  opacity: 0;
-  transform: translateX(-30px);
-}
-
-.slide-right-enter-from {
-  opacity: 0;
-  transform: translateX(-30px);
-}
-
-.slide-right-leave-to {
-  opacity: 0;
-  transform: translateX(30px);
-}
-
-/* ==================== SOLUTION SECTION ==================== */
-.solution-section {
-  position: relative;
-  width: 100%;
-  min-height: 100vh;
-  background: #000;
-  padding: 100px 0 80px;
-}
-
-/* Simple light gradient - at the bottom of solution */
-.solution-light {
+/* ==================== SOLUCIÓN ==================== */
+.solution-glow {
   position: absolute;
-  bottom: 0;
-  left: -15%;
-  right: -15%;
-  height: 60%;
+  left: 50%;
+  top: 34%;
+  width: min(1200px, 120vw);
+  height: 720px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(175, 227, 232, 0.13), transparent 70%);
   pointer-events: none;
   z-index: 1;
-  filter: blur(40px);
-  background: radial-gradient(
-    ellipse 140% 100% at 50% 100%,
-    rgba(175, 227, 232, 1) 0%,
-    rgba(170, 220, 227, 0.85) 8%,
-    rgba(165, 212, 222, 0.7) 16%,
-    rgba(160, 205, 217, 0.55) 24%,
-    rgba(155, 197, 212, 0.42) 32%,
-    rgba(150, 190, 207, 0.3) 40%,
-    rgba(145, 182, 202, 0.2) 50%,
-    rgba(140, 175, 197, 0.12) 60%,
-    rgba(135, 167, 192, 0.05) 75%,
-    rgba(0, 0, 0, 0) 100%
-  );
 }
 
-.solution-container {
-  position: relative;
-  z-index: 10;
-  max-width: 1400px;
+.solution-showcase {
+  perspective: 1800px;
+  max-width: 1120px;
   margin: 0 auto;
-  padding: 0 60px;
-  display: flex;
-  align-items: stretch;
 }
 
-/* Separator Lines */
-.solution-separator {
-  width: 1px;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.08) 20%,
-    rgba(255, 255, 255, 0.12) 50%,
-    rgba(255, 255, 255, 0.08) 80%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  flex-shrink: 0;
-}
-
-/* Solution Columns */
-.solution-column {
-  display: flex;
-  flex-direction: column;
-  padding: 40px 40px;
-  flex: 1;
-}
-
-.solution-column:first-child {
-  padding-left: 0;
-}
-
-.solution-column:last-child {
-  padding-right: 0;
-}
-
-.solution-column-center {
-  align-items: center;
-  text-align: center;
-  flex: 1.3;
-}
-
-.solution-label {
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  color: rgba(255, 255, 255, 0.4);
-  text-transform: uppercase;
-  margin-bottom: 1rem;
-}
-
-.solution-column-title {
-  font-size: 2rem;
-  font-weight: 400;
-  margin-bottom: 1.5rem;
-  letter-spacing: -0.01em;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.6) 0%,
-    rgba(255, 255, 255, 0.85) 50%,
-    #AFE3E8 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.solution-main-title {
-  font-size: 2.5rem;
-  font-weight: 400;
-  margin-bottom: 2rem;
-  letter-spacing: -0.01em;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.6) 0%,
-    rgba(255, 255, 255, 0.85) 50%,
-    #AFE3E8 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.solution-text {
-  font-size: 0.85rem;
-  font-weight: 300;
-  line-height: 1.8;
-  flex: 1;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.35) 0%,
-    rgba(255, 255, 255, 0.55) 50%,
-    #AFE3E8 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.solution-text-small {
-  font-size: 0.8rem;
-  margin-bottom: 1.5rem;
-  flex: none;
-}
-
-/* Device/Product Display */
-.solution-device {
-  width: 100%;
-  max-width: 550px;
-  margin-bottom: 2rem;
-  border-radius: 12px;
+.device {
+  position: relative;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  background: #050607;
   overflow: hidden;
-  box-shadow: 
-    0 25px 80px rgba(0, 0, 0, 0.6),
-    0 10px 30px rgba(0, 0, 0, 0.4);
-  transition: transform 0.4s ease, box-shadow 0.4s ease;
-  cursor: pointer;
-}
-
-.solution-device-inner {
-  width: 100%;
+  box-shadow:
+    0 50px 120px -30px rgba(0, 0, 0, 0.9),
+    0 30px 120px -50px rgba(175, 227, 232, 0.35);
+  will-change: transform;
 }
 
 .device-image {
+  display: block;
   width: 100%;
   height: auto;
-  display: block;
 }
 
-.solution-device-caption {
-  font-size: 0.85rem;
-  font-weight: 300;
-  line-height: 1.6;
+.device-caption {
+  margin-top: 24px;
   text-align: center;
-  max-width: 400px;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.35) 0%,
-    rgba(255, 255, 255, 0.55) 50%,
-    rgba(255, 255, 255, 0.8) 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 14px;
+  color: var(--text-3);
 }
 
-/* Features List */
-.solution-features {
+.solution-grid {
+  margin-top: clamp(80px, 10vw, 140px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(40px, 7vw, 120px);
+}
+
+.block-title {
+  padding-bottom: 20px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+
+.solution-copy p {
+  font-size: 17px;
+  line-height: 1.75;
+  color: var(--text-2);
+}
+
+.solution-copy p + p {
+  margin-top: 18px;
+}
+
+.capabilities .block-title {
+  margin-bottom: 0;
+}
+
+.capability-list {
   list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  flex: 1;
 }
 
-.feature-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.85rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  font-size: 0.85rem;
-  transition: transform 0.3s ease, border-color 0.3s ease;
-  cursor: pointer;
-}
-
-.feature-icon {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.4);
-  transition: transform 0.3s ease, color 0.3s ease;
-  flex-shrink: 0;
-}
-
-.feature-item span:last-child {
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.5) 0%,
-    rgba(255, 255, 255, 0.75) 50%,
-    #AFE3E8 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.feature-item:first-child {
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.feature-item:last-child {
-  border-bottom: none;
-}
-
-.feature-icon {
-  color: #AFE3E8;
-  font-size: 0.75rem;
-}
-
-/* Links */
-.solution-link {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.4);
-  margin-top: auto;
-  padding-top: 2rem;
-}
-
-.solution-link a {
-  color: rgba(255, 255, 255, 0.7);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.solution-link a:hover {
-  color: #fff;
-}
-
-.doc-icon {
-  font-size: 1rem;
-}
-
-/* Bottom Title */
-.solution-bottom {
+.capability {
   position: relative;
-  z-index: 10;
-  max-width: 1400px;
-  margin: 80px auto 0;
-  padding: 0 60px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 16px;
+  color: var(--text-2);
+  transition: color 0.3s ease;
 }
 
-.solution-bottom-title {
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
-  font-weight: 400;
-  color: rgba(0, 0, 0, 0.85);
-  margin-bottom: 1rem;
-  letter-spacing: -0.01em;
-}
-
-.solution-bottom-subtitle {
-  font-size: 0.9rem;
-  color: rgba(0, 0, 0, 0.5);
-  font-weight: 300;
-}
-
-/* ==================== USE CASES SECTION ==================== */
-.use-cases-section {
-  position: relative;
+.capability::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
   width: 100%;
-  background: transparent;
-  padding: 120px 0;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.6s var(--ease-out);
 }
 
-.use-cases-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 60px;
+.capability:hover {
+  color: var(--text);
 }
 
-.use-cases-header {
-  text-align: center;
-  margin-bottom: 80px;
+.capability:hover::before {
+  transform: scaleX(1);
 }
 
-.use-cases-label {
-  display: block;
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.25em;
-  color: rgba(255, 255, 255, 0.4);
-  text-transform: uppercase;
-  margin-bottom: 1.5rem;
-}
-
-.use-cases-title {
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 400;
-  color: #fff;
-  margin-bottom: 1rem;
-  letter-spacing: -0.02em;
-}
-
-.use-cases-subtitle {
-  font-size: 1rem;
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.5);
-  max-width: 500px;
-  margin: 0 auto;
-}
-
+/* ==================== CASOS DE USO ==================== */
 .use-cases-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--line);
+  border: 1px solid var(--line);
 }
 
 .use-case-card {
+  --mx: 50%;
+  --my: -30%;
   position: relative;
+  min-height: 280px;
+  padding: 40px 36px;
+  display: flex;
+  flex-direction: column;
   background: #000;
-  padding: 48px 36px;
-  cursor: pointer;
   overflow: hidden;
-  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  isolation: isolate;
 }
 
-/* Border glow effect on hover */
-.card-border {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    rgba(255, 255, 255, 0.02) 50%,
-    rgba(255, 255, 255, 0.05) 100%
-  );
-}
-
-.use-case-card:hover .card-border {
-  opacity: 1;
-}
-
-.use-case-card:hover {
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.card-content {
-  position: relative;
-  z-index: 2;
-}
-
-.card-icon {
-  color: rgba(255, 255, 255, 0.4);
-  margin-bottom: 24px;
-  transition: color 0.4s ease, transform 0.4s ease;
-}
-
-.use-case-card:hover .card-icon {
-  color: rgba(255, 255, 255, 0.8);
-  transform: translateY(-4px);
-}
-
-.card-title {
-  font-size: 1.15rem;
-  font-weight: 500;
-  color: #fff;
-  margin-bottom: 12px;
-  letter-spacing: -0.01em;
-  transition: color 0.4s ease;
-}
-
-.card-description {
-  font-size: 0.9rem;
-  font-weight: 300;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.45);
-  transition: color 0.4s ease;
-}
-
-.use-case-card:hover .card-description {
-  color: rgba(255, 255, 255, 0.65);
-}
-
-/* Subtle line decorators */
 .use-case-card::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 36px;
-  right: 36px;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.15) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(380px circle at var(--mx) var(--my), rgba(175, 227, 232, 0.11), transparent 65%);
   opacity: 0;
-  transform: scaleX(0);
-  transition: all 0.4s ease;
+  transition: opacity 0.5s ease;
 }
 
 .use-case-card:hover::before {
   opacity: 1;
-  transform: scaleX(1);
 }
 
-/* ==================== MOBILE USE CASES ACCORDION ==================== */
+.card-icon {
+  color: var(--text-3);
+  transition: color 0.4s ease;
+}
+
+.use-case-card:hover .card-icon {
+  color: var(--accent);
+}
+
+.card-title {
+  margin-top: auto;
+  padding-top: 56px;
+  font-size: 21px;
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.card-description {
+  margin-top: 12px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-3);
+  transition: color 0.4s ease;
+}
+
+.use-case-card:hover .card-description {
+  color: var(--text-2);
+}
+
+/* Acordeón mobile */
 .mobile-use-cases-accordion {
   display: none;
   flex-direction: column;
-  gap: 0;
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-/* Global reset for accordion */
-.mobile-use-cases-accordion * {
-  background: transparent !important;
-  background-color: transparent !important;
+  border-top: 1px solid var(--line);
 }
 
 .accordion-item {
-  border: none !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-bottom: 1px solid var(--line);
 }
 
-.accordion-item:first-child {
-  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
-}
-
-/* The button trigger */
 .accordion-header {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  width: 100% !important;
-  padding: 28px 0 !important;
-  cursor: pointer !important;
-  border: none !important;
-  outline: none !important;
-  transition: all 0.3s ease !important;
-  will-change: transform;
-}
-
-.accordion-header:hover {
-  text-decoration: none !important;
-}
-
-/* Left side: number + icon + title */
-.accordion-header-left {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  gap: 14px !important;
-}
-
-.accordion-number {
-  font-size: 0.65rem;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.2);
-  font-family: monospace;
-  min-width: 20px;
-}
-
-.accordion-icon {
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.3);
-  transition: all 0.3s ease;
-}
-
-.accordion-item[data-state="open"] .accordion-icon {
-  color: #AFE3E8;
+  width: 100%;
+  padding: 22px 0 !important;
+  color: inherit;
+  font-family: var(--font);
 }
 
 .accordion-title {
-  font-size: 0.95rem;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.6);
-  transition: all 0.3s ease;
+  font-size: 17px;
+  font-weight: 300;
+  color: var(--text-2);
   text-align: left;
+  transition: color 0.3s ease;
 }
 
-.accordion-item[data-state="open"] .accordion-title {
-  color: rgba(255, 255, 255, 0.95);
+.accordion-item[data-state='open'] .accordion-title {
+  color: var(--text);
+  font-weight: 400;
 }
 
-/* Right side: toggle button */
+/* Ícono +/− dibujado con CSS */
 .accordion-toggle {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 28px !important;
-  height: 28px !important;
-  min-width: 28px !important;
-  border-radius: 50% !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  color: rgba(255, 255, 255, 0.4) !important;
-  transition: all 0.3s ease !important;
-  flex-shrink: 0 !important;
-  will-change: transform, background, color;
+  position: relative;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-left: 16px;
 }
 
-.accordion-toggle .pi {
-  font-size: 0.75rem;
+.accordion-toggle::before,
+.accordion-toggle::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 1px;
+  margin: -0.5px 0 0 -7px;
+  background: var(--text-2);
+  transition: transform 0.4s var(--ease-out), background-color 0.3s ease;
 }
 
-.accordion-item[data-state="open"] .accordion-toggle {
-  background: rgba(175, 227, 232, 0.15) !important;
-  color: #AFE3E8 !important;
+.accordion-toggle::after {
+  transform: rotate(90deg);
 }
 
-/* AccordionContent */
+.accordion-item[data-state='open'] .accordion-toggle::before,
+.accordion-item[data-state='open'] .accordion-toggle::after {
+  background: var(--accent);
+}
+
+.accordion-item[data-state='open'] .accordion-toggle::after {
+  transform: rotate(0deg);
+}
+
 .accordion-content {
   overflow: hidden;
 }
 
-.accordion-content-inner {
-  padding: 0 0 20px 34px;
+.accordion-content[data-state='open'] {
+  animation: accordion-down 0.45s var(--ease-out);
+}
+
+.accordion-content[data-state='closed'] {
+  animation: accordion-up 0.3s ease;
+}
+
+@keyframes accordion-down {
+  from { height: 0; opacity: 0; }
+  to { height: var(--reka-accordion-content-height); opacity: 1; }
+}
+
+@keyframes accordion-up {
+  from { height: var(--reka-accordion-content-height); opacity: 1; }
+  to { height: 0; opacity: 0; }
 }
 
 .accordion-description {
-  font-size: 0.85rem;
-  font-weight: 300;
-  line-height: 1.75;
-  color: rgba(255, 255, 255, 0.5);
+  padding-bottom: 24px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-2);
 }
 
-/* ==================== TECHNOLOGY SECTION - TIMELINE ==================== */
-.technology-section {
+/* ==================== CÓMO FUNCIONA ==================== */
+.flow {
   position: relative;
-  width: 100%;
-  min-height: 100vh;
-  background: #000;
-  padding: 120px 0;
+  z-index: 2;
+}
+
+/* La pista define cuánto scroll dura el recorrido; el contenido queda fijo. */
+.flow-track {
+  position: relative;
+  height: calc(100vh + var(--steps) * 62vh);
+}
+
+.flow-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
   display: flex;
   align-items: center;
-  overflow: hidden;
+  overflow: clip;
 }
 
-/* Contenedor de luz - COPIA EXACTA del hero pero en lado izquierdo */
-.tech-light-container {
-  position: absolute;
-  top: -20%;
-  left: -2rem;
-  width: 80vw;
-  height: 140vh;
-  display: flex;
-  flex-direction: column;
-  pointer-events: none;
-  z-index: 1;
-  filter: blur(20px);
-  transform: scaleX(-1);
-  opacity: 0.85;
-  mask-image: radial-gradient(
-    ellipse 110% 120% at 100% 40%, 
-    rgb(255, 255, 255) 0%, 
-    rgba(255, 255, 255, 0.95) 10%,
-    rgba(255, 255, 255, 0.85) 20%,
-    rgba(255, 255, 255, 0.7) 30%,
-    rgba(255, 255, 255, 0.5) 40%,
-    rgba(255, 255, 255, 0.35) 50%,
-    rgba(255, 255, 255, 0.2) 60%,
-    rgba(255, 255, 255, 0.1) 70%,
-    rgba(255, 255, 255, 0.03) 80%,
-    rgba(255, 255, 255, 0) 90%
-  );
-  -webkit-mask-image: radial-gradient(
-    ellipse 110% 120% at 100% 40%, 
-    rgb(255, 255, 255) 0%, 
-    rgba(255, 255, 255, 0.95) 10%,
-    rgba(255, 255, 255, 0.85) 20%,
-    rgba(255, 255, 255, 0.7) 30%,
-    rgba(255, 255, 255, 0.5) 40%,
-    rgba(255, 255, 255, 0.35) 50%,
-    rgba(255, 255, 255, 0.2) 60%,
-    rgba(255, 255, 255, 0.1) 70%,
-    rgba(255, 255, 255, 0.03) 80%,
-    rgba(255, 255, 255, 0) 90%
-  );
-}
-
-.tech-conic-light {
-  flex: 1;
-  width: 100%;
-}
-
-/* COPIA EXACTA de conic-light-top del hero */
-.tech-conic-light-top {
-  background: conic-gradient(
-    from 180deg at 99.78% 35%,
-    rgb(255, 255, 255) 0deg,
-    rgb(255, 255, 255) 15deg,
-    rgb(175, 227, 232) 25deg,
-    rgb(160, 212, 222) 40deg,
-    rgba(145, 195, 205, 0.5) 60deg,
-    rgba(17, 17, 17, 0) 90deg,
-    rgba(17, 17, 17, 0) 342deg,
-    rgb(255, 255, 255) 360deg
-  );
-}
-
-/* COPIA EXACTA de conic-light-bottom del hero */
-.tech-conic-light-bottom {
-  background: conic-gradient(
-    from 0deg at 99.78% 65%,
-    rgb(255, 255, 255) 0deg,
-    rgb(255, 255, 255) 10deg,
-    rgba(17, 17, 17, 0) 20deg,
-    rgba(17, 17, 17, 0) 270deg,
-    rgb(160, 212, 222) 315deg,
-    rgb(175, 227, 232) 330deg,
-    rgb(255, 255, 255) 342deg,
-    rgb(255, 255, 255) 360deg
-  );
-}
-
-.technology-container {
-  position: relative;
-  z-index: 10;
-  width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 60px 0 200px;
-}
-
-/* Header */
-.technology-header {
-  margin-bottom: 80px;
-}
-
-.header-line-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 1rem;
-}
-
-.header-line {
-  width: 32px;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.technology-label {
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  color: rgba(255, 255, 255, 0.4);
-  text-transform: uppercase;
-}
-
-.technology-title {
-  font-size: clamp(2.5rem, 5vw, 4rem);
-  font-weight: 400;
-  margin-bottom: 1rem;
-  letter-spacing: -0.02em;
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(255, 255, 255, 0.9) 30%,
-    rgba(255, 255, 255, 0.7) 60%,
-    rgba(255, 255, 255, 0.5) 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.technology-subtitle {
-  font-size: 1rem;
-  font-weight: 300;
-  max-width: 500px;
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0.8) 0%,
-    rgba(255, 255, 255, 0.5) 50%,
-    rgba(255, 255, 255, 0.35) 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Timeline Container */
-.timeline-container {
-  position: relative;
-  padding: 160px 0;
-}
-
-/* Timeline Line */
-.timeline-line {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.12);
-  transform: translateY(-50%);
-}
-
-.timeline-line-progress {
+/* Haz de luz desde la derecha, el mismo lenguaje que el hero */
+.flow-beam {
   position: absolute;
   top: 0;
-  left: 0;
+  right: 0;
+  width: 70%;
   height: 100%;
-  width: 100%;
-  background: linear-gradient(
-    90deg,
-    rgba(175, 227, 232, 0.6) 0%,
-    rgba(255, 255, 255, 0.4) 50%,
-    rgba(175, 227, 232, 0.6) 100%
-  );
+  background: radial-gradient(ellipse 60% 55% at 100% 50%, rgba(175, 227, 232, 0.16), transparent 70%);
+  pointer-events: none;
 }
 
-/* Timeline Items */
-.timeline-items {
-  display: flex;
-  justify-content: space-between;
-  position: relative;
+.flow-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  grid-template-areas:
+    'head visual'
+    'detail visual';
+  grid-template-rows: auto 1fr;
+  column-gap: clamp(40px, 6vw, 112px);
+  height: 100%;
+  padding-top: calc(var(--header-h) + clamp(32px, 7vh, 80px));
+  padding-bottom: clamp(32px, 7vh, 80px);
 }
 
-.timeline-item {
-  position: relative;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.flow-head {
+  grid-area: head;
 }
 
-/* Dot */
-.timeline-dot {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 14px;
-  height: 14px;
-  background: #000;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 50%;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-  cursor: pointer;
+.flow-detail {
+  grid-area: detail;
+  display: grid;
+  align-content: center;
 }
 
-.timeline-item:hover .timeline-dot {
-  border-color: rgba(175, 227, 232, 0.8);
-  box-shadow: 0 0 15px rgba(175, 227, 232, 0.3);
+.flow-step {
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px);
+  transition: opacity 0.35s ease, transform 0.6s var(--ease-out), visibility 0s linear 0.6s;
 }
 
-.dot-inner {
-  width: 6px;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 50%;
-  transition: background-color 0.3s ease;
+.flow-step.is-past {
+  transform: translateY(-20px);
 }
 
-.timeline-item:hover .dot-inner {
-  background: #AFE3E8;
+.flow-step.is-active {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 0.5s ease 0.08s, transform 0.75s var(--ease-out) 0.08s, visibility 0s;
 }
 
-/* Vertical Line */
-.vertical-line {
-  position: absolute;
-  left: 50%;
-  width: 1px;
-  height: 70px;
-  transform: translateX(-50%);
+.flow-step-title {
+  font-size: clamp(28px, 2.8vw, 40px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
 }
 
-.item-top .vertical-line {
-  bottom: 50%;
-  margin-bottom: 7px;
-  background: linear-gradient(
-    to top,
-    rgba(255, 255, 255, 0.25),
-    rgba(255, 255, 255, 0.03)
-  );
+.flow-step-desc {
+  margin-top: 18px;
+  max-width: 460px;
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--text-2);
 }
 
-.item-bottom .vertical-line {
-  top: 50%;
-  margin-top: 7px;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.25),
-    rgba(255, 255, 255, 0.03)
-  );
+.flow-visual {
+  grid-area: visual;
+  align-self: center;
+  justify-self: center;
+  width: min(100%, calc(100vh - var(--header-h) - 120px));
 }
 
-/* Content Card */
-.timeline-card {
-  position: absolute;
-  width: max-content;
-  max-width: 200px;
-  text-align: left;
-  left: 50%;
-  transform: translateX(-50%);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: pointer;
-}
-
-.timeline-item:hover .timeline-card {
-  transform: translateX(-50%) translateY(-3px);
-}
-
-.item-top .timeline-card {
-  bottom: calc(50% + 90px);
-}
-
-.item-bottom .timeline-card {
-  top: calc(50% + 90px);
-}
-
-/* Step Label */
-.step-label {
+.orbit {
   display: block;
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  color: rgba(175, 227, 232, 0.6);
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-}
-
-/* Step Title */
-.step-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.85);
-  margin-bottom: 0.6rem;
-  line-height: 1.3;
-}
-
-/* Step Description */
-.step-description {
-  font-size: 0.8rem;
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.5);
-  line-height: 1.6;
-}
-
-/* Efecto de iluminación gradual - más brillante a la izquierda */
-.timeline-item:nth-child(1) .step-label { color: #AFE3E8; }
-.timeline-item:nth-child(1) .step-title { color: rgba(255, 255, 255, 1); }
-.timeline-item:nth-child(1) .step-description { color: rgba(255, 255, 255, 0.8); }
-
-.timeline-item:nth-child(2) .step-label { color: rgba(175, 227, 232, 0.85); }
-.timeline-item:nth-child(2) .step-title { color: rgba(255, 255, 255, 0.95); }
-.timeline-item:nth-child(2) .step-description { color: rgba(255, 255, 255, 0.7); }
-
-.timeline-item:nth-child(3) .step-label { color: rgba(175, 227, 232, 0.7); }
-.timeline-item:nth-child(3) .step-title { color: rgba(255, 255, 255, 0.88); }
-.timeline-item:nth-child(3) .step-description { color: rgba(255, 255, 255, 0.6); }
-
-.timeline-item:nth-child(4) .step-label { color: rgba(175, 227, 232, 0.55); }
-.timeline-item:nth-child(4) .step-title { color: rgba(255, 255, 255, 0.8); }
-.timeline-item:nth-child(4) .step-description { color: rgba(255, 255, 255, 0.5); }
-
-.timeline-item:nth-child(5) .step-label { color: rgba(175, 227, 232, 0.45); }
-.timeline-item:nth-child(5) .step-title { color: rgba(255, 255, 255, 0.72); }
-.timeline-item:nth-child(5) .step-description { color: rgba(255, 255, 255, 0.42); }
-
-.timeline-item:nth-child(6) .step-label { color: rgba(175, 227, 232, 0.35); }
-.timeline-item:nth-child(6) .step-title { color: rgba(255, 255, 255, 0.65); }
-.timeline-item:nth-child(6) .step-description { color: rgba(255, 255, 255, 0.35); }
-
-/* Dots gradual illumination */
-.timeline-item:nth-child(1) .timeline-dot { border-color: #AFE3E8; }
-.timeline-item:nth-child(1) .dot-inner { background: #AFE3E8; }
-
-.timeline-item:nth-child(2) .timeline-dot { border-color: rgba(175, 227, 232, 0.7); }
-.timeline-item:nth-child(2) .dot-inner { background: rgba(175, 227, 232, 0.9); }
-
-.timeline-item:nth-child(3) .timeline-dot { border-color: rgba(255, 255, 255, 0.5); }
-.timeline-item:nth-child(3) .dot-inner { background: rgba(255, 255, 255, 0.85); }
-
-.timeline-item:nth-child(4) .timeline-dot { border-color: rgba(255, 255, 255, 0.4); }
-.timeline-item:nth-child(4) .dot-inner { background: rgba(255, 255, 255, 0.75); }
-
-.timeline-item:nth-child(5) .timeline-dot { border-color: rgba(255, 255, 255, 0.3); }
-.timeline-item:nth-child(5) .dot-inner { background: rgba(255, 255, 255, 0.65); }
-
-.timeline-item:nth-child(6) .timeline-dot { border-color: rgba(255, 255, 255, 0.25); }
-.timeline-item:nth-child(6) .dot-inner { background: rgba(255, 255, 255, 0.55); }
-
-/* ==================== CONTACT SECTION ==================== */
-.contact-section {
-  position: relative;
   width: 100%;
-  background: #000;
-  padding: 140px 0 80px;
+  height: auto;
+  overflow: visible;
 }
 
-.contact-container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 0 40px;
+.ring-line {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 1;
+  transition: stroke 0.6s ease;
 }
 
-.contact-content {
-  text-align: center;
+.ring.is-reached .ring-line {
+  stroke: rgba(175, 227, 232, 0.32);
 }
 
-.contact-label {
-  display: inline-block;
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.25em;
-  color: rgba(175, 227, 232, 0.7);
-  text-transform: uppercase;
-  margin-bottom: 1.5rem;
+.ring.is-current .ring-line {
+  stroke: var(--accent);
+  stroke-width: 1.25;
+}
+
+.ring-glow {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 4;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.ring.is-current .ring-glow {
+  opacity: 0.55;
+}
+
+.orbit-core {
+  opacity: 0.12;
+}
+
+.particle {
+  fill: #fff;
+}
+
+.trail-dot {
+  fill: var(--accent);
+}
+
+.ring-label {
+  font-family: var(--font);
+  font-size: 17px;
+  font-weight: 400;
+  fill: var(--text-4);
+  paint-order: stroke;
+  stroke: #000;
+  stroke-width: 6px;
+  stroke-linejoin: round;
+  cursor: pointer;
+  transition: fill 0.4s ease;
+}
+
+.ring-label.is-reached {
+  fill: var(--text-2);
+}
+
+.ring-label.is-current {
+  fill: #fff;
+}
+
+/* Contenido completo de los pasos: oculto a la vista, disponible para lectores de
+   pantalla y buscadores (y visible si el navegador no soporta la versión fija). */
+.flow-all {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@supports not (overflow: clip) {
+  .flow-track {
+    height: auto;
+  }
+
+  .flow-sticky {
+    position: relative;
+    height: auto;
+    padding: var(--section-pad) 0 0;
+  }
+
+  .flow-detail {
+    display: none;
+  }
+
+  .flow-all {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+    list-style: none;
+    max-width: var(--container);
+    margin: 0 auto;
+    padding: 48px var(--gutter) var(--section-pad);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+  }
+}
+
+/* ==================== CONTACTO ==================== */
+.contact-panel {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: clamp(40px, 6vw, 96px);
+  align-items: end;
+  padding: clamp(40px, 6vw, 88px);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #040506;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.contact-glow {
+  position: absolute;
+  z-index: -1;
+  right: -20%;
+  top: -60%;
+  width: 80%;
+  height: 160%;
+  background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(175, 227, 232, 0.16), transparent 70%);
+  pointer-events: none;
 }
 
 .contact-title {
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 300;
-  color: #fff;
-  margin-bottom: 1.25rem;
-  letter-spacing: -0.02em;
-}
-
-.contact-subtitle {
-  font-size: 0.95rem;
-  font-weight: 300;
-  line-height: 1.7;
-  color: rgba(255, 255, 255, 0.45);
-  margin-bottom: 3rem;
-}
-
-.contact-options {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  margin-bottom: 2.5rem;
-}
-
-/* Primary button - WhatsApp */
-.contact-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 24px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-size: 0.85rem;
+  font-size: clamp(44px, 6vw, 88px);
   font-weight: 400;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
-  min-width: 220px;
-  cursor: pointer;
+  line-height: 1;
+  letter-spacing: -0.04em;
 }
 
-.contact-btn-content {
+.contact-actions {
+  margin-top: 40px;
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-.contact-btn-content i {
-  font-size: 1rem;
+.contact-meta {
+  display: grid;
+  border-top: 1px solid var(--line);
 }
 
-.contact-btn-arrow {
-  font-size: 0.75rem;
-  opacity: 0;
-  transform: translate(-4px, 4px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+.contact-meta > div {
+  display: grid;
+  gap: 4px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
 }
 
-.contact-btn:hover .contact-btn-arrow {
-  opacity: 1;
-  transform: translate(0, 0);
+.contact-meta dt {
+  font-size: 13px;
+  color: var(--text-3);
 }
 
-.contact-btn-primary {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.9);
+.contact-meta dd {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--text);
 }
 
-.contact-btn-primary:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.2);
+.contact-meta a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.3s ease;
 }
 
-.contact-btn-primary .contact-btn-content i {
-  color: rgba(37, 211, 102, 0.9);
-}
-
-.whatsapp-icon-white {
-  color: white !important;
-}
-
-.contact-btn-secondary {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.contact-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.contact-note {
-  font-size: 0.75rem;
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.3);
-  letter-spacing: 0.02em;
+.contact-meta a:hover {
+  color: var(--accent);
 }
 
 /* ==================== FOOTER ==================== */
-.main-footer {
+.footer {
   position: relative;
-  width: 100%;
-  background: transparent;
-  padding: 100px 0 40px;
+  z-index: 2;
+  padding: 40px 0 32px;
   overflow: hidden;
 }
 
 .footer-light {
   position: absolute;
-  bottom: 0;
-  left: -40%;
-  right: -40%;
-  height: 120%;
-  background: radial-gradient(
-    ellipse 160% 100% at 50% 120%,
-    rgba(175, 227, 232, 0.5) 0%,
-    rgba(170, 220, 227, 0.35) 10%,
-    rgba(165, 212, 222, 0.25) 25%,
-    rgba(160, 205, 217, 0.15) 40%,
-    rgba(155, 197, 212, 0.08) 55%,
-    rgba(150, 190, 207, 0.04) 70%,
-    transparent 100%
-  );
-  filter: blur(50px);
+  bottom: -40%;
+  left: -20%;
+  right: -20%;
+  height: 100%;
+  background: radial-gradient(ellipse 60% 70% at 50% 100%, rgba(175, 227, 232, 0.18), transparent 70%);
   pointer-events: none;
-  z-index: 0;
-}
-
-.footer-container {
-  position: relative;
-  z-index: 1;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 60px;
 }
 
 .footer-grid {
   display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 1fr;
-  gap: 60px;
-  padding-bottom: 60px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.footer-column {
-  display: flex;
-  flex-direction: column;
-}
-
-.footer-brand {
-  padding-right: 40px;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  gap: 48px;
+  padding: 56px 0;
+  border-top: 1px solid var(--line);
 }
 
 .footer-logo {
-  width: 10rem;
-  margin-bottom: 16px;
-  opacity: 0.7;
-  cursor: pointer;
+  width: 150px;
+  height: auto;
+  opacity: 0.9;
 }
 
 .footer-about {
-  font-size: 0.9rem;
-  font-weight: 300;
-  line-height: 1.7;
-  color: rgba(255, 255, 255, 0.5);
+  margin-top: 20px;
+  max-width: 320px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-3);
 }
 
 .footer-title {
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.15em;
-  color: rgba(255, 255, 255, 0.4);
-  margin-bottom: 20px;
+  margin-bottom: 18px;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-3);
 }
 
 .footer-links {
   list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 12px;
 }
 
-.footer-links li a {
-  font-size: 0.9rem;
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.7);
+.footer-links a {
+  font-size: 15px;
+  color: var(--text-2);
   text-decoration: none;
-  transition: color 0.2s ease, transform 0.2s ease;
-  display: inline-block;
-  cursor: pointer;
+  transition: color 0.3s ease;
 }
 
-.footer-links li a:hover {
-  color: #AFE3E8;
+.footer-links a:hover {
+  color: var(--accent);
 }
 
-/* Footer bottom */
+.footer-wordmark {
+  position: relative;
+  display: block;
+  width: calc(100% - 48px);
+  height: auto;
+  margin: 8px auto 0;
+  overflow: visible;
+}
+
+.footer-wordmark text {
+  font-family: var(--font);
+  font-size: 128px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+}
+
 .footer-bottom {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 30px;
-}
-
-.footer-copyright {
-  font-size: 0.8rem;
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.3);
-}
-
-.footer-legal {
-  display: flex;
   gap: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--text-3);
 }
 
-.footer-legal a {
-  font-size: 0.8rem;
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.3);
+.footer-bottom-links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.footer-bottom-link {
+  color: var(--text-2);
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: color 0.3s ease;
 }
 
-.footer-legal a:hover {
-  color: rgba(255, 255, 255, 0.6);
+.footer-bottom-link:hover {
+  color: var(--accent);
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
-  .services-content-wrapper {
-    flex-direction: column;
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1100px) {
+  .services-panel {
+    grid-template-columns: 280px minmax(0, 1fr);
   }
 
-  .services-nav {
-    width: 100%;
-    padding: 2rem;
-    order: 2;
-  }
-
-  .services-main {
-    order: 1;
-    padding: 2rem;
-  }
-
-  .dots-nav {
-    right: 1rem;
-  }
-  
-  /* Technology responsive - tablet */
-  .technology-container {
-    padding: 0 40px;
-  }
-  
-  .timeline-container {
-    padding: 120px 0;
-  }
-  
-  .timeline-card {
-    max-width: 160px;
-  }
-  
-  .vertical-line {
-    height: 50px;
-  }
-  
-  .item-top .timeline-card {
-    bottom: calc(50% + 70px);
-  }
-  
-  .item-bottom .timeline-card {
-    top: calc(50% + 70px);
-  }
-}
-
-@media (max-width: 768px) {
-  /* Technology responsive - mobile: vertical layout */
-  .technology-section {
-    padding: 80px 0;
-  }
-  
-  .tech-light-container {
-    top: 10%;
-    left: -30%;
-    width: 100vw;
-    height: 130vh;
-    opacity: 0.6;
-    filter: blur(12px);
-  }
-  
-  .technology-container {
-    padding: 0 30px;
-  }
-  
-  .technology-header {
-    margin-bottom: 50px;
-  }
-  
-  .timeline-container {
-    padding: 30px 0 0 0;
-  }
-  
-  .timeline-line {
-    top: 0;
-    bottom: 0;
-    left: 20px;
-    right: auto;
-    width: 1px;
-    height: auto;
-    transform: none;
-  }
-  
-  .timeline-line-progress {
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      180deg,
-      rgba(175, 227, 232, 0.6) 0%,
-      rgba(255, 255, 255, 0.4) 50%,
-      rgba(175, 227, 232, 0.6) 100%
-    );
-    will-change: transform;
-  }
-  
-  .timeline-items {
-    flex-direction: column;
-    gap: 50px;
-    padding-left: 50px;
-  }
-  
-  .timeline-item {
-    align-items: flex-start;
-  }
-  
-  .timeline-dot {
-    left: -30px;
-    top: 0;
-    transform: translate(-50%, 0);
-  }
-  
-  .vertical-line {
-    display: none;
-  }
-  
-  .timeline-card {
-    position: relative;
-    left: 0;
-    top: 0;
-    bottom: auto;
-    transform: none;
-    max-width: 100%;
-    will-change: auto;
-  }
-  
-  .item-top .timeline-card,
-  .item-bottom .timeline-card {
-    position: relative;
-    left: 0;
-    top: 0;
-    bottom: auto;
-    transform: none;
-  }
-  
-  .timeline-item:hover .timeline-card {
-    transform: none;
-    top: 0;
-  }
-
-  .deco-left,
-  .deco-top-right {
-    display: none;
-  }
-  
-  .services-list {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  
-  .service-item {
-    font-size: 0.85rem;
-  }
-  
-  .service-item::before {
-    display: none;
-  }
-  
-  /* Solution responsive */
-  .solution-container {
-    flex-direction: column;
-    gap: 0;
-    padding: 0 30px;
-  }
-  
-  /* Hide left column and first separator on mobile */
-  .solution-column-left {
-    display: none;
-  }
-  
-  .solution-separator:first-of-type {
-    display: none;
-  }
-  
-  .solution-separator {
-    width: 100%;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(255, 255, 255, 0.1) 50%,
-      rgba(255, 255, 255, 0) 100%
-    );
-  }
-  
-  .solution-column {
-    padding: 40px 20px;
-  }
-  
-  .solution-column-center {
-    flex: none;
-  }
-  
-  .solution-bottom {
-    padding: 0 30px;
-    margin-top: 40px;
-  }
-  
-  /* Use Cases responsive */
   .use-cases-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
-  .use-cases-container {
-    padding: 0 30px;
+}
+
+@media (max-width: 960px) {
+  .section-head--split {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .section-head--split .section-lead {
+    justify-self: start;
+    margin-top: 24px;
+  }
+
+  .solution-grid,
+  .contact-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Laptops bajas: compactar "Cómo funciona" para que entre en un viewport */
+@media (min-width: 769px) and (max-height: 780px) {
+  .flow-head .section-lead {
+    display: none;
   }
 }
 
 @media (max-width: 768px) {
-  #app {
+  .landing {
     min-height: var(--app-height, 100svh);
+    --gutter: 24px;
+    --header-h: 64px;
   }
 
+  /* Hero (original) */
   .hero {
     padding-top: 100px;
     min-height: var(--app-height, 100svh);
     align-items: flex-start;
     padding-bottom: 100px;
   }
-  
+
   .hero-content {
     padding: 0 24px;
     display: flex;
@@ -2871,42 +2025,215 @@ html, body {
     letter-spacing: 0.16em;
     margin-bottom: 18px;
   }
-  
+
   .hero-title {
     font-size: clamp(32px, 10vw, 48px);
     margin-bottom: 24px;
     line-height: 1.15;
   }
-  
+
   .announcement-button {
     font-size: 10px;
     padding: 12px 20px;
     align-self: flex-start;
   }
-  
+
   .scroll-indicator {
-  bottom: 24px;
-  left: 50%;
-  right: auto;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  width: 32px;
-  height: 32px;
+    bottom: 24px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    animation-name: bounce-centered;
+  }
+
+  .scroll-indicator:hover {
+    transform: translateX(-50%) translateY(4px);
+  }
+
+  .scroll-indicator svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .light-container {
+    width: 100vw;
+    right: -20%;
+    height: calc(var(--app-height, 100svh) * 1.4);
+  }
+
+  /* Secciones */
+  .section {
+    padding: 96px 0;
+  }
+
+  .section-head {
+    margin-bottom: 48px;
+  }
+
+  .section-title {
+    font-size: clamp(30px, 8.6vw, 40px);
+  }
+
+  .section-lead {
+    margin-top: 18px;
+    font-size: 15.5px;
+  }
+
+  .desktop-services,
+  .desktop-use-cases {
+    display: none;
+  }
+
+  .mobile-services-carousel,
+  .mobile-use-cases-accordion {
+    display: flex;
+  }
+
+  .solution-showcase {
+    margin: 0 -12px;
+  }
+
+  .device {
+    border-radius: 10px;
+  }
+
+  .device-caption {
+    margin-top: 18px;
+    font-size: 13px;
+  }
+
+  .solution-grid {
+    margin-top: 72px;
+    gap: 56px;
+  }
+
+  .block-title {
+    font-size: 20px;
+  }
+
+  .solution-copy p {
+    font-size: 15.5px;
+  }
+
+  .capability {
+    font-size: 15px;
+  }
+
+  /* Cómo funciona: órbita arriba y paso activo debajo */
+  .flow-track {
+    height: calc(100svh + var(--steps) * 55svh);
+  }
+
+  .flow-sticky {
+    height: 100svh;
+    align-items: stretch;
+  }
+
+  .flow-beam {
+    width: 100%;
+    background: radial-gradient(ellipse 80% 40% at 50% 45%, rgba(175, 227, 232, 0.12), transparent 70%);
+  }
+
+  .flow-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'head'
+      'visual'
+      'detail';
+    grid-template-rows: auto auto 1fr;
+    row-gap: 16px;
+    padding-top: calc(var(--header-h) + 28px);
+    padding-bottom: 24px;
+  }
+
+  .flow-head .section-lead {
+    display: none;
+  }
+
+  .flow-visual {
+    width: min(100%, 44svh);
+  }
+
+  /* En mobile solo se ve la etiqueta del paso activo: las seis juntas no entran */
+  .ring-label {
+    font-size: 26px;
+    stroke-width: 8px;
+    opacity: 0;
+    transition: opacity 0.4s ease, fill 0.4s ease;
+  }
+
+  .ring-label.is-current {
+    opacity: 1;
+  }
+
+  .flow-detail {
+    align-content: start;
+  }
+
+  .flow-step-title {
+    font-size: 26px;
+  }
+
+  .flow-step-desc {
+    margin-top: 12px;
+    font-size: 15.5px;
+  }
+
+  /* Contacto */
+  .contact-panel {
+    padding: 40px 24px;
+    gap: 40px;
+  }
+
+  .contact-title {
+    font-size: clamp(42px, 12vw, 56px);
+  }
+
+  .contact-actions {
+    flex-direction: column;
+  }
+
+  .contact-actions .btn {
+    width: 100%;
+  }
+
+  /* Footer */
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 36px 24px;
+    padding: 40px 0;
+  }
+
+  .footer-contact-column {
+    display: none;
+  }
+
+  .footer-logo {
+    width: 120px;
+  }
+
+  .footer-wordmark {
+    width: calc(100% - 32px);
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .footer-bottom-links {
+    gap: 20px;
+  }
 }
 
-.scroll-indicator:hover {
-  transform: translateX(-50%) translateY(4px);
-}
-
-.scroll-indicator svg {
-  width: 24px;
-  height: 24px;
-}
-
-@keyframes bounce {
+@keyframes bounce-centered {
   0%, 100% {
     transform: translateX(-50%) translateY(0);
   }
@@ -2914,160 +2241,27 @@ html, body {
     transform: translateX(-50%) translateY(8px);
   }
 }
-  
-  .documentation-button {
-    display: none;
-  }
-  
-  /* Adjust light for mobile */
-  .light-container {
-    width: 100vw;
-    right: -20%;
-    height: calc(var(--app-height, 100svh) * 1.4);
-  }
-  
-  /* Services mobile - Carousel */
-  .services-section {
-    min-height: auto;
-    padding: 80px 0 60px;
-    scroll-margin-top: 225px;
-  }
-  
-  .desktop-services {
-    display: none !important;
-  }
-  
-  .deco-left {
-    display: none;
-  }
-  
-  .mobile-services-carousel {
-    display: flex;
-  }
-  
-  /* Use Cases mobile - Accordion */
-  .desktop-use-cases {
-    display: none;
-  }
-  
-  .mobile-use-cases-accordion {
-    display: flex;
-  }
-  
-  .use-cases-section {
-    min-height: var(--app-height, 100svh);
-    padding: 80px 0;
-  }
-  
-  .use-cases-container {
-    padding: 0 24px;
-  }
-  
-  .use-cases-header {
-    margin-bottom: 40px;
-    text-align: center;
-  }
-  
-  .use-cases-title {
-    font-size: 1.6rem;
-  }
-  
-  .use-cases-subtitle {
-    font-size: 0.85rem;
-  }
-  
-  /* Contact responsive */
-  .contact-section {
-    min-height: var(--app-height, 100svh);
-    padding: 100px 0 60px;
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-progress-fill,
+  .carousel-progress-fill,
+  .service-tab.is-active .tab-progress-fill {
+    animation: none;
   }
 
-  .solution-section,
-  .technology-section {
-    min-height: var(--app-height, 100svh);
+  .service-detail,
+  .service-detail.is-active,
+  .carousel-slide,
+  .carousel-slide.is-active,
+  .flow-step,
+  .flow-step.is-active {
+    transition: none;
+    transform: none;
   }
-  
-  .contact-container {
-    padding: 0 30px;
-  }
-  
-  .contact-options {
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-  }
-  
-  .contact-btn {
-    width: 100%;
-    max-width: 280px;
-    justify-content: center;
-  }
-  
-  /* Footer responsive */
-  .main-footer {
-    padding: 60px 0 30px;
-  }
-  
-  .footer-container {
-    padding: 0 24px;
-  }
-  
-  .footer-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 24px 20px;
-  }
-  
-  .footer-brand {
-    grid-column: span 2;
-    padding-right: 0;
-    margin-bottom: 16px;
-  }
-  
-  .footer-logo {
-    height: 14px;
-    max-width: 100px;
-  }
-  
-  .footer-about {
-    font-size: 0.8rem;
-    line-height: 1.6;
-  }
-  
-  .footer-contact-column {
-    display: none;
-  }
-  
-  .footer-column {
-    padding: 0;
-  }
-  
-  .footer-title {
-    font-size: 0.6rem;
-    margin-bottom: 12px;
-  }
-  
-  .footer-links {
-    gap: 8px;
-  }
-  
-  .footer-links li a {
-    font-size: 0.8rem;
-  }
-  
-  .footer-bottom {
-    margin-top: 30px;
-    padding-top: 20px;
-  }
-  
-  .footer-copyright {
-    font-size: 0.7rem;
-    text-align: center;
-  }
-  
-  .footer-legal {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 16px;
+
+  .accordion-content[data-state='open'],
+  .accordion-content[data-state='closed'] {
+    animation: none;
   }
 }
 </style>

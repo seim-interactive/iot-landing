@@ -1,62 +1,73 @@
 <template>
-  <header class="header">
-    <div class="logo">
-      <img src="../assets/MARCA-14.png" alt="SEIM Interactive" class="logo-img" />
+  <header class="header" :class="{ 'is-scrolled': scrolled, 'is-open': menuOpen }">
+    <div class="header-inner">
+      <a href="#top" class="logo" aria-label="Seim Interactive, ir al inicio" @click="closeMenu">
+        <img src="../assets/MARCA-14.png" alt="Seim Interactive" class="logo-img" />
+      </a>
+
+      <nav class="nav" aria-label="Secciones">
+        <a
+          v-for="item in menuItems"
+          :key="item.id"
+          :href="`#${item.id}`"
+          class="nav-link"
+          :class="{ 'is-active': activeId === item.id }"
+          :aria-current="activeId === item.id ? 'location' : undefined"
+        >
+          {{ item.label }}
+        </a>
+      </nav>
+
+      <a href="#contact" class="cta-button desktop-only">
+        Hablemos
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </a>
+
+      <button
+        class="menu-toggle"
+        type="button"
+        :class="{ active: menuOpen }"
+        :aria-expanded="menuOpen"
+        aria-controls="mobile-menu"
+        :aria-label="menuOpen ? 'Cerrar menú' : 'Abrir menú'"
+        @click="toggleMenu"
+      >
+        <span class="menu-line"></span>
+        <span class="menu-line"></span>
+      </button>
     </div>
-    
-    <nav class="nav">
-      <a href="#services" class="nav-link">SERVICIO</a>
-      <a href="#solution" class="nav-link">SOLUCIÓN</a>
-      <a href="#use-cases" class="nav-link">CASOS DE USO</a>
-      <a href="#technology" class="nav-link">TECNOLOGÍA</a>
-      <a href="#contact" class="nav-link">CONTACTO</a>
-    </nav>
-    
-    <a href="#contact" class="cta-button desktop-only">COMENZAR</a>
-    
-    <!-- Mobile menu button -->
-    <button class="menu-toggle" @click="toggleMenu" :class="{ active: menuOpen }">
-      <span class="menu-line"></span>
-      <span class="menu-line"></span>
-    </button>
-    
-    <!-- Mobile menu overlay -->
+
     <Transition name="menu-fade">
-      <div class="mobile-menu" v-if="menuOpen">
-        <!-- Decorative elements -->
-        <div class="menu-deco-line menu-deco-top"></div>
-        <div class="menu-deco-line menu-deco-bottom"></div>
-        
+      <div v-if="menuOpen" id="mobile-menu" class="mobile-menu">
         <div class="menu-content">
-          <span class="menu-label">NAVEGACIÓN</span>
-          
-          <nav class="mobile-nav">
-            <a 
-              v-for="(item, index) in menuItems" 
-              :key="item.href"
-              :href="item.href" 
-              class="mobile-nav-link" 
+          <nav class="mobile-nav" aria-label="Secciones">
+            <a
+              v-for="(item, index) in menuItems"
+              :key="item.id"
+              :href="`#${item.id}`"
+              class="mobile-nav-link"
+              :style="{ animationDelay: `${80 + index * 55}ms` }"
               @click="closeMenu"
-              :style="{ transitionDelay: `${index * 50}ms` }"
             >
-              <span class="nav-number">0{{ index + 1 }}</span>
               <span class="nav-text">{{ item.label }}</span>
-              <span class="nav-arrow">
+              <span class="nav-arrow" aria-hidden="true">
                 <i class="pi pi-arrow-right"></i>
               </span>
             </a>
           </nav>
-          
+
           <div class="menu-footer">
             <div class="menu-contact">
-              <a href="https://wa.me/5493413551507" target="_blank" class="menu-contact-link">
+              <a href="https://wa.me/5493413551507" target="_blank" rel="noopener" class="menu-contact-link" aria-label="WhatsApp">
                 <i class="pi pi-whatsapp"></i>
               </a>
-              <a href="mailto:hello@seiminteractive.io" class="menu-contact-link">
+              <a href="mailto:hello@seiminteractive.io" class="menu-contact-link" aria-label="Email">
                 <i class="pi pi-envelope"></i>
               </a>
             </div>
-            <span class="menu-copyright">© 2026 SEIM Interactive</span>
+            <span class="menu-copyright">© 2026 Seim Interactive</span>
           </div>
         </div>
       </div>
@@ -65,187 +76,252 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useNavbarAnimations } from '../composables/useNavbarAnimations'
-import { useNavbarScrollEffect } from '../composables/useNavbarScrollEffect'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { afterNextPaint, isPrerendering } from '../composables/animationUtils'
 
-// Inicializar animaciones del navbar
-useNavbarAnimations()
-
-// Inicializar efecto de scroll del navbar
-useNavbarScrollEffect()
-
-const menuOpen = ref(false)
+gsap.registerPlugin(ScrollTrigger)
 
 const menuItems = [
-  { href: '#services', label: 'Servicio' },
-  { href: '#solution', label: 'Solución' },
-  { href: '#use-cases', label: 'Casos de Uso' },
-  { href: '#technology', label: 'Tecnología' },
-  { href: '#contact', label: 'Contacto' }
+  { id: 'services', label: 'Servicios' },
+  { id: 'solution', label: 'Solución' },
+  { id: 'use-cases', label: 'Casos de uso' },
+  { id: 'technology', label: 'Cómo funciona' },
+  { id: 'contact', label: 'Contacto' },
 ]
+
+const menuOpen = ref(false)
+const scrolled = ref(false)
+const activeId = ref(null)
 
 const toggleMenu = () => {
   menuOpen.value = !menuOpen.value
-  document.body.style.overflow = menuOpen.value ? 'hidden' : ''
 }
 
 const closeMenu = () => {
   menuOpen.value = false
-  document.body.style.overflow = ''
 }
+
+const onKeydown = (event) => {
+  if (event.key === 'Escape') closeMenu()
+}
+
+watch(menuOpen, (open) => {
+  document.body.style.overflow = open ? 'hidden' : ''
+})
+
+let context
+let cancelSetup = () => {}
+
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown)
+  if (isPrerendering()) return
+
+  cancelSetup = afterNextPaint(() => {
+    context = gsap.context(() => {
+      // Fondo del header apenas se scrollea. Se decide por la posición (y no por
+      // isActive) para que siga activo también en el último píxel de la página.
+      const updateScrolled = (self) => {
+        scrolled.value = self.scroll() > 8
+      }
+      ScrollTrigger.create({
+        start: 0,
+        end: 'max',
+        onUpdate: updateScrolled,
+        onRefresh: updateScrolled,
+      })
+
+      // Sección activa: la que cruza la mitad del viewport.
+      menuItems.forEach(({ id }) => {
+        const section = document.getElementById(id)
+        if (!section) return
+
+        ScrollTrigger.create({
+          trigger: section,
+          start: 'top 50%',
+          end: 'bottom 50%',
+          onToggle: (self) => {
+            if (self.isActive) activeId.value = id
+            else if (activeId.value === id) activeId.value = null
+          },
+        })
+      })
+    })
+  })
+})
+
+onUnmounted(() => {
+  cancelSetup()
+  context?.revert()
+  window.removeEventListener('keydown', onKeydown)
+  document.body.style.overflow = ''
+})
 </script>
 
 <style scoped>
-/* Header/Navbar */
 .header {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 60px;
+  inset: 0 0 auto 0;
   z-index: 100;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.06) 0%,
-    rgba(175, 227, 232, 0.03) 50%,
-    rgba(255, 255, 255, 0.04) 100%
-  );
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 16px 0 rgba(175, 227, 232, 0.03);
-  will-change: background, border-bottom, box-shadow;
-  --header-opacity: 1;
+  height: var(--header-h, 72px);
 }
 
+/* El blur va en un pseudo-elemento: si estuviera en .header, el menú mobile
+   (position: fixed) quedaría contenido dentro del header. */
 .header::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  opacity: 0;
+  transition: opacity 0.45s var(--ease-out, ease);
   pointer-events: none;
-  z-index: -1;
-  opacity: var(--header-opacity);
-  transition: opacity 0.3s ease;
+}
+
+.header.is-scrolled::before {
+  opacity: 1;
+}
+
+.header-inner {
+  position: relative;
+  z-index: 101;
+  height: 100%;
+  padding: 0 var(--gutter, 60px);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 24px;
 }
 
 .logo {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  z-index: 101;
+  justify-self: start;
 }
 
 .logo-img {
   height: 24px;
   width: auto;
   display: block;
-  opacity: 0.9;
-  will-change: transform, opacity;
-  cursor: pointer;
+  opacity: 0.95;
 }
 
 .nav {
   display: flex;
-  gap: 32px;
-  flex: 1;
-  justify-content: center;
-  margin: 0 40px;
+  align-items: center;
+  gap: 36px;
 }
 
 .nav-link {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.55);
   text-decoration: none;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  transition: color 0.3s ease, transform 0.2s ease;
-  position: relative;
-  text-transform: uppercase;
-  will-change: color, transform;
-  cursor: pointer;
-}
-
-.nav-link:hover {
-  color: rgba(255, 255, 255, 0.9);
-}
-
-/* Minimal Button */
-.cta-button {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.85);
-  padding: 10px 24px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 400;
   white-space: nowrap;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover,
+.nav-link.is-active {
+  color: #fff;
+}
+
+.cta-button {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 8px;
+  background: #fff;
+  color: #000;
+  font-size: 13px;
+  font-weight: 400;
   text-decoration: none;
-  will-change: transform, box-shadow, border-color;
+  white-space: nowrap;
+  transition: background-color 0.3s ease;
+}
+
+.cta-button svg {
+  transition: transform 0.35s var(--ease-out, ease);
 }
 
 .cta-button:hover {
+  background: var(--accent, #afe3e8);
 }
 
-/* Menu Toggle Button - Sin recuadro */
+.cta-button:hover svg {
+  transform: translateX(3px);
+}
+
+.nav-link:focus-visible,
+.cta-button:focus-visible,
+.logo:focus-visible,
+.menu-toggle:focus-visible,
+.mobile-nav-link:focus-visible,
+.menu-contact-link:focus-visible {
+  outline: 2px solid var(--accent, #afe3e8);
+  outline-offset: 3px;
+}
+
+/* Menú mobile */
 .menu-toggle {
   display: none;
+  justify-self: end;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 6px;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
+  margin-right: -8px;
   background: transparent;
   border: none;
+  border-radius: 8px;
   cursor: pointer;
-  z-index: 101;
   padding: 0;
 }
 
 .menu-line {
   width: 22px;
   height: 1.5px;
-  background: rgba(255, 255, 255, 0.85);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-origin: center;
-  will-change: background, transform;
+  background: rgba(255, 255, 255, 0.9);
+  transition: transform 0.35s var(--ease-out, ease);
 }
 
 .menu-toggle.active .menu-line:first-child {
-  transform: rotate(45deg) translate(2.5px, 2.5px);
+  transform: translateY(3.75px) rotate(45deg);
 }
 
 .menu-toggle.active .menu-line:last-child {
-  transform: rotate(-45deg) translate(2.5px, -2.5px);
+  transform: translateY(-3.75px) rotate(-45deg);
 }
 
-/* Mobile Menu Overlay */
 .mobile-menu {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
+  z-index: 99;
   background: #000;
   display: flex;
   flex-direction: column;
-  z-index: 99;
-  overflow: hidden;
 }
 
-/* Menu transition */
+.mobile-menu::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 90% 60% at 100% 0%, rgba(175, 227, 232, 0.12), transparent 60%);
+  pointer-events: none;
+}
+
 .menu-fade-enter-active,
 .menu-fade-leave-active {
-  transition: opacity 0.4s ease;
+  transition: opacity 0.35s ease;
 }
 
 .menu-fade-enter-from,
@@ -253,120 +329,61 @@ const closeMenu = () => {
   opacity: 0;
 }
 
-/* Decorative lines */
-.menu-deco-line {
-  position: absolute;
-  left: 24px;
-  right: 24px;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.1) 20%,
-    rgba(255, 255, 255, 0.1) 80%,
-    transparent 100%
-  );
-}
-
-.menu-deco-top {
-  top: 80px;
-}
-
-.menu-deco-bottom {
-  bottom: 100px;
-}
-
-/* Menu Content */
 .menu-content {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 100px 40px;
-}
-
-.menu-label {
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.25em;
-  color: rgba(175, 227, 232, 0.6);
-  margin-bottom: 2rem;
+  padding: 96px 28px 120px;
 }
 
 .mobile-nav {
   display: flex;
   flex-direction: column;
-  gap: 0;
 }
 
 .mobile-nav-link {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 20px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   text-decoration: none;
-  transition: all 0.3s ease;
   opacity: 0;
-  transform: translateX(-20px);
-  animation: slideIn 0.5s ease forwards;
-}
-
-@keyframes slideIn {
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  transform: translateY(12px);
+  animation: menu-item-in 0.6s var(--ease-out, ease) forwards;
 }
 
 .mobile-nav-link:first-child {
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
 }
 
-.nav-number {
-  font-size: 0.7rem;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.25);
-  font-family: monospace;
-  min-width: 24px;
+@keyframes menu-item-in {
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .nav-text {
   flex: 1;
-  font-size: 1.4rem;
+  font-size: 26px;
   font-weight: 300;
-  color: rgba(255, 255, 255, 0.75);
-  letter-spacing: -0.01em;
-  transition: all 0.3s ease;
-  will-change: color;
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .nav-arrow {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.15);
-  transition: all 0.3s ease;
-  transform: translateX(-8px);
-  opacity: 0;
+  font-size: 12px;
+  color: rgba(175, 227, 232, 0.6);
 }
 
-.mobile-nav-link:hover .nav-text,
-.mobile-nav-link:active .nav-text {
-  color: rgba(255, 255, 255, 1);
-}
-
-.mobile-nav-link:hover .nav-arrow,
-.mobile-nav-link:active .nav-arrow {
-  transform: translateX(0);
-  opacity: 1;
-  color: rgba(175, 227, 232, 0.7);
-}
-
-/* Menu Footer */
 .menu-footer {
   position: absolute;
-  bottom: 40px;
-  left: 40px;
-  right: 40px;
+  left: 28px;
+  right: 28px;
+  bottom: 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -374,60 +391,60 @@ const closeMenu = () => {
 
 .menu-contact {
   display: flex;
-  gap: 16px;
+  gap: 8px;
 }
 
 .menu-contact-link {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  color: rgba(255, 255, 255, 0.4);
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
-  transition: all 0.3s ease;
-  will-change: transform, filter;
-  cursor: pointer;
-}
-
-.menu-contact-link:hover {
-  color: #AFE3E8;
 }
 
 .menu-copyright {
-  font-size: 0.7rem;
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.25);
-  letter-spacing: 0.05em;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.3);
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
+@media (max-width: 1100px) {
   .nav {
     gap: 24px;
   }
-  
+
   .nav-link {
-    font-size: 10px;
+    font-size: 13px;
   }
 }
 
-@media (max-width: 768px) {
-  .header {
-    padding: 20px 24px;
+@media (max-width: 900px) {
+  .header-inner {
+    grid-template-columns: 1fr auto;
   }
-  
+
   .nav,
   .desktop-only {
     display: none;
   }
-  
+
   .menu-toggle {
     display: flex;
   }
-  
+
   .logo-img {
     height: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav-link {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }
 </style>

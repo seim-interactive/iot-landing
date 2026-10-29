@@ -4,6 +4,21 @@ Cada push a `main` dispara el workflow [`.github/workflows/deploy.yml`](.github/
 que buildea el front, arma la imagen Docker y la despliega en la VPS. También se
 puede correr a mano desde **Actions → Deploy a VPS → Run workflow**.
 
+## Dominio
+
+Esta landing se sirve en **https://iot.seiminteractive.io/**. El dominio raíz
+`seiminteractive.io` pasa a ser la web global de Seim Interactive (otro repo/contenedor),
+que redirige con 301 las rutas viejas de esta landing (`/brief`, `/admin`, assets) a este subdominio.
+
+Fuera del repo tiene que estar configurado:
+
+- **DNS**: registro `A` `iot` → `31.97.241.174` (o `CNAME iot` → `seiminteractive.io`).
+- **TLS**: certificado válido para `iot.seiminteractive.io` (el dominio raíz manda HSTS con `includeSubDomains`, así que HTTPS es obligatorio).
+- **Reverse proxy de la VPS**: un `server { server_name iot.seiminteractive.io; ... proxy_pass http://127.0.0.1:8085; }`
+  (el contenedor de la web global ocupa ahora el `server_name seiminteractive.io`).
+- **Firebase Auth → Authorized domains**: agregar `iot.seiminteractive.io` (lo usan `/brief` y `/admin`).
+- **Google Search Console**: propiedad para `iot.seiminteractive.io` y enviar `https://iot.seiminteractive.io/sitemap.xml`.
+
 ## Qué hace, paso a paso
 
 1. `npm ci` + `npm run build` (Vite + prerender) usando el `.env` cargado desde un Secret.
@@ -50,7 +65,7 @@ pbcopy < ~/.ssh/seim_deploy   # pegala en el Secret VPS_SSH_KEY
 
 - Docker instalado.
 - El directorio `/srv/apps/seiminteractive-web-iot` existe.
-- El reverse proxy sigue apuntando a `127.0.0.1:8085` (no cambia respecto al deploy manual).
+- El reverse proxy de `iot.seiminteractive.io` apunta a `127.0.0.1:8085` (ver sección **Dominio**).
 
 ## Uso diario
 

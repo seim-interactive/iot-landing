@@ -17,5 +17,5 @@ Allow: /
 User-agent: PerplexityBot
 Allow: /
 
-Sitemap: https://seiminteractive.io/sitemap.xml
-Host: https://seiminteractive.io
+Sitemap: https://iot.seiminteractive.io/sitemap.xml
+Host: https://iot.seiminteractive.io

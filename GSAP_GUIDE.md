@@ -1,126 +1,43 @@
-# Guía GSAP - Animaciones Premium
+# Animaciones de la landing
 
-## Lo que se implementó
+Todo el movimiento de la landing sale de dos composables:
 
-### 1. **Hero Section Animations** (`useHeroAnimations.js`)
-- ✨ Título con revelado palabra por palabra
-- 🎯 Fade in del botón de anuncio
-- 📍 Scroll indicator con efecto de pulso
-- 🌟 Glow animado en el indicador de scroll
-- 🖱️ Hover effects mejorados en botones
+| Archivo | Qué hace |
+|---|---|
+| `src/composables/useLandingMotion.js` | Intro y parallax del hero (mismos valores que el diseño original), revelado al hacer scroll, inclinación de la captura de la plataforma y luz que sigue al mouse en los casos de uso. |
+| `src/composables/useFlowScroll.js` | Sección "Cómo funciona": traduce el scroll en el recorrido del dato por la órbita y define el paso activo. |
 
-### 2. **Scroll Animations** (`useScrollAnimations.js`) - Composable Reutilizable
-Funciones disponibles para usar en toda la app:
+El Navbar (`src/components/Navbar.vue`) maneja su propio fondo al scrollear y el resaltado de la sección activa. El avance automático de Servicios es una animación CSS: la barra de progreso de la pestaña activa es el temporizador.
 
-```javascript
-import { useScrollAnimations } from '@/composables/useScrollAnimations'
+## Reglas
 
-const { animateOnScroll, staggerTextOnScroll, parallaxOnScroll, revealOnScroll } = useScrollAnimations()
+1. **Todo dentro de `gsap.matchMedia`.** Al cruzar el breakpoint (768px) o cambiar la preferencia de movimiento, GSAP revierte lo creado y lo vuelve a armar. No quedan estilos inline colgados.
+2. **El contenido es visible por defecto.** Los estados iniciales (opacidad 0, desplazamiento) los pone JS justo antes de animar. Si JS falla, nada queda oculto.
+3. **Solo `transform` y `opacity`.** Nada de `filter: blur`, `letter-spacing`, `box-shadow` ni gradientes animados: causan tirones. Única excepción: el blur de entrada del título del hero, que se mantiene igual al diseño original (corre una sola vez al cargar).
+4. **Precisión al scroll.** `useLandingMotion` recalcula ScrollTrigger cuando cambia el alto de la página (fuentes, imágenes lazy, acordeones), con debounce. Si agregás contenido que cambia de alto, no hace falta nada extra.
+5. **`prefers-reduced-motion`.** Con movimiento reducido no se registran revelados ni parallax, y las transiciones CSS se desactivan. El mapa de "Cómo funciona" sigue al scroll sin suavizado.
+6. **Prerender.** Con `window.__PRERENDER__` no se monta ninguna animación, así el HTML generado queda con todo visible.
+
+## Cómo animar algo nuevo
+
+Para que un elemento entre al hacer scroll, agregale el atributo `data-reveal`:
+
+```html
+<header class="section-head" data-reveal>...</header>
 ```
 
-#### `animateOnScroll(selector, options)`
-Anima elementos cuando entran en el viewport
-```javascript
-animateOnScroll('.card', {
-  from: { opacity: 0, y: 50 },
-  to: { opacity: 1, y: 0 },
-  duration: 0.8,
-  stagger: 0.1,
-  start: 'top 80%',
-})
-```
+Los elementos que entran juntos en pantalla se escalonan solos (`ScrollTrigger.batch`).
 
-#### `parallaxOnScroll(selector, distance)`
-Efecto parallax en scroll
-```javascript
-parallaxOnScroll('.hero-content', 100) // Mueve 100px en scroll
-```
+Para algo más específico, agregá una función en `useLandingMotion.js` y registrala en el grupo de `mm.add` que corresponda:
 
-#### `revealOnScroll(selector, options)`
-Revelado suave de elementos
-```javascript
-revealOnScroll('.section-title', {
-  duration: 1,
-  stagger: 0.1,
-})
-```
+- `MEDIA.motionOk`: en todos los tamaños, solo si el usuario no pidió reducir movimiento.
+- `` `${MEDIA.desktop} and ${MEDIA.motionOk}` ``: solo en desktop.
 
-#### `staggerTextOnScroll(selector, options)`
-Anima palabras individuales al hacer scroll
-```javascript
-staggerTextOnScroll('.text-animate', {
-  duration: 0.8,
-})
-```
+Ojo con la sintaxis de objeto de `mm.add({ a, b }, fn)`: el callback corre si **alguna** condición se cumple. Incluí condiciones que cubran todos los casos (por ejemplo `isDesktop` + `isMobile`).
 
-## Cómo Usar en Otros Componentes
+## "Cómo funciona"
 
-### Ejemplo: Sección Services
-```javascript
-<script setup>
-import { onMounted } from 'vue'
-import { useScrollAnimations } from '@/composables/useScrollAnimations'
-
-const { revealOnScroll, parallaxOnScroll } = useScrollAnimations()
-
-onMounted(() => {
-  // Animar cards de servicios
-  revealOnScroll('.service-card', {
-    duration: 0.8,
-    stagger: 0.15,
-    start: 'top 85%',
-  })
-  
-  // Parallax en la imagen
-  parallaxOnScroll('.service-image', 80)
-})
-</script>
-```
-
-### Ejemplo: Sección Use Cases
-```javascript
-onMounted(() => {
-  revealOnScroll('.use-case-card', {
-    duration: 0.8,
-    stagger: 0.1,
-  })
-  
-  revealOnScroll('.accordion-item', {
-    duration: 0.6,
-    stagger: 0.08,
-  })
-})
-```
-
-## Características de las Animaciones Implementadas
-
-### ✨ Animaciones del Hero
-1. **Revelado de Título**: Palabras aparecen con blur y fade
-2. **Botón Announcement**: Desliza desde la izquierda
-3. **Scroll Indicator**: Aparece con efecto de resorte (back.out)
-4. **Glow Effect**: Pulsa continuamente con drop-shadow
-5. **Parallax**: El contenido se mueve lentamente en scroll
-6. **Light Fade**: El fondo se desvanece en scroll
-
-### ⚙️ Configuración Optimizada
-- `will-change` para mejor performance
-- `scrub: 1` para animaciones suaves en scroll
-- `ease: 'power2.out'` para movimientos naturales
-- Timings escalonados para efecto cascada
-
-## Performance Considerations
-
-- GSAP ScrollTrigger está registrado globalmente
-- Las animaciones se limpian en `onUnmounted`
-- Se usan spans inline-block para mejor rendimiento
-- `filter: blur()` usa GPU acceleration
-
-## Próximas Mejoras
-
-- Agregar animaciones a todas las secciones
-- Crear transiciones de página
-- Agregar AnimationGsap a formularios
-- Efectos de mouse interactivos
-- Scroll-triggered counters para números
-
-¡Ahora tienes GSAP configurado y listo para usar en toda tu app! 🚀
+- La altura de `.flow-track` define cuánto scroll dura el recorrido; `.flow-sticky` queda fijo mientras tanto.
+- El gráfico es una órbita: un anillo por paso, de afuera (PLCs) hacia adentro (IA). Los radios están en `orbitRadii` (`Landing.vue`), en unidades del `viewBox` 640×640.
+- El dato gira sobre el anillo del paso activo y entre pasos cambia de radio (espiral). Para cambiar el ritmo, ajustá `DWELL`, `SWEEP`, `EDGE` y `ARRIVAL` en `useFlowScroll.js`.
+- `.landing` usa `overflow-x: clip` (no `hidden`): con `hidden`, `position: sticky` deja de funcionar.
