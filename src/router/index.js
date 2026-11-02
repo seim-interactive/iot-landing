@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { waitForAuth, isAdmin } from '@/services/auth'
 
 const routes = [
   {
@@ -65,8 +64,11 @@ const router = createRouter({
 })
 
 // Guard: las rutas de admin requieren un usuario logueado con email/password.
+// Firebase se carga recién al entrar a una ruta de admin: la landing no depende de él
+// (ni de sus credenciales) para renderizar.
 router.beforeEach(async (to) => {
   if (!to.meta.requiresAdmin) return true
+  const { waitForAuth, isAdmin } = await import('@/services/auth')
   await waitForAuth()
   if (!isAdmin()) {
     return { name: 'admin-login', query: { redirect: to.fullPath } }
