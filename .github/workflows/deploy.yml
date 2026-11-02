@@ -17,6 +17,8 @@ env:
   REMOTE_DIR: /srv/apps/seiminteractive-web-iot
   HOST_PORT: 127.0.0.1:8085:80
   HEALTH_URL: http://127.0.0.1:8085
+  VPS_HOST: 31.97.241.174
+  VPS_USER: root
 
 jobs:
   deploy:
@@ -69,8 +71,9 @@ jobs:
 
       - name: Configurar SSH
         env:
-          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
-          VPS_HOST: ${{ secrets.VPS_HOST }}
+          # La misma llave que el deploy del sitio global (secret de la organización);
+          # si el repo tiene la suya, usa esa.
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY || secrets.SEIM_GLOBAL_VPS_SSH_KEY }}
         run: |
           set -euo pipefail
           mkdir -p ~/.ssh
@@ -81,11 +84,11 @@ jobs:
       - name: Copiar imagen a la VPS
         run: |
           scp -i ~/.ssh/deploy_key /tmp/seim-build/image.tar \
-            "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${REMOTE_DIR}/image.tar"
+            "${VPS_USER}@${VPS_HOST}:${REMOTE_DIR}/image.tar"
 
       - name: Cargar y reiniciar contenedor
         run: |
-          ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
+          ssh -i ~/.ssh/deploy_key "${VPS_USER}@${VPS_HOST}" \
             IMAGE_TAG="$IMAGE_TAG" \
             CONTAINER="$CONTAINER" \
             REMOTE_DIR="$REMOTE_DIR" \
