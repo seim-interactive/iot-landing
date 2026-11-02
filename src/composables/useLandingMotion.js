@@ -101,15 +101,18 @@ function heroParallax(q) {
 
 // [data-reveal]: el elemento entra al hacer scroll. Los que entran juntos en el
 // viewport se escalonan entre sí (ScrollTrigger.batch).
+//
+// La entrada se repite: cuando el elemento vuelve a quedar por debajo del viewport
+// (scrolleando hacia arriba) se resetea sin que se vea, y al bajar de nuevo anima otra vez.
 function reveals(q) {
   const items = q('[data-reveal]')
   if (!items.length) return
 
-  gsap.set(items, { autoAlpha: 0, y: 36 })
+  const hidden = { autoAlpha: 0, y: 36 }
+  gsap.set(items, hidden)
 
   ScrollTrigger.batch(items, {
     start: 'top 90%',
-    once: true,
     onEnter: (batch) =>
       gsap.to(batch, {
         autoAlpha: 1,
@@ -119,6 +122,50 @@ function reveals(q) {
         stagger: 0.08,
         overwrite: true,
       }),
+  })
+
+  items.forEach((item) =>
+    ScrollTrigger.create({
+      trigger: item,
+      start: 'top bottom',
+      onLeaveBack: () => {
+        gsap.killTweensOf(item)
+        gsap.set(item, hidden)
+      },
+    })
+  )
+}
+
+// Comparación enlatadas / nuestra plataforma: el scroll mueve --p de cada fila y el
+// CSS deriva de ahí el tachado, el conector y el enfoque. Al estar atado al scroll
+// se reproduce en los dos sentidos.
+function contrastScrub(q) {
+  q('.contrast-row').forEach((row) => {
+    gsap.fromTo(
+      row,
+      { '--p': 0 },
+      {
+        '--p': 1,
+        ease: 'none',
+        // Arranca con la fila ya bien dentro de la pantalla, para que el tachado se vea
+        scrollTrigger: { trigger: row, start: 'top 72%', end: 'top 34%', scrub: 0.8 },
+      }
+    )
+  })
+}
+
+// Capacidades: cada renglón pasa de apagado a encendido mientras cruza la pantalla.
+function capabilityScrub(q) {
+  q('.capability').forEach((item) => {
+    gsap.fromTo(
+      item,
+      { '--c': 0 },
+      {
+        '--c': 1,
+        ease: 'none',
+        scrollTrigger: { trigger: item, start: 'top 80%', end: 'top 55%', scrub: 0.6 },
+      }
+    )
   })
 }
 
@@ -179,6 +226,8 @@ export function useLandingMotion(rootRef) {
       mm.add(MEDIA.motionOk, () => {
         heroIntro(q)
         reveals(q)
+        contrastScrub(q)
+        capabilityScrub(q)
       })
 
       mm.add(`${MEDIA.desktop} and ${MEDIA.motionOk}`, () => {

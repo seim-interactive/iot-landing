@@ -29,119 +29,12 @@
       </div>
 
       <!-- Scroll indicator -->
-      <a class="scroll-indicator" href="#services" aria-label="Ir a servicios">
+      <a class="scroll-indicator" href="#solution" aria-label="Ir a la solución">
         <svg viewBox="0 0 24 24" fill="none">
           <path d="M12 5V19M12 19L5 12M12 19L19 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </a>
     </main>
-
-    <!-- ==================== SERVICIOS ==================== -->
-    <section id="services" ref="servicesEl" class="section services">
-      <div class="container">
-        <header class="section-head" data-reveal>
-          <h2 class="section-title">
-            Ingeniería de punta a punta.
-            <span class="muted">Del PLC a la inteligencia artificial.</span>
-          </h2>
-          <p class="section-lead">
-            Un solo equipo responsable de toda la cadena: integración en planta, infraestructura cloud, visualización, IA, seguridad y operación continua.
-          </p>
-        </header>
-
-        <!-- Desktop: pestañas con avance automático -->
-        <div
-          class="services-panel desktop-services"
-          :class="{ 'is-paused': servicesPaused }"
-          data-reveal
-          @mouseenter="hoverPaused = true"
-          @mouseleave="hoverPaused = false"
-          @focusin="hoverPaused = true"
-          @focusout="hoverPaused = false"
-        >
-          <ul class="services-tabs" role="tablist" aria-label="Servicios">
-            <li v-for="(service, index) in services" :key="service.name">
-              <button
-                :id="`service-tab-${index}`"
-                type="button"
-                role="tab"
-                class="service-tab"
-                :class="{ 'is-active': activeIndex === index }"
-                :aria-selected="activeIndex === index"
-                :aria-controls="`service-panel-${index}`"
-                @click="setActiveService(index)"
-              >
-                {{ service.name }}
-                <span class="tab-progress" aria-hidden="true">
-                  <span class="tab-progress-fill" @animationend="nextService"></span>
-                </span>
-              </button>
-            </li>
-          </ul>
-
-          <div class="service-stage">
-            <article
-              v-for="(service, index) in services"
-              :id="`service-panel-${index}`"
-              :key="service.name"
-              role="tabpanel"
-              class="service-detail"
-              :class="{ 'is-active': activeIndex === index }"
-              :aria-labelledby="`service-tab-${index}`"
-              :aria-hidden="activeIndex !== index"
-            >
-              <h3 class="detail-title">{{ service.title }}</h3>
-              <p class="detail-desc">{{ service.mainDescription }}</p>
-              <p class="detail-note">{{ service.secondaryDescription }}</p>
-            </article>
-          </div>
-        </div>
-
-        <!-- Mobile: carrusel con swipe -->
-        <div
-          class="mobile-services-carousel"
-          :class="{ 'is-paused': servicesPaused }"
-          data-reveal
-        >
-          <span class="carousel-progress" aria-hidden="true">
-            <span :key="activeIndex" class="carousel-progress-fill" @animationend="nextService"></span>
-          </span>
-
-          <div
-            class="carousel-track"
-            :class="swipeDirection"
-            @touchstart.passive="handleTouchStart"
-            @touchmove.passive="handleTouchMove"
-            @touchend="handleTouchEnd"
-            @touchcancel="handleTouchEnd"
-          >
-            <article
-              v-for="(service, index) in services"
-              :key="service.name"
-              class="carousel-slide"
-              :class="{ 'is-active': activeIndex === index }"
-              :aria-hidden="activeIndex !== index"
-            >
-              <h3 class="carousel-title">{{ service.title }}</h3>
-              <p class="carousel-description">{{ service.mainDescription }}</p>
-              <p class="carousel-secondary">{{ service.secondaryDescription }}</p>
-            </article>
-          </div>
-
-          <div class="carousel-dots">
-            <button
-              v-for="(service, index) in services"
-              :key="service.name"
-              type="button"
-              class="carousel-dot"
-              :class="{ 'is-active': activeIndex === index }"
-              :aria-label="`Ver ${service.name}`"
-              @click="setActiveService(index)"
-            ></button>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <!-- ==================== SOLUCIÓN ==================== -->
     <section id="solution" class="section solution">
@@ -149,40 +42,34 @@
 
       <div class="container">
         <header class="section-head section-head--center" data-reveal>
-          <h2 class="section-title">Plataforma de Control Industrial</h2>
+          <h2 class="section-title">Una plataforma propia, única en el mercado</h2>
           <p class="section-lead">
-            La plataforma que entregamos es privada, dedicada y adaptada a cada cliente, funcionando como el punto central de control y análisis de la operación.
+            Desarrollamos nuestra propia plataforma de control industrial. Por eso escala sin límite junto a tu operación y se adapta a cómo trabaja tu planta, y no al revés.
           </p>
         </header>
 
         <div class="solution-showcase">
           <figure class="device">
-            <img
-              src="@/assets/capturaLoginPlataforma02.png"
-              alt="Plataforma de Control Industrial"
-              class="device-image"
-              width="3024"
-              height="1722"
-              loading="lazy"
-              decoding="async"
-            />
+            <PlatformTour />
           </figure>
           <p class="device-caption">Vista unificada de métricas, estados y variables críticas de la operación industrial.</p>
         </div>
 
-        <div class="solution-grid">
-          <div class="solution-copy" data-reveal>
-            <h3 class="block-title">Solución IoT Industrial a Medida</h3>
-            <p>Nuestro enfoque combina integración industrial, arquitectura cloud y visualización inteligente para brindar visibilidad real sobre la operación.</p>
-            <p>Cada solución es diseñada a medida, respetando los procesos existentes y acompañando la toma de decisiones operativas y estratégicas.</p>
+        <!-- Diferencial frente a las plataformas enlatadas: con el scroll, cada fila
+             tacha la idea enlatada y enfoca la nuestra (ver contrastScrub) -->
+        <div class="contrast">
+          <h3 class="contrast-title" data-reveal>La plataforma se adapta a tu planta.<br><span>No tu planta a la plataforma.</span></h3>
+          <div class="contrast-legend" aria-hidden="true">
+            <span>Plataformas enlatadas</span>
+            <span>Nuestra plataforma</span>
           </div>
-
-          <div class="capabilities" data-reveal>
-            <h3 class="block-title">Capacidades de la Plataforma</h3>
-            <ul class="capability-list">
-              <li v-for="capability in capabilities" :key="capability" class="capability">{{ capability }}</li>
-            </ul>
-          </div>
+          <ul class="contrast-rows">
+            <li v-for="row in contrast" :key="row.seim" class="contrast-row">
+              <s class="contrast-old"><span class="visually-hidden">Plataformas enlatadas: </span>{{ row.canned }}</s>
+              <span aria-hidden="true"></span>
+              <p class="contrast-new"><span class="visually-hidden">Nuestra plataforma: </span><span class="contrast-ink">{{ row.seim }}</span></p>
+            </li>
+          </ul>
         </div>
       </div>
     </section>
@@ -197,7 +84,7 @@
           </p>
         </header>
 
-        <!-- Desktop: grilla -->
+        <!-- Desktop: cuadrícula con divisiones internas y bordes exteriores abiertos -->
         <div class="use-cases-grid desktop-use-cases">
           <article v-for="useCase in useCases" :key="useCase.title" class="use-case-card" data-reveal>
             <svg class="card-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" v-html="useCase.icon"></svg>
@@ -223,6 +110,27 @@
             </AccordionContent>
           </AccordionItem>
         </Accordion>
+      </div>
+    </section>
+
+    <!-- ==================== PLATAFORMA PROPIA ==================== -->
+    <section class="section own-platform">
+      <div class="container">
+        <div class="solution-grid">
+          <div class="solution-copy" data-reveal>
+            <p class="solution-eyebrow">Solución IoT Industrial a Medida</p>
+            <h2 class="solution-statement">La plataforma es nuestra.<br><span>La diseñamos, la desarrollamos y la operamos.</span></h2>
+            <p>Eso nos permite sumar equipos, líneas y plantas sin techo, y construir lo que tu proceso necesita en lugar de forzarlo a un producto genérico.</p>
+          </div>
+
+          <!-- Capacidades: cada renglón se ilumina al cruzar la pantalla (ver capabilityScrub) -->
+          <div class="capabilities">
+            <h3 class="visually-hidden">Capacidades de la Plataforma</h3>
+            <ul class="capability-list">
+              <li v-for="capability in capabilities" :key="capability" class="capability">{{ capability }}</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -252,55 +160,9 @@
               </article>
             </div>
 
-            <!-- Órbita: los datos entran por el anillo exterior (la planta) y avanzan
-                 en espiral hacia el núcleo (la inteligencia). -->
+            <!-- Esquema: el dato recorre los seis módulos de la arquitectura -->
             <div class="flow-visual" aria-hidden="true">
-              <svg class="orbit" viewBox="0 0 640 640">
-                <defs>
-                  <radialGradient id="orbit-ambient">
-                    <stop offset="0%" stop-color="#afe3e8" stop-opacity="0.14" />
-                    <stop offset="100%" stop-color="#afe3e8" stop-opacity="0" />
-                  </radialGradient>
-                  <radialGradient id="orbit-core">
-                    <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
-                    <stop offset="25%" stop-color="#afe3e8" stop-opacity="0.85" />
-                    <stop offset="100%" stop-color="#afe3e8" stop-opacity="0" />
-                  </radialGradient>
-                  <filter id="orbit-glow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feGaussianBlur stdDeviation="5" />
-                  </filter>
-                </defs>
-
-                <circle cx="320" cy="320" r="318" fill="url(#orbit-ambient)" />
-
-                <g
-                  v-for="(radius, index) in orbitRadii"
-                  :key="radius"
-                  class="ring"
-                  :class="{ 'is-reached': index <= activeStep, 'is-current': index === activeStep }"
-                >
-                  <circle class="ring-glow" cx="320" cy="320" :r="radius" filter="url(#orbit-glow)" />
-                  <circle class="ring-line" cx="320" cy="320" :r="radius" />
-                </g>
-
-                <circle data-orbit-core class="orbit-core" cx="320" cy="320" r="96" fill="url(#orbit-core)" />
-
-                <g data-orbit-trail>
-                  <circle v-for="n in 18" :key="n" class="trail-dot" cx="320" cy="320" :r="3.6 - n * 0.16" />
-                </g>
-                <circle data-orbit-particle class="particle" cx="320" cy="40" r="5" />
-
-                <text
-                  v-for="(radius, index) in orbitRadii"
-                  :key="`label-${radius}`"
-                  class="ring-label"
-                  :class="{ 'is-reached': index <= activeStep, 'is-current': index === activeStep }"
-                  x="320"
-                  :y="320 - radius - 12"
-                  text-anchor="middle"
-                  @click="scrollToStep(index)"
-                >{{ flowSteps[index].short }}</text>
-              </svg>
+              <FlowSchematic ref="schematic" :steps="flowSteps" :active="activeStep" @select="scrollToStep" />
             </div>
           </div>
         </div>
@@ -312,6 +174,28 @@
           <p class="flow-step-desc">{{ step.description }}</p>
         </li>
       </ol>
+    </section>
+
+    <!-- ==================== SERVICIOS ==================== -->
+    <section id="services" class="section services">
+      <div class="container">
+        <div class="services-layout">
+          <header class="services-head" data-reveal>
+            <h2 class="services-title">
+              Ingeniería de punta a punta.
+              <span class="muted">Del PLC a la IA.</span>
+            </h2>
+            <p class="services-lead">Un solo equipo responsable de toda la cadena.</p>
+          </header>
+
+          <ul class="service-index">
+            <li v-for="service in services" :key="service.name" class="service-row" data-reveal>
+              <h3 class="service-title">{{ service.title }}</h3>
+              <p class="service-desc">{{ service.summary }}</p>
+            </li>
+          </ul>
+        </div>
+      </div>
     </section>
 
     <!-- ==================== CONTACTO ==================== -->
@@ -428,8 +312,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import Navbar from '@/components/Navbar.vue'
+import FlowSchematic from '@/components/FlowSchematic.vue'
+import PlatformTour from '@/components/PlatformTour.vue'
 import { useLandingMotion } from '@/composables/useLandingMotion'
 import { useFlowScroll } from '@/composables/useFlowScroll'
 import {
@@ -440,56 +326,55 @@ import {
 } from '@/components/ui/accordion'
 
 const rootEl = ref(null)
-const servicesEl = ref(null)
 const flowTrack = ref(null)
 
 const services = [
   {
     name: 'Integración Industrial',
     title: 'Integración Industrial',
-    mainDescription: 'Conectamos PLCs (Siemens, Allen Bradley, Rockwell) y sistemas industriales existentes de forma segura y no invasiva. Trabajamos con protocolos OPC-UA, MQTT y Modbus, respetando la operación y evitando interrupciones en planta.',
-    secondaryDescription: 'La integración IoT se adapta a cada entorno industrial, capturando datos críticos desde el origen.',
+    summary: 'Conectamos PLCs y sistemas existentes sin detener la planta.',
   },
   {
     name: 'Arquitectura Cloud',
     title: 'Arquitectura Cloud Industrial',
-    mainDescription: 'Diseñamos y operamos arquitecturas cloud robustas, escalables y seguras para entornos industriales. Cada solución IoT se construye según la criticidad de la operación.',
-    secondaryDescription: 'La infraestructura cloud industrial está preparada para crecer junto a la planta, manteniendo estabilidad y control.',
+    summary: 'Infraestructura privada, segura y preparada para crecer.',
   },
   {
     name: 'Visualización',
     title: 'Dashboards y Visualización',
-    mainDescription: 'Creamos dashboards industriales claros con KPIs, OEE y métricas en tiempo real, enfocados en cada rol y proceso. La información se presenta de forma simple, priorizando la toma de decisiones.',
-    secondaryDescription: 'No mostramos datos por mostrar: estructuramos la información para reflejar el estado real de la operación industrial.',
+    summary: 'KPIs y OEE en tiempo real, pensados para cada rol.',
   },
   {
     name: 'Inteligencia Artificial',
     title: 'Inteligencia Artificial Aplicada',
-    mainDescription: 'Incorporamos inteligencia artificial y machine learning para analizar patrones, detectar anomalías y generar insights sobre los datos industriales y de producción.',
-    secondaryDescription: 'El objetivo no es reemplazar decisiones humanas, sino potenciar el criterio operativo con información contextualizada por IA.',
+    summary: 'Detección de anomalías y mantenimiento predictivo.',
   },
   {
     name: 'Seguridad',
     title: 'Ciberseguridad OT',
-    mainDescription: 'La ciberseguridad OT es un pilar central de cada implementación IoT. Aplicamos aislamiento de red, control de accesos y protección de datos industriales con buenas prácticas IEC 62443.',
-    secondaryDescription: 'Cada entorno es privado y diseñado específicamente para el cliente, evitando exposiciones innecesarias.',
+    summary: 'Protegemos tu planta y tus datos de punta a punta.',
   },
   {
     name: 'Soporte y Operación',
     title: 'Soporte y Operación 24/7',
-    mainDescription: 'Operamos y monitoreamos la plataforma IoT de forma continua 24/7, asegurando disponibilidad, performance y correcto funcionamiento de la solución.',
-    secondaryDescription: 'La operación no termina en la implementación: es un proceso vivo con soporte técnico continuo.',
+    summary: 'Monitoreamos y operamos la plataforma de forma continua.',
   },
   {
     name: 'Consultoría y Evolución',
     title: 'Consultoría Industria 4.0',
-    mainDescription: 'Acompañamos a empresas argentinas en la evolución de su madurez digital y transformación hacia la Industria 4.0. Analizamos procesos, métricas y roadmap futuro.',
-    secondaryDescription: 'La plataforma IoT y el servicio evolucionan junto a la operación y al negocio.',
+    summary: 'Una hoja de ruta para la madurez digital de tu planta.',
   },
 ]
 
+const contrast = [
+  { canned: 'Tu operación se acomoda al software', seim: 'El software se adapta a tu operación' },
+  { canned: 'Funciones fijas: si no está, no se puede', seim: 'Desarrollamos lo que tu proceso necesita' },
+  { canned: 'Límites de equipos, usuarios o plantas', seim: 'Escala sin límite: equipos, líneas y plantas' },
+  { canned: 'Entornos compartidos con otras empresas', seim: 'Un entorno privado, solo para tu empresa' },
+]
+
 const capabilities = [
-  'Integración con PLCs y sistemas industriales',
+  'Integración con PLCs y sistemas',
   'Arquitectura cloud privada y escalable',
   'Dashboards operativos a medida',
   'Métricas en tiempo real',
@@ -571,67 +456,15 @@ const flowSteps = [
   },
 ]
 
-// Radio de cada anillo de la órbita (en unidades del viewBox 640×640), de afuera
-// hacia adentro: un anillo por paso.
-const orbitRadii = [280, 228, 176, 124, 76, 30]
-
+const schematic = ref(null)
 const activeStep = ref(0)
 
 useLandingMotion(rootEl)
-const { scrollToStep } = useFlowScroll(flowTrack, { radii: orbitRadii, center: 320, activeStep })
-
-// ---------- Servicios: avance automático ----------
-// El temporizador ES la animación CSS de la barra de progreso de la pestaña activa:
-// al terminar (animationend) se pasa al siguiente servicio. Pausar la barra pausa el
-// avance, así que barra y contenido nunca se desincronizan. Con movimiento reducido
-// la barra no se anima y no hay avance automático.
-const activeIndex = ref(0)
-const swipeDirection = ref('slide-left')
-const hoverPaused = ref(false)
-const touchPaused = ref(false)
-const servicesInView = ref(false)
-const servicesPaused = computed(() => hoverPaused.value || touchPaused.value || !servicesInView.value)
-
-const setActiveService = (index) => {
-  swipeDirection.value = index >= activeIndex.value ? 'slide-left' : 'slide-right'
-  activeIndex.value = index
-}
-
-const nextService = () => {
-  swipeDirection.value = 'slide-left'
-  activeIndex.value = (activeIndex.value + 1) % services.length
-}
-
-const prevService = () => {
-  swipeDirection.value = 'slide-right'
-  activeIndex.value = (activeIndex.value - 1 + services.length) % services.length
-}
-
-let touchStartX = 0
-let touchEndX = 0
-
-const handleTouchStart = (e) => {
-  touchStartX = e.touches[0].clientX
-  touchEndX = touchStartX
-  touchPaused.value = true
-}
-
-const handleTouchMove = (e) => {
-  touchEndX = e.touches[0].clientX
-}
-
-const handleTouchEnd = () => {
-  const diff = touchStartX - touchEndX
-
-  if (Math.abs(diff) > 50) {
-    if (diff > 0) nextService()
-    else prevService()
-  }
-
-  touchPaused.value = false
-}
-
-let servicesObserver = null
+const { scrollToStep } = useFlowScroll(flowTrack, {
+  steps: flowSteps.length,
+  activeStep,
+  onRender: (pos) => schematic.value?.render(pos),
+})
 
 // ---------- Alto de viewport estable en mobile ----------
 let removeViewportHeightListeners = null
@@ -676,18 +509,9 @@ const setupViewportHeight = () => {
 
 onMounted(() => {
   removeViewportHeightListeners = setupViewportHeight()
-
-  servicesObserver = new IntersectionObserver(
-    ([entry]) => {
-      servicesInView.value = entry.isIntersecting
-    },
-    { threshold: 0.35 }
-  )
-  if (servicesEl.value) servicesObserver.observe(servicesEl.value)
 })
 
 onUnmounted(() => {
-  servicesObserver?.disconnect()
   removeViewportHeightListeners?.()
 })
 </script>
@@ -731,13 +555,16 @@ body {
   --line-strong: rgba(255, 255, 255, 0.14);
   --accent: #afe3e8;
   --accent-soft: rgba(175, 227, 232, 0.12);
-  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   /* 1520 = a 1440px de ancho el contenido queda a 60px, igual que el hero */
   --container: 1520px;
   --gutter: 60px;
   --header-h: 72px;
-  --section-pad: clamp(112px, 12vw, 168px);
+  /* Ritmo vertical único: la distancia entre dos bloques grandes es siempre --section-pad.
+     Cada sección aporta la mitad arriba y la mitad abajo; los bloques internos grandes
+     (comparación, texto de la solución) se separan con el valor completo. */
+  --section-pad: clamp(112px, 14vw, 220px);
 
   position: relative;
   width: 100%;
@@ -764,7 +591,7 @@ body {
 
 .section {
   position: relative;
-  padding: var(--section-pad) 0;
+  padding: calc(var(--section-pad) / 2) 0;
 }
 
 a:focus-visible,
@@ -1089,211 +916,83 @@ button:focus-visible {
 }
 
 /* ==================== SERVICIOS ==================== */
-.services-panel {
+.services-layout {
   display: grid;
-  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
-  gap: clamp(40px, 6vw, 112px);
-  align-items: stretch;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  gap: clamp(40px, 6vw, 96px);
+  align-items: start;
 }
 
-.services-tabs {
-  list-style: none;
+.services-head {
+  position: sticky;
+  top: calc(var(--header-h) + 48px);
 }
 
-.service-tab {
-  position: relative;
-  width: 100%;
-  display: block;
-  padding: 18px 0;
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  border-radius: 0;
-  background: none;
-  color: var(--text-3);
-  font-family: var(--font);
-  font-size: 17px;
-  font-weight: 300;
-  text-align: left;
-  cursor: pointer;
-  transition: color 0.35s ease;
-}
-
-.service-tab:hover {
-  color: var(--text-2);
-}
-
-.service-tab.is-active {
-  color: var(--text);
+.services-title {
+  font-size: clamp(30px, 3vw, 44px);
   font-weight: 400;
-}
-
-.tab-progress {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 1px;
-  overflow: hidden;
-}
-
-.tab-progress-fill {
-  display: block;
-  width: 100%;
-  height: 100%;
-  background: var(--accent);
-  transform: scaleX(0);
-  transform-origin: left center;
-}
-
-.service-tab.is-active .tab-progress-fill {
-  animation: service-timer 7s linear forwards;
-}
-
-.services-panel.is-paused .tab-progress-fill,
-.mobile-services-carousel.is-paused .carousel-progress-fill {
-  animation-play-state: paused;
-}
-
-@keyframes service-timer {
-  to { transform: scaleX(1); }
-}
-
-/* Todos los paneles se apilan en la misma celda: el alto lo marca el más largo,
-   así que cambiar de servicio nunca mueve el resto de la página. */
-.service-stage {
-  position: relative;
-  display: grid;
-  align-items: center;
-}
-
-.service-detail {
-  grid-area: 1 / 1;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(16px);
-  transition: opacity 0.4s ease, transform 0.6s var(--ease-out), visibility 0s linear 0.6s;
-}
-
-.service-detail.is-active {
-  opacity: 1;
-  visibility: visible;
-  transform: none;
-  transition: opacity 0.55s ease 0.1s, transform 0.8s var(--ease-out) 0.1s, visibility 0s;
-}
-
-.detail-title {
-  font-size: clamp(32px, 3.4vw, 48px);
-  font-weight: 400;
-  line-height: 1.08;
+  line-height: 1.1;
   letter-spacing: -0.03em;
+  text-wrap: balance;
 }
 
-.detail-desc {
-  margin-top: 24px;
-  max-width: 620px;
-  font-size: 18px;
-  line-height: 1.7;
-  color: var(--text-2);
+.services-title .muted {
+  color: var(--text-4);
 }
 
-.detail-note {
-  margin-top: 18px;
-  max-width: 580px;
+.services-lead {
+  margin-top: 20px;
   font-size: 16px;
-  line-height: 1.65;
   color: var(--text-3);
 }
 
-/* Carrusel mobile */
-.mobile-services-carousel {
-  display: none;
-  flex-direction: column;
+.service-index {
+  list-style: none;
+  border-bottom: 1px solid var(--line);
 }
 
-.carousel-progress {
-  display: block;
-  height: 1px;
-  margin-bottom: 28px;
-  background: var(--line-strong);
-  overflow: hidden;
-}
-
-.carousel-progress-fill {
-  display: block;
-  height: 100%;
-  background: var(--accent);
-  transform: scaleX(0);
-  transform-origin: left center;
-  animation: service-timer 7s linear forwards;
-}
-
-.carousel-track {
+.service-row {
+  position: relative;
   display: grid;
-  touch-action: pan-y;
-  user-select: none;
-  --slide-from: 28px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  gap: 24px;
+  align-items: baseline;
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
 }
 
-.carousel-track.slide-right {
-  --slide-from: -28px;
-}
-
-.carousel-slide {
-  grid-area: 1 / 1;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateX(var(--slide-from));
-  transition: opacity 0.3s ease, transform 0.5s var(--ease-out), visibility 0s linear 0.5s;
-}
-
-.carousel-slide.is-active {
-  opacity: 1;
-  visibility: visible;
-  transform: none;
-  transition: opacity 0.45s ease 0.08s, transform 0.6s var(--ease-out) 0.08s, visibility 0s;
-}
-
-.carousel-title {
-  font-size: 28px;
+.service-title {
+  font-size: 17px;
   font-weight: 400;
-  line-height: 1.15;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.01em;
+  color: var(--text);
 }
 
-.carousel-description {
-  margin-top: 18px;
-  font-size: 15.5px;
-  line-height: 1.7;
-  color: var(--text-2);
-}
-
-.carousel-secondary {
-  margin-top: 14px;
-  font-size: 14.5px;
-  line-height: 1.65;
+.service-desc {
+  font-size: 15px;
+  line-height: 1.5;
   color: var(--text-3);
+  transition: color 0.4s ease;
 }
 
-.carousel-dots {
-  display: flex;
-  gap: 6px;
-  margin-top: 36px;
+/* Hover: la fila apuntada queda nítida y el resto de la lista se atenúa. Se atenúa
+   el contenido y no la fila, porque la fila lleva la opacidad inline de su entrada. */
+.service-row > * {
+  transition: opacity 0.45s ease, color 0.45s ease;
 }
 
-.carousel-dot {
-  width: 6px;
-  height: 6px;
-  padding: 0;
-  border: 0;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.16);
-  cursor: pointer;
-  transition: width 0.4s var(--ease-out), background-color 0.3s ease;
-}
+@media (hover: hover) {
+  .service-index:hover .service-row > * {
+    opacity: 0.32;
+  }
 
-.carousel-dot.is-active {
-  width: 22px;
-  background: var(--accent);
+  .service-index .service-row:hover > * {
+    opacity: 1;
+  }
+
+  .service-row:hover .service-desc {
+    color: var(--text-2);
+  }
 }
 
 /* ==================== SOLUCIÓN ==================== */
@@ -1340,11 +1039,118 @@ button:focus-visible {
   color: var(--text-3);
 }
 
-.solution-grid {
-  margin-top: clamp(80px, 10vw, 140px);
+/* Diferencial: enlatadas vs propia */
+.contrast {
+  margin-top: var(--section-pad);
+}
+
+.contrast-title {
+  max-width: 900px;
+  font-size: clamp(30px, 3.6vw, 52px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.contrast-title span {
+  color: var(--text-3);
+}
+
+.contrast-legend,
+.contrast-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) clamp(64px, 9vw, 140px) minmax(0, 1.15fr);
+  align-items: baseline;
+}
+
+.contrast-legend {
+  margin-top: clamp(48px, 6vw, 80px);
+  padding-bottom: 16px;
+  font-size: 13px;
+  color: var(--text-4);
+}
+
+.contrast-legend span:last-child {
+  grid-column: 3;
+  color: var(--accent);
+}
+
+.contrast-rows {
+  list-style: none;
+  border-bottom: 1px solid var(--line);
+}
+
+.contrast-row {
+  padding: clamp(22px, 2.4vw, 32px) 0;
+  border-top: 1px solid var(--line);
+}
+
+/* Todo el estado de la fila sale de --p (0 → 1), que el scroll mueve en
+   contrastScrub. Sin JS o con movimiento reducido queda en 1: estado final. */
+.contrast-row {
+  --p: 1;
+  --strike: min(1, calc(var(--p) * 1.7));
+  --focus: max(0, min(1, calc((var(--p) - 0.5) * 2)));
+}
+
+.contrast-old {
+  position: relative;
+  justify-self: start;
+  font-size: clamp(16px, 1.3vw, 19px);
+  line-height: 1.4;
+  color: var(--text-2);
+  text-decoration: none;
+  opacity: calc(1 - var(--strike) * 0.55);
+}
+
+/* Tachado propio: una línea que se dibuja de izquierda a derecha */
+.contrast-old::after {
+  content: '';
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: 54%;
+  height: 1px;
+  background: var(--text-2);
+  transform-origin: left center;
+  transform: scaleX(var(--strike));
+}
+
+.contrast-new {
+  font-size: clamp(22px, 2.1vw, 32px);
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  /* Se escribe de izquierda a derecha: una máscara de borde suave avanza con --focus */
+  --edge: calc(var(--focus) * 140% - 20%);
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(var(--edge) - 20%), transparent calc(var(--edge) + 20%));
+  mask-image: linear-gradient(90deg, #000 calc(var(--edge) - 20%), transparent calc(var(--edge) + 20%));
+  transform: translateX(calc((1 - var(--focus)) * -14px));
+}
+
+/* Un brillo recorre la frase mientras se enfoca y la deja en blanco */
+.contrast-ink {
+  background: linear-gradient(100deg, #fff 0%, #fff 42%, var(--accent) 50%, #fff 58%, #fff 100%) no-repeat;
+  background-size: 260% 100%;
+  background-position: calc(100% - var(--focus) * 100%) 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.solution-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
   gap: clamp(40px, 7vw, 120px);
+  align-items: start;
 }
 
 .block-title {
@@ -1356,61 +1162,73 @@ button:focus-visible {
   letter-spacing: -0.015em;
 }
 
-.solution-copy p {
+.solution-copy {
+  position: sticky;
+  top: calc(var(--header-h) + 64px);
+}
+
+.solution-eyebrow {
+  font-size: 14px;
+  color: var(--accent);
+}
+
+.solution-statement {
+  margin-top: 20px;
+  font-size: clamp(30px, 3vw, 44px);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.solution-statement span {
+  color: var(--text-3);
+}
+
+.solution-copy p:not(.solution-eyebrow) {
+  margin-top: 28px;
+  max-width: 440px;
   font-size: 17px;
-  line-height: 1.75;
+  line-height: 1.7;
   color: var(--text-2);
-}
-
-.solution-copy p + p {
-  margin-top: 18px;
-}
-
-.capabilities .block-title {
-  margin-bottom: 0;
 }
 
 .capability-list {
   list-style: none;
 }
 
+/* --c (0 → 1) lo mueve el scroll en capabilityScrub. Sin JS queda encendido. */
 .capability {
-  position: relative;
-  padding: 16px 0;
-  border-bottom: 1px solid var(--line);
-  font-size: 16px;
-  color: var(--text-2);
-  transition: color 0.3s ease;
-}
-
-.capability::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -1px;
-  width: 100%;
-  height: 1px;
-  background: var(--accent);
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 0.6s var(--ease-out);
-}
-
-.capability:hover {
+  --c: 1;
+  padding: clamp(10px, 1vw, 16px) 0;
+  font-size: clamp(26px, 2.7vw, 42px);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
   color: var(--text);
-}
-
-.capability:hover::before {
-  transform: scaleX(1);
+  opacity: calc(0.16 + var(--c) * 0.84);
+  transform: translateX(calc((1 - var(--c)) * 12px));
 }
 
 /* ==================== CASOS DE USO ==================== */
+/* Sin caja exterior: solo las líneas entre casos. Cada card dibuja su borde derecho
+   e inferior, y se quitan en la última columna y en la última fila. */
 .use-cases-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--line);
-  border: 1px solid var(--line);
+}
+
+.use-case-card {
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.use-case-card:nth-child(3n) {
+  border-right: 0;
+}
+
+.use-case-card:nth-last-child(-n + 3) {
+  border-bottom: 0;
 }
 
 .use-case-card {
@@ -1570,6 +1388,8 @@ button:focus-visible {
 .flow {
   position: relative;
   z-index: 2;
+  /* mitad del ritmo, como cualquier .section (arriba ya la da el padding del sticky) */
+  padding-bottom: calc(var(--section-pad) / 2);
 }
 
 /* La pista define cuánto scroll dura el recorrido; el contenido queda fijo. */
@@ -1659,75 +1479,9 @@ button:focus-visible {
   grid-area: visual;
   align-self: center;
   justify-self: center;
-  width: min(100%, calc(100vh - var(--header-h) - 120px));
-}
-
-.orbit {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
-}
-
-.ring-line {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.1);
-  stroke-width: 1;
-  transition: stroke 0.6s ease;
-}
-
-.ring.is-reached .ring-line {
-  stroke: rgba(175, 227, 232, 0.32);
-}
-
-.ring.is-current .ring-line {
-  stroke: var(--accent);
-  stroke-width: 1.25;
-}
-
-.ring-glow {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 4;
-  opacity: 0;
-  transition: opacity 0.6s ease;
-}
-
-.ring.is-current .ring-glow {
-  opacity: 0.55;
-}
-
-.orbit-core {
-  opacity: 0.12;
-}
-
-.particle {
-  fill: #fff;
-}
-
-.trail-dot {
-  fill: var(--accent);
-}
-
-.ring-label {
-  font-family: var(--font);
-  font-size: 17px;
-  font-weight: 400;
-  fill: var(--text-4);
-  paint-order: stroke;
-  stroke: #000;
-  stroke-width: 6px;
-  stroke-linejoin: round;
-  cursor: pointer;
-  transition: fill 0.4s ease;
-}
-
-.ring-label.is-reached {
-  fill: var(--text-2);
-}
-
-.ring-label.is-current {
-  fill: #fff;
+  container-type: inline-size;
+  /* el esquema es 520×600: el ancho sale del alto disponible */
+  width: min(100%, (100vh - var(--header-h) - 120px) * 520 / 600);
 }
 
 /* Contenido completo de los pasos: oculto a la vista, disponible para lectores de
@@ -1956,12 +1710,21 @@ button:focus-visible {
 
 /* ==================== RESPONSIVE ==================== */
 @media (max-width: 1100px) {
-  .services-panel {
-    grid-template-columns: 280px minmax(0, 1fr);
-  }
-
   .use-cases-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .use-case-card:nth-child(n) {
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .use-case-card:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .use-case-card:nth-last-child(-n + 2) {
+    border-bottom: 0;
   }
 }
 
@@ -2002,6 +1765,7 @@ button:focus-visible {
     min-height: var(--app-height, 100svh);
     --gutter: 24px;
     --header-h: 64px;
+    --section-pad: 128px;
   }
 
   /* Hero (original) */
@@ -2069,7 +1833,7 @@ button:focus-visible {
 
   /* Secciones */
   .section {
-    padding: 96px 0;
+    padding: calc(var(--section-pad) / 2) 0;
   }
 
   .section-head {
@@ -2085,12 +1849,10 @@ button:focus-visible {
     font-size: 15.5px;
   }
 
-  .desktop-services,
   .desktop-use-cases {
     display: none;
   }
 
-  .mobile-services-carousel,
   .mobile-use-cases-accordion {
     display: flex;
   }
@@ -2109,7 +1871,6 @@ button:focus-visible {
   }
 
   .solution-grid {
-    margin-top: 72px;
     gap: 56px;
   }
 
@@ -2121,8 +1882,44 @@ button:focus-visible {
     font-size: 15.5px;
   }
 
+  .services-layout {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .services-head {
+    position: static;
+  }
+
+  .service-row {
+    grid-template-columns: 1fr;
+    row-gap: 4px;
+    padding: 18px 0;
+  }
+
+  .contrast-legend {
+    display: none;
+  }
+
+  .contrast-row {
+    grid-template-columns: 1fr;
+    row-gap: 8px;
+  }
+
+  .contrast-row > span[aria-hidden] {
+    display: none;
+  }
+
+  .contrast-new {
+    font-size: 22px;
+  }
+
+  .solution-copy {
+    position: static;
+  }
+
   .capability {
-    font-size: 15px;
+    font-size: 26px;
   }
 
   /* Cómo funciona: órbita arriba y paso activo debajo */
@@ -2157,19 +1954,8 @@ button:focus-visible {
   }
 
   .flow-visual {
-    width: min(100%, 44svh);
-  }
-
-  /* En mobile solo se ve la etiqueta del paso activo: las seis juntas no entran */
-  .ring-label {
-    font-size: 26px;
-    stroke-width: 8px;
-    opacity: 0;
-    transition: opacity 0.4s ease, fill 0.4s ease;
-  }
-
-  .ring-label.is-current {
-    opacity: 1;
+    width: 100%;
+    max-width: 420px;
   }
 
   .flow-detail {
@@ -2243,16 +2029,6 @@ button:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tab-progress-fill,
-  .carousel-progress-fill,
-  .service-tab.is-active .tab-progress-fill {
-    animation: none;
-  }
-
-  .service-detail,
-  .service-detail.is-active,
-  .carousel-slide,
-  .carousel-slide.is-active,
   .flow-step,
   .flow-step.is-active {
     transition: none;
