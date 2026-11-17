@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, START_LOCATION } from 'vue-router'
 
 const routes = [
   {
@@ -57,7 +57,10 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  scrollBehavior() {
+  scrollBehavior(to, from) {
+    // En la primera carga manda el navegador: respeta el #ancla del link o el scroll
+    // al recargar, en vez de saltar arriba cuando termina de cargar el JS.
+    if (from === START_LOCATION) return false
     return { top: 0 }
   },
   routes,

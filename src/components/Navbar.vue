@@ -175,6 +175,20 @@ onUnmounted(() => {
   height: var(--header-h, 72px);
 }
 
+/* Entrada: solo opacidad (un transform rompería el menú mobile, que es fixed adentro).
+   Es CSS y arranca con el HTML prerenderizado (ver la entrada del hero en Landing.vue). */
+@media (prefers-reduced-motion: no-preference) {
+  .header {
+    animation: header-in 0.8s ease-out backwards;
+  }
+}
+
+@keyframes header-in {
+  from {
+    opacity: 0;
+  }
+}
+
 /* El blur va en un pseudo-elemento: si estuviera en .header, el menú mobile
    (position: fixed) quedaría contenido dentro del header. */
 .header::before {

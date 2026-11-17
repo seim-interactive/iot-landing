@@ -321,6 +321,8 @@ button:focus-visible {
   margin: 0 0 24px 0;
   line-height: 1.4;
   color: var(--text-3);
+  /* En el celular entra en dos líneas parejas */
+  text-wrap: balance;
 }
 
 .hero-title {
@@ -368,6 +370,37 @@ button:focus-visible {
 
 .hero-cta:active {
   transform: scale(0.97);
+}
+
+/* Entrada del hero. El h1 y el título se ven desde el primer cuadro, sin animarse
+   (son el LCP). El botón y la plataforma entran con CSS: arrancan ocultos desde el
+   primer pintado del HTML prerenderizado, así no hay parpadeo ni hace falta esperar
+   al JS. Cuando Vue monta y vuelve a crear este DOM, main.js pone las animaciones
+   nuevas en el punto en que iban, así no empiezan de nuevo. Con movimiento reducido
+   no hay entrada: todo visible. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-cta {
+    animation: hero-rise 0.7s cubic-bezier(0.5, 1, 0.89, 1) 0.15s backwards;
+  }
+
+  /* La plataforma sube desde abajo y se apoya: es lo que sigue a la primera pantalla */
+  .hero-stage {
+    animation: hero-stage-in 1.2s cubic-bezier(0.33, 1, 0.68, 1) 0.25s backwards;
+  }
+}
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+@keyframes hero-stage-in {
+  from {
+    opacity: 0;
+    transform: translateY(70px);
+  }
 }
 
 /* La pista define cuánto scroll dura el recorrido; el contenido queda fijo. */
