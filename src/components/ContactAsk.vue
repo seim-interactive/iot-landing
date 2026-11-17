@@ -53,7 +53,7 @@ function useExample(example) {
           </button>
         </div>
         <a ref="send" :href="href" target="_blank" rel="noopener" class="ask-send">
-          Seguir por WhatsApp
+          Enviar por WhatsApp
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
