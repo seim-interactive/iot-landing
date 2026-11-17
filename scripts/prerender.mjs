@@ -143,6 +143,9 @@ async function main() {
         if (!keepScripts.has(scriptKey(el)) && !own(el)) el.remove()
       })
       document.querySelectorAll('iframe').forEach((el) => el.remove())
+    // Los videos se piden en orden desde la página (videoQueue): ninguna fuente en el HTML
+    document.querySelectorAll('video source').forEach((el) => el.remove())
+    document.querySelectorAll('video[src]').forEach((el) => el.removeAttribute('src'))
       document.querySelectorAll('link[href]').forEach((el) => {
         const href = el.getAttribute('href')
         // El canonical de cada página por tema apunta al dominio real y no está en la plantilla

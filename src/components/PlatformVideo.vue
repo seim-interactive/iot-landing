@@ -21,6 +21,7 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import VIDEOS from './platformVideos.json'
 import { claimPriority, enqueue, queueStarted, startQueue } from './videoQueue'
+import { isPrerendering } from '@/composables/animationUtils'
 
 const props = defineProps({
   name: { type: String, required: true },
@@ -153,6 +154,9 @@ function onVersionChange() {
 }
 
 onMounted(() => {
+  // En el prerender no se pide nada: si no, las fuentes quedan grabadas en el HTML y el
+  // navegador baja esos videos (los de escritorio, aunque sea un celular) antes que la cola
+  if (isPrerendering()) return
   mq = window.matchMedia(props.mobileQuery)
   mq.addEventListener('change', onVersionChange)
   const marks = metaFor(versionNow())?.marks
