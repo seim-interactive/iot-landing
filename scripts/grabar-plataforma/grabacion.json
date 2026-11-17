@@ -1,0 +1,956 @@
+[
+  {
+    "key": "hero",
+    "version": "escritorio",
+    "w": 2448,
+    "h": 1530,
+    "css": [
+      1224,
+      765
+    ],
+    "frames": 3893,
+    "dur": 64.883,
+    "av1": {
+      "file": "public/media/plataforma/hero.av1.mp4",
+      "size": "3249 KB",
+      "ssim": "0.999470",
+      "psnr": "60.322699",
+      "vmaf": "97.471585"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/hero.hevc.mp4",
+      "size": "5779 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/hero.h264.mp4",
+      "size": "5761 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/hero-poster.webp",
+      "size": "69 KB"
+    }
+  },
+  {
+    "key": "hero",
+    "version": "celular",
+    "w": 990,
+    "h": 1980,
+    "css": [
+      330,
+      660
+    ],
+    "frames": 3295,
+    "dur": 54.917,
+    "av1": {
+      "file": "public/media/plataforma/hero-celular.av1.mp4",
+      "size": "2220 KB",
+      "ssim": "0.999286",
+      "psnr": "58.976245",
+      "vmaf": "97.488146"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/hero-celular.hevc.mp4",
+      "size": "3956 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/hero-celular.h264.mp4",
+      "size": "4123 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/hero-celular-poster.webp",
+      "size": "47 KB"
+    }
+  },
+  {
+    "key": "medida",
+    "version": "escritorio",
+    "w": 2560,
+    "h": 1440,
+    "css": [
+      1280,
+      720
+    ],
+    "frames": 2976,
+    "dur": 49.6,
+    "av1": {
+      "file": "public/media/plataforma/medida.av1.mp4",
+      "size": "6021 KB",
+      "ssim": "0.999169",
+      "psnr": "54.931614",
+      "vmaf": "97.648916"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/medida.hevc.mp4",
+      "size": "11914 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/medida.h264.mp4",
+      "size": "10296 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/medida-poster.webp",
+      "size": "126 KB"
+    }
+  },
+  {
+    "key": "medida",
+    "version": "celular",
+    "w": 1020,
+    "h": 1299,
+    "css": [
+      340,
+      433
+    ],
+    "frames": 3756,
+    "dur": 62.6,
+    "av1": {
+      "file": "public/media/plataforma/medida-celular.av1.mp4",
+      "size": "6521 KB",
+      "ssim": "0.998781",
+      "psnr": "51.507566",
+      "vmaf": "97.687239"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/medida-celular.hevc.mp4",
+      "size": "12450 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/medida-celular.h264.mp4",
+      "size": "8923 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/medida-celular-poster.webp",
+      "size": "72 KB"
+    }
+  },
+  {
+    "key": "ask",
+    "version": "escritorio",
+    "w": 1416,
+    "h": 226,
+    "css": [
+      708,
+      113
+    ],
+    "frames": 1325,
+    "dur": 22.083,
+    "av1": {
+      "file": "public/media/plataforma/ask.av1.mp4",
+      "size": "100 KB",
+      "ssim": "0.999895",
+      "psnr": "65.412873",
+      "vmaf": "97.419080"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/ask.hevc.mp4",
+      "size": "179 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/ask.h264.mp4",
+      "size": "136 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/ask-poster.webp",
+      "size": "4 KB"
+    }
+  },
+  {
+    "key": "t-alarmas",
+    "version": "escritorio",
+    "w": 1416,
+    "h": 886,
+    "css": [
+      708,
+      443
+    ],
+    "frames": 703,
+    "dur": 11.717,
+    "av1": {
+      "file": "public/media/plataforma/t-alarmas.av1.mp4",
+      "size": "440 KB",
+      "ssim": "0.999596",
+      "psnr": "56.428166",
+      "vmaf": "97.522355"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/t-alarmas.hevc.mp4",
+      "size": "994 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/t-alarmas.h264.mp4",
+      "size": "739 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/t-alarmas-poster.webp",
+      "size": "48 KB"
+    }
+  },
+  {
+    "key": "t-activos",
+    "version": "escritorio",
+    "w": 1416,
+    "h": 886,
+    "css": [
+      708,
+      443
+    ],
+    "frames": 1203,
+    "dur": 20.05,
+    "av1": {
+      "file": "public/media/plataforma/t-activos.av1.mp4",
+      "size": "641 KB",
+      "ssim": "0.999414",
+      "psnr": "57.712437",
+      "vmaf": "97.708533"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/t-activos.hevc.mp4",
+      "size": "1471 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/t-activos.h264.mp4",
+      "size": "1225 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/t-activos-poster.webp",
+      "size": "3 KB"
+    }
+  },
+  {
+    "key": "t-paradas",
+    "version": "escritorio",
+    "w": 1416,
+    "h": 886,
+    "css": [
+      708,
+      443
+    ],
+    "frames": 1404,
+    "dur": 23.4,
+    "av1": {
+      "file": "public/media/plataforma/t-paradas.av1.mp4",
+      "size": "412 KB",
+      "ssim": "0.999706",
+      "psnr": "60.805052",
+      "vmaf": "97.540118"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/t-paradas.hevc.mp4",
+      "size": "897 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/t-paradas.h264.mp4",
+      "size": "711 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/t-paradas-poster.webp",
+      "size": "31 KB"
+    }
+  },
+  {
+    "key": "t-reporte",
+    "version": "escritorio",
+    "w": 1416,
+    "h": 886,
+    "css": [
+      708,
+      443
+    ],
+    "frames": 1464,
+    "dur": 24.4,
+    "av1": {
+      "file": "public/media/plataforma/t-reporte.av1.mp4",
+      "size": "1112 KB",
+      "ssim": "0.999370",
+      "psnr": "56.374793",
+      "vmaf": "97.833081"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/t-reporte.hevc.mp4",
+      "size": "2628 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/t-reporte.h264.mp4",
+      "size": "2197 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/t-reporte-poster.webp",
+      "size": "3 KB"
+    }
+  },
+  {
+    "key": "t-argus",
+    "version": "escritorio",
+    "w": 1416,
+    "h": 886,
+    "css": [
+      708,
+      443
+    ],
+    "frames": 1416,
+    "dur": 23.6,
+    "av1": {
+      "file": "public/media/plataforma/t-argus.av1.mp4",
+      "size": "723 KB",
+      "ssim": "0.999220",
+      "psnr": "56.293939",
+      "vmaf": "97.461947"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/t-argus.hevc.mp4",
+      "size": "1472 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/t-argus.h264.mp4",
+      "size": "1333 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/t-argus-poster.webp",
+      "size": "18 KB"
+    }
+  },
+  {
+    "key": "t-argus",
+    "version": "celular",
+    "w": 1020,
+    "h": 939,
+    "css": [
+      340,
+      313
+    ],
+    "frames": 1416,
+    "dur": 23.6,
+    "av1": {
+      "file": "public/media/plataforma/t-argus-celular.av1.mp4",
+      "size": "820 KB",
+      "ssim": "0.999335",
+      "psnr": "55.221830",
+      "vmaf": "97.319051"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/t-argus-celular.hevc.mp4",
+      "size": "1693 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/t-argus-celular.h264.mp4",
+      "size": "1385 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/t-argus-celular-poster.webp",
+      "size": "15 KB"
+    }
+  },
+  {
+    "key": "t-equipos",
+    "version": "celular",
+    "w": 1020,
+    "h": 1800,
+    "css": [
+      340,
+      600
+    ],
+    "frames": 2487,
+    "dur": 41.45,
+    "av1": {
+      "file": "public/media/plataforma/t-equipos-celular.av1.mp4",
+      "size": "1357 KB",
+      "ssim": "0.998982",
+      "psnr": "58.074469",
+      "vmaf": "97.749850"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/t-equipos-celular.hevc.mp4",
+      "size": "2351 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/t-equipos-celular.h264.mp4",
+      "size": "3316 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/t-equipos-celular-poster.webp",
+      "size": "48 KB"
+    }
+  },
+  {
+    "key": "argus",
+    "version": "escritorio",
+    "w": 930,
+    "h": 856,
+    "css": [
+      465,
+      428
+    ],
+    "frames": 1416,
+    "dur": 23.6,
+    "av1": {
+      "file": "public/media/plataforma/argus.av1.mp4",
+      "size": "690 KB",
+      "ssim": "0.999176",
+      "psnr": "55.086393",
+      "vmaf": "97.333337"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/argus.hevc.mp4",
+      "size": "1229 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/argus.h264.mp4",
+      "size": "1031 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/argus-poster.webp",
+      "size": "12 KB"
+    }
+  },
+  {
+    "key": "argus",
+    "version": "celular",
+    "w": 1020,
+    "h": 939,
+    "css": [
+      340,
+      313
+    ],
+    "frames": 1416,
+    "dur": 23.6,
+    "av1": {
+      "file": "public/media/plataforma/argus-celular.av1.mp4",
+      "size": "807 KB",
+      "ssim": "0.999260",
+      "psnr": "55.245844",
+      "vmaf": "97.313296"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/argus-celular.hevc.mp4",
+      "size": "1410 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/argus-celular.h264.mp4",
+      "size": "1247 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/argus-celular-poster.webp",
+      "size": "12 KB"
+    }
+  },
+  {
+    "key": "alarmas",
+    "version": "escritorio",
+    "w": 930,
+    "h": 856,
+    "css": [
+      465,
+      428
+    ],
+    "frames": 703,
+    "dur": 11.717,
+    "av1": {
+      "file": "public/media/plataforma/alarmas.av1.mp4",
+      "size": "393 KB",
+      "ssim": "0.999550",
+      "psnr": "55.207716",
+      "vmaf": "97.540089"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/alarmas.hevc.mp4",
+      "size": "782 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/alarmas.h264.mp4",
+      "size": "546 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/alarmas-poster.webp",
+      "size": "39 KB"
+    }
+  },
+  {
+    "key": "alarmas",
+    "version": "celular",
+    "w": 1020,
+    "h": 939,
+    "css": [
+      340,
+      313
+    ],
+    "frames": 703,
+    "dur": 11.717,
+    "av1": {
+      "file": "public/media/plataforma/alarmas-celular.av1.mp4",
+      "size": "518 KB",
+      "ssim": "0.999538",
+      "psnr": "54.355143",
+      "vmaf": "97.461798"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/alarmas-celular.hevc.mp4",
+      "size": "1021 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/alarmas-celular.h264.mp4",
+      "size": "714 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/alarmas-celular-poster.webp",
+      "size": "42 KB"
+    }
+  },
+  {
+    "key": "mediciones",
+    "version": "escritorio",
+    "w": 930,
+    "h": 856,
+    "css": [
+      465,
+      428
+    ],
+    "frames": 1233,
+    "dur": 20.55,
+    "av1": {
+      "file": "public/media/plataforma/mediciones.av1.mp4",
+      "size": "493 KB",
+      "ssim": "0.998917",
+      "psnr": "54.426510",
+      "vmaf": "97.853619"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/mediciones.hevc.mp4",
+      "size": "1154 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/mediciones.h264.mp4",
+      "size": "1350 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/mediciones-poster.webp",
+      "size": "19 KB"
+    }
+  },
+  {
+    "key": "mediciones",
+    "version": "celular",
+    "w": 1020,
+    "h": 939,
+    "css": [
+      340,
+      313
+    ],
+    "frames": 1233,
+    "dur": 20.55,
+    "av1": {
+      "file": "public/media/plataforma/mediciones-celular.av1.mp4",
+      "size": "590 KB",
+      "ssim": "0.998997",
+      "psnr": "54.204660",
+      "vmaf": "97.806741"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/mediciones-celular.hevc.mp4",
+      "size": "1438 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/mediciones-celular.h264.mp4",
+      "size": "1600 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/mediciones-celular-poster.webp",
+      "size": "20 KB"
+    }
+  },
+  {
+    "key": "activos",
+    "version": "escritorio",
+    "w": 930,
+    "h": 856,
+    "css": [
+      465,
+      428
+    ],
+    "frames": 1203,
+    "dur": 20.05,
+    "av1": {
+      "file": "public/media/plataforma/activos.av1.mp4",
+      "size": "467 KB",
+      "ssim": "0.999401",
+      "psnr": "57.460251",
+      "vmaf": "97.748825"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/activos.hevc.mp4",
+      "size": "1046 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/activos.h264.mp4",
+      "size": "859 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/activos-poster.webp",
+      "size": "2 KB"
+    }
+  },
+  {
+    "key": "activos",
+    "version": "celular",
+    "w": 1020,
+    "h": 939,
+    "css": [
+      340,
+      313
+    ],
+    "frames": 1203,
+    "dur": 20.05,
+    "av1": {
+      "file": "public/media/plataforma/activos-celular.av1.mp4",
+      "size": "587 KB",
+      "ssim": "0.999427",
+      "psnr": "56.280368",
+      "vmaf": "97.649248"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/activos-celular.hevc.mp4",
+      "size": "1396 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/activos-celular.h264.mp4",
+      "size": "1092 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/activos-celular-poster.webp",
+      "size": "2 KB"
+    }
+  },
+  {
+    "key": "paradas",
+    "version": "escritorio",
+    "w": 930,
+    "h": 856,
+    "css": [
+      465,
+      428
+    ],
+    "frames": 1404,
+    "dur": 23.4,
+    "av1": {
+      "file": "public/media/plataforma/paradas.av1.mp4",
+      "size": "365 KB",
+      "ssim": "0.999646",
+      "psnr": "59.911631",
+      "vmaf": "97.546371"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/paradas.hevc.mp4",
+      "size": "755 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/paradas.h264.mp4",
+      "size": "603 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/paradas-poster.webp",
+      "size": "26 KB"
+    }
+  },
+  {
+    "key": "paradas",
+    "version": "celular",
+    "w": 1020,
+    "h": 939,
+    "css": [
+      340,
+      313
+    ],
+    "frames": 1404,
+    "dur": 23.4,
+    "av1": {
+      "file": "public/media/plataforma/paradas-celular.av1.mp4",
+      "size": "447 KB",
+      "ssim": "0.999644",
+      "psnr": "58.543541",
+      "vmaf": "97.454879"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/paradas-celular.hevc.mp4",
+      "size": "987 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/paradas-celular.h264.mp4",
+      "size": "759 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/paradas-celular-poster.webp",
+      "size": "27 KB"
+    }
+  },
+  {
+    "key": "reporte",
+    "version": "escritorio",
+    "w": 930,
+    "h": 856,
+    "css": [
+      465,
+      428
+    ],
+    "frames": 1464,
+    "dur": 24.4,
+    "av1": {
+      "file": "public/media/plataforma/reporte.av1.mp4",
+      "size": "861 KB",
+      "ssim": "0.999286",
+      "psnr": "56.050913",
+      "vmaf": "97.828632"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/reporte.hevc.mp4",
+      "size": "1828 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/reporte.h264.mp4",
+      "size": "1711 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/reporte-poster.webp",
+      "size": "2 KB"
+    }
+  },
+  {
+    "key": "reporte",
+    "version": "celular",
+    "w": 1020,
+    "h": 939,
+    "css": [
+      340,
+      313
+    ],
+    "frames": 1464,
+    "dur": 24.4,
+    "av1": {
+      "file": "public/media/plataforma/reporte-celular.av1.mp4",
+      "size": "1051 KB",
+      "ssim": "0.999319",
+      "psnr": "55.163487",
+      "vmaf": "97.804690"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/reporte-celular.hevc.mp4",
+      "size": "2231 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/reporte-celular.h264.mp4",
+      "size": "1908 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/reporte-celular-poster.webp",
+      "size": "2 KB"
+    }
+  },
+  {
+    "key": "widget",
+    "version": "escritorio",
+    "w": 1416,
+    "h": 1148,
+    "css": [
+      708,
+      574
+    ],
+    "frames": 879,
+    "dur": 14.65,
+    "av1": {
+      "file": "public/media/plataforma/widget.av1.mp4",
+      "size": "226 KB",
+      "ssim": "0.999616",
+      "psnr": "61.856023",
+      "vmaf": "97.261320"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/widget.hevc.mp4",
+      "size": "442 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/widget.h264.mp4",
+      "size": "359 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/widget-poster.webp",
+      "size": "66 KB"
+    }
+  },
+  {
+    "key": "widget",
+    "version": "celular",
+    "w": 1026,
+    "h": 1020,
+    "css": [
+      342,
+      340
+    ],
+    "frames": 879,
+    "dur": 14.65,
+    "av1": {
+      "file": "public/media/plataforma/widget-celular.av1.mp4",
+      "size": "167 KB",
+      "ssim": "0.999709",
+      "psnr": "62.283678",
+      "vmaf": "97.187644"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/widget-celular.hevc.mp4",
+      "size": "315 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/widget-celular.h264.mp4",
+      "size": "244 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/widget-celular-poster.webp",
+      "size": "41 KB"
+    }
+  },
+  {
+    "key": "report",
+    "version": "escritorio",
+    "w": 1416,
+    "h": 1058,
+    "css": [
+      708,
+      529
+    ],
+    "frames": 950,
+    "dur": 15.833,
+    "av1": {
+      "file": "public/media/plataforma/report.av1.mp4",
+      "size": "497 KB",
+      "ssim": "0.999054",
+      "psnr": "58.006753",
+      "vmaf": "97.704507"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/report.hevc.mp4",
+      "size": "1282 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/report.h264.mp4",
+      "size": "2316 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/report-poster.webp",
+      "size": "4 KB"
+    }
+  },
+  {
+    "key": "report",
+    "version": "celular",
+    "w": 1026,
+    "h": 1455,
+    "css": [
+      342,
+      485
+    ],
+    "frames": 950,
+    "dur": 15.833,
+    "av1": {
+      "file": "public/media/plataforma/report-celular.av1.mp4",
+      "size": "544 KB",
+      "ssim": "0.999106",
+      "psnr": "58.057938",
+      "vmaf": "97.732591"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/report-celular.hevc.mp4",
+      "size": "1969 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/report-celular.h264.mp4",
+      "size": "2061 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/report-celular-poster.webp",
+      "size": "4 KB"
+    }
+  },
+  {
+    "key": "conectar",
+    "version": "escritorio",
+    "frames": 251,
+    "w": 1440,
+    "h": 810,
+    "dur": 4.183,
+    "av1": {
+      "file": "public/media/plataforma/conectar.av1.mp4",
+      "size": "287 KB",
+      "ssim": "0.997708",
+      "psnr": "48.118507",
+      "vmaf": "96.675337"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/conectar.hevc.mp4",
+      "size": "566 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/conectar.h264.mp4",
+      "size": "664 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/conectar-poster.webp",
+      "size": "50 KB"
+    }
+  },
+  {
+    "key": "conectar",
+    "version": "celular",
+    "frames": 251,
+    "w": 1152,
+    "h": 648,
+    "dur": 4.183,
+    "av1": {
+      "file": "public/media/plataforma/conectar-celular.av1.mp4",
+      "size": "214 KB",
+      "ssim": "0.997945",
+      "psnr": "48.181329",
+      "vmaf": "96.662370"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/conectar-celular.hevc.mp4",
+      "size": "411 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/conectar-celular.h264.mp4",
+      "size": "466 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/conectar-celular-poster.webp",
+      "size": "36 KB"
+    }
+  },
+  {
+    "key": "ask",
+    "version": "celular",
+    "w": 1026,
+    "h": 216,
+    "css": [
+      342,
+      72
+    ],
+    "frames": 1296,
+    "marks": [],
+    "dur": 21.6,
+    "av1": {
+      "file": "public/media/plataforma/ask-celular.av1.mp4",
+      "size": "93 KB",
+      "ssim": "0.999875",
+      "psnr": "65.225802",
+      "vmaf": "97.355656"
+    },
+    "hevc": {
+      "file": "public/media/plataforma/ask-celular.hevc.mp4",
+      "size": "159 KB"
+    },
+    "h264": {
+      "file": "public/media/plataforma/ask-celular.h264.mp4",
+      "size": "125 KB"
+    },
+    "poster": {
+      "file": "public/media/plataforma/ask-celular-poster.webp",
+      "size": "4 KB"
+    }
+  }
+]

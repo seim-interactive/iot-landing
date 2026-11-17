@@ -1,0 +1,423 @@
+{
+  "argus": {
+    "escritorio": {
+      "w": 930,
+      "h": 856,
+      "dur": 23.6,
+      "v": "11e2ba17ee",
+      "codecs": {
+        "av1": "av01.0.08M.10",
+        "hevc": "hvc1.2.4.L120.B0",
+        "h264": "avc1.640020"
+      }
+    },
+    "celular": {
+      "w": 1020,
+      "h": 939,
+      "dur": 23.6,
+      "v": "438e957b1e",
+      "codecs": {
+        "av1": "av01.0.08M.10",
+        "hevc": "hvc1.2.4.L120.B0",
+        "h264": "avc1.640028"
+      }
+    }
+  },
+  "alarmas": {
+    "escritorio": {
+      "w": 930,
+      "h": 856,
+      "dur": 11.717,
+      "v": "c337d07922",
+      "codecs": {
+        "av1": "av01.0.08M.10",
+        "hevc": "hvc1.2.4.L120.B0",
+        "h264": "avc1.640020"
+      }
+    },
+    "celular": {
+      "w": 1020,
+      "h": 939,
+      "dur": 11.717,
+      "v": "ae8557e342",
+      "codecs": {
+        "av1": "av01.0.08M.10",
+        "hevc": "hvc1.2.4.L120.B0",
+        "h264": "avc1.640028"
+      }
+    }
+  },
+  "mediciones": {
+    "escritorio": {
+      "w": 930,
+      "h": 856,
+      "dur": 20.55,
+      "v": "24049fb069",
+      "codecs": {
+        "av1": "av01.0.08M.10",
+        "hevc": "hvc1.2.4.L120.B0",
+        "h264": "avc1.640020"
+      }
+    },
+    "celular": {
+      "w": 1020,
+      "h": 939,
+      "dur": 20.55,
+      "v": "6b3f95de0e",
+      "codecs": {
+        "av1": "av01.0.08M.10",
+        "hevc": "hvc1.2.4.L120.B0",
+        "h264": "avc1.640028"
+      }
+    }
+  },
+  "activos": {
+    "escritorio": {
+      "w": 930,
+      "h": 856,
+      "dur": 20.05,
+      "v": "4026ddbfe4",
+      "codecs": {
+        "av1": "av01.0.08M.10",
+        "hevc": "hvc1.2.4.L120.B0",
+        "h264": "avc1.640020"
+      }
+    },
+    "celular": {
+      "w": 1020,
+      "h": 939,
+      "dur": 20.05,
+      "v": "f24b281b9f",
+      "codecs": {
+        "av1": "av01.0.08M.10",
+        "hevc": "hvc1.2.4.L120.B0",
+        "h264": "avc1.640028"
+      }
+    }
+  },
+  "paradas": {
+    "escritorio": {
+      "w": 930,
+      "h": 856,
+      "dur": 23.4,
+      "v": "4a8be38575",
+      "codecs": {
+        "av1": "av01.0.08M.10",
+        "hevc": "hvc1.2.4.L120.B0",
+        "h264": "avc1.640020"
+      }
+    },
+    "celular": {
+      "w": 1020,
+      "h": 939,
+      "dur": 23.4,
+      "v": "757218cdd1",
+      "codecs": {
+        "av1": "av01.0.08M.10",
+        "hevc": "hvc1.2.4.L120.B0",
+        "h264": "avc1.640028"
+      }
+    }
+  },
+  "reporte": {
+    "escritorio": {
+      "w": 930,
+      "h": 856,
+      "dur": 24.4,
+      "v": "4a07aae00f",
+      "codecs": {
+        "av1": "av01.0.08M.10",
+        "hevc": "hvc1.2.4.L120.B0",
+        "h264": "avc1.640020"
+      }
+    },
+    "celular": {
+      "w": 1020,
+      "h": 939,
+      "dur": 24.4,
+      "v": "71cfd96b9f",
+      "codecs": {
+        "av1": "av01.0.08M.10",
+        "hevc": "hvc1.2.4.L120.B0",
+        "h264": "avc1.640028"
+      }
+    }
+  },
+  "widget": {
+    "escritorio": {
+      "w": 1416,
+      "h": 1148,
+      "dur": 14.65,
+      "v": "dd5ae4ccab",
+      "codecs": {
+        "av1": "av01.0.09M.10",
+        "hevc": "hvc1.2.4.L123.B0",
+        "h264": "avc1.64002a"
+      }
+    },
+    "celular": {
+      "w": 1026,
+      "h": 1020,
+      "dur": 14.65,
+      "v": "fe0dff63fc",
+      "codecs": {
+        "av1": "av01.0.08M.10",
+        "hevc": "hvc1.2.4.L120.B0",
+        "h264": "avc1.64002a"
+      }
+    }
+  },
+  "report": {
+    "escritorio": {
+      "w": 1416,
+      "h": 1058,
+      "dur": 15.833,
+      "v": "6c21e8b4f3",
+      "codecs": {
+        "av1": "av01.0.09M.10",
+        "hevc": "hvc1.2.4.L123.B0",
+        "h264": "avc1.64002a"
+      }
+    },
+    "celular": {
+      "w": 1026,
+      "h": 1455,
+      "dur": 15.833,
+      "v": "c3190776e2",
+      "codecs": {
+        "av1": "av01.0.09M.10",
+        "hevc": "hvc1.2.4.L123.B0",
+        "h264": "avc1.64002a"
+      }
+    }
+  },
+  "ask": {
+    "escritorio": {
+      "w": 1416,
+      "h": 226,
+      "dur": 22.083,
+      "v": "7ee744f0e0",
+      "codecs": {
+        "av1": "av01.0.04M.10",
+        "hevc": "hvc1.2.4.L93.B0",
+        "h264": "avc1.64001f"
+      }
+    },
+    "celular": {
+      "w": 1026,
+      "h": 216,
+      "dur": 21.6,
+      "v": "d48558be9d",
+      "codecs": {
+        "av1": "av01.0.04M.10",
+        "hevc": "hvc1.2.4.L90.B0",
+        "h264": "avc1.64001f"
+      }
+    }
+  },
+  "t-alarmas": {
+    "escritorio": {
+      "w": 1416,
+      "h": 886,
+      "dur": 11.717,
+      "v": "6a0aeabec7",
+      "codecs": {
+        "av1": "av01.0.09M.10",
+        "hevc": "hvc1.2.4.L123.B0",
+        "h264": "avc1.64002a"
+      }
+    }
+  },
+  "t-activos": {
+    "escritorio": {
+      "w": 1416,
+      "h": 886,
+      "dur": 20.05,
+      "v": "53c7d33a56",
+      "codecs": {
+        "av1": "av01.0.09M.10",
+        "hevc": "hvc1.2.4.L123.B0",
+        "h264": "avc1.64002a"
+      }
+    }
+  },
+  "t-paradas": {
+    "escritorio": {
+      "w": 1416,
+      "h": 886,
+      "dur": 23.4,
+      "v": "f4f425c3db",
+      "codecs": {
+        "av1": "av01.0.09M.10",
+        "hevc": "hvc1.2.4.L123.B0",
+        "h264": "avc1.64002a"
+      }
+    }
+  },
+  "conectar": {
+    "escritorio": {
+      "w": 1440,
+      "h": 810,
+      "dur": 4.183,
+      "v": "7738be1984",
+      "codecs": {
+        "av1": "av01.0.08M.10",
+        "hevc": "hvc1.2.4.L123.B0",
+        "h264": "avc1.64002a"
+      }
+    },
+    "celular": {
+      "w": 1152,
+      "h": 648,
+      "dur": 4.183,
+      "v": "e9722859b7",
+      "codecs": {
+        "av1": "av01.0.08M.10",
+        "hevc": "hvc1.2.4.L120.B0",
+        "h264": "avc1.640020"
+      }
+    }
+  },
+  "t-reporte": {
+    "escritorio": {
+      "w": 1416,
+      "h": 886,
+      "dur": 24.4,
+      "v": "142eaa9b40",
+      "codecs": {
+        "av1": "av01.0.09M.10",
+        "hevc": "hvc1.2.4.L123.B0",
+        "h264": "avc1.64002a"
+      }
+    }
+  },
+  "t-argus": {
+    "escritorio": {
+      "w": 1416,
+      "h": 886,
+      "dur": 23.6,
+      "v": "09536d1175",
+      "codecs": {
+        "av1": "av01.0.09M.10",
+        "hevc": "hvc1.2.4.L123.B0",
+        "h264": "avc1.64002a"
+      }
+    },
+    "celular": {
+      "w": 1020,
+      "h": 939,
+      "dur": 23.6,
+      "v": "1c52e17673",
+      "codecs": {
+        "av1": "av01.0.08M.10",
+        "hevc": "hvc1.2.4.L120.B0",
+        "h264": "avc1.640028"
+      }
+    }
+  },
+  "t-equipos": {
+    "celular": {
+      "w": 1020,
+      "h": 1800,
+      "dur": 41.45,
+      "v": "3424057422",
+      "codecs": {
+        "av1": "av01.0.09M.10",
+        "hevc": "hvc1.2.4.L123.B0",
+        "h264": "avc1.640032"
+      }
+    }
+  },
+  "medida": {
+    "escritorio": {
+      "w": 2560,
+      "h": 1440,
+      "dur": 49.6,
+      "v": "a148492847",
+      "codecs": {
+        "av1": "av01.0.12M.10",
+        "hevc": "hvc1.2.4.L150.B0",
+        "h264": "avc1.640033"
+      },
+      "marks": [
+        {
+          "t": 0,
+          "name": "Envasadora 1"
+        },
+        {
+          "t": 8.432,
+          "name": "Horno"
+        },
+        {
+          "t": 19.68,
+          "name": "Llenadora"
+        },
+        {
+          "t": 30.928,
+          "name": "Envasadora 2"
+        },
+        {
+          "t": 42.176,
+          "name": "Envasadora 1"
+        }
+      ]
+    },
+    "celular": {
+      "w": 1020,
+      "h": 1299,
+      "dur": 62.6,
+      "v": "e28aac0b1b",
+      "codecs": {
+        "av1": "av01.0.09M.10",
+        "hevc": "hvc1.2.4.L123.B0",
+        "h264": "avc1.64002a"
+      },
+      "marks": [
+        {
+          "t": 0,
+          "name": "Envasadora 1"
+        },
+        {
+          "t": 8.432,
+          "name": "Horno"
+        },
+        {
+          "t": 22.928,
+          "name": "Llenadora"
+        },
+        {
+          "t": 37.424,
+          "name": "Envasadora 2"
+        },
+        {
+          "t": 51.92,
+          "name": "Envasadora 1"
+        }
+      ]
+    }
+  },
+  "hero": {
+    "escritorio": {
+      "w": 2448,
+      "h": 1530,
+      "dur": 64.883,
+      "v": "fa22f7ac35",
+      "codecs": {
+        "av1": "av01.0.12M.10",
+        "hevc": "hvc1.2.4.L150.B0",
+        "h264": "avc1.640033"
+      }
+    },
+    "celular": {
+      "w": 990,
+      "h": 1980,
+      "dur": 54.917,
+      "v": "cc1ec0813b",
+      "codecs": {
+        "av1": "av01.0.09M.10",
+        "hevc": "hvc1.2.4.L123.B0",
+        "h264": "avc1.640032"
+      }
+    }
+  }
+}
