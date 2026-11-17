@@ -11,22 +11,26 @@
 -->
 <script setup>
 import PlatformVideo from './PlatformVideo.vue'
+import { temaPorSlug } from '@/content/temas'
 
 const STEPS = [
   {
     key: 'conectar',
+    tema: 'conectar-plc',
     title: 'Conectamos tus máquinas, sin parar la planta.',
     text: 'No importa la marca ni la edad del equipo. Nos conectamos a lo que ya tenés y los datos empiezan a salir, cifrados, sin tocar cómo trabaja la línea.',
     service: 'Vamos a tu planta, relevamos los equipos y los conectamos sin frenar la producción.',
   },
   {
     key: 'ver',
+    tema: 'monitoreo-de-produccion',
     title: 'Lo ves en vivo, desde donde estés.',
     text: 'Cada máquina y cada variable, en un tablero armado para tu proceso. Lo abrís desde cualquier lado: la compu de la planta, una tablet o tu celular.',
     service: 'Armamos los tableros con tu equipo, uno para cada máquina y para cada rol.',
   },
   {
     key: 'avisar',
+    tema: 'argus',
     title: 'Argus analiza tu fábrica.',
     subtitle: 'Y te dice cómo mejorarla.',
     text: 'Argus es nuestra IA: revisa todos los datos de la planta, encuentra lo que se sale de lo normal, te explica por qué pasa y te propone qué hacer. Y si tenés una duda, se la preguntás.',
@@ -45,6 +49,8 @@ const STEPS = [
           <h3 class="how-step-title">{{ step.title }}<template v-if="step.subtitle"><br><span>{{ step.subtitle }}</span></template></h3>
           <p class="how-step-text">{{ step.text }}</p>
           <p class="how-service"><span>Lo que hacemos</span>{{ step.service }}</p>
+          <!-- La página que profundiza este paso (src/content/temas.js) -->
+          <a class="how-more" :href="`/${step.tema}/`">{{ temaPorSlug(step.tema).nav }}<span aria-hidden="true"> →</span></a>
         </div>
 
         <!-- Cada caja mide lo que su contenido, sin vacíos arriba ni abajo -->
@@ -122,6 +128,21 @@ const STEPS = [
   font-size: 17px;
   line-height: 1.55;
   color: rgba(255, 255, 255, 0.62);
+}
+
+.how-more {
+  display: inline-block;
+  margin-top: 24px;
+  font-size: 15px;
+  color: #fff;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.3);
+  text-underline-offset: 5px;
+  transition: text-decoration-color 0.3s ease;
+}
+
+.how-more:hover {
+  text-decoration-color: #fff;
 }
 
 .how-service {

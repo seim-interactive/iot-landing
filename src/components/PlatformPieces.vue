@@ -4,6 +4,17 @@
 <script setup>
 import PlatformVideo from './PlatformVideo.vue'
 import { PIECES } from './platformPieces'
+import { temaPorSlug } from '@/content/temas'
+
+// Cada cuadrado lleva a la página que profundiza su tema (src/content/temas.js)
+const TEMA = {
+  argus: 'argus',
+  alarmas: 'paradas-y-alarmas',
+  mediciones: 'monitoreo-de-produccion',
+  activos: 'monitoreo-de-produccion',
+  paradas: 'paradas-y-alarmas',
+  reporte: 'argus',
+}
 </script>
 
 <template>
@@ -19,6 +30,7 @@ import { PIECES } from './platformPieces'
         <div class="piece-copy">
           <h3 class="piece-title">{{ piece.title }}</h3>
           <p class="piece-text">{{ piece.text }}</p>
+          <a class="piece-more" :href="`/${TEMA[piece.key]}/`">{{ temaPorSlug(TEMA[piece.key]).nav }}<span aria-hidden="true"> →</span></a>
         </div>
       </li>
     </ul>
@@ -80,6 +92,19 @@ import { PIECES } from './platformPieces'
   font-size: 18px;
   font-weight: 500;
   letter-spacing: -0.015em;
+}
+
+.piece-more {
+  display: inline-block;
+  margin-top: 14px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.86);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.piece-more:hover {
+  color: #fff;
 }
 
 .piece-text {
