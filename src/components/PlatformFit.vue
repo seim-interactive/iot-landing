@@ -22,7 +22,8 @@ const differences = [
 
 // En el celular: el diseño de escritorio de la plataforma a 1100 px de ancho, donde
 // el tablero entero mide 1100 × 1400. La caja tiene esa proporción, así la vista
-// entera lo muestra completo, sin bandas vacías. En escritorio, 16:9 a todo el ancho.
+// entera lo muestra completo, sin bandas vacías. En escritorio, una pantalla real de
+// 1680 × 945 (16:9): la interfaz se ve a escala de escritorio, no ampliada.
 const small = window.innerWidth < 720
 const ratio = small ? '1100 / 1400' : '16 / 9'
 
@@ -36,7 +37,7 @@ const piece = {
     live.value = value
   },
   route: '/dashboard',
-  width: small ? 1100 : 1440,
+  width: small ? 1100 : 1680,
   // El alto sale de la proporción de la caja (PlatformPiece)
   height: 'fit',
   cut: false,
@@ -66,10 +67,10 @@ const piece = {
       const r = trigger.getBoundingClientRect()
       // Nunca más allá de los bordes de la plataforma: si no, asoma el fondo del marco.
       // En el celular, un recorte con la proporción de la caja (entra la lista abierta).
-      // En escritorio, un recorte amplio (la caja ya es grande): ×1,4, no más.
+      // En escritorio, un recorte de 16:9 que deja ver la lista abierta (×1,35 aprox.)
       const selector = small
         ? { left: r.right - 520, top: 0, width: 540, height: 687 }
-        : { left: r.right - 900, top: 0, width: 920, height: 518 }
+        : { left: r.right - 740, top: 0, width: 760, height: 428 }
       await d.frameOn(selector, { pad: 0, max: 2, duration: 1.3, within: whole() })
       await d.click(trigger)
       await d.wait(500)
@@ -122,6 +123,10 @@ const piece = {
 <style scoped>
 .fit {
   --rule: rgba(255, 255, 255, 0.09);
+  /* El ancho del bloque (plataforma y diferencias), alineado con el título: el que
+     deja entrar el título y la plataforma en una pantalla (header, título, aire,
+     pestañas y margen ≈ 323 px), nunca menos de 720 */
+  --fit-w: min(100%, max(720px, calc((100vh - 323px) * 16 / 9)));
 }
 
 .fit-title {
@@ -135,8 +140,9 @@ const piece = {
   color: rgba(255, 255, 255, 0.45);
 }
 
-/* La plataforma, grande, a todo el ancho */
+/* La plataforma, grande */
 .fit-stage {
+  max-width: var(--fit-w);
   margin-top: clamp(36px, 4vw, 56px);
   overflow: hidden;
   border: 1px solid var(--rule);
@@ -188,6 +194,7 @@ const piece = {
 .fit-list {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  max-width: var(--fit-w);
   gap: clamp(20px, 2.4vw, 40px);
   margin: clamp(40px, 4.5vw, 64px) 0 0;
   padding: 0;
@@ -240,6 +247,10 @@ const piece = {
 
 /* ---------- Celular ---------- */
 @media (max-width: 719px) {
+  .fit {
+    --fit-w: 100%;
+  }
+
   .fit-title {
     font-size: 28px;
     line-height: 1.12;
