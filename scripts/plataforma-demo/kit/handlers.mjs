@@ -657,12 +657,12 @@ const DASHBOARDS = {
     const theoretical = Math.round(m.nominal * 1.08);
     return [
       // Arriba: los contadores del día y las luces de estado
-      w(1, 'counter', 'Producido hoy', m.prod.id, m.prodUnit, { color: 'green' }, { x: 0, y: 0, w: 2, h: 2 }),
-      w(2, 'counter', 'Rechazos hoy', m.rej.id, m.prodUnit, { color: 'red' }, { x: 2, y: 0, w: 2, h: 2 }),
-      w(3, 'counter', 'Energía hoy', m.energy.id, 'kWh', { color: 'blue' }, { x: 4, y: 0, w: 2, h: 2 }),
-      w(4, 'status', m.run.label, m.run.id, null, { color: 'green' }, { x: 6, y: 0, w: 2, h: 2 }),
-      w(5, 'status', m.starved.label, m.starved.id, null, { color: 'yellow' }, { x: 8, y: 0, w: 2, h: 2 }),
-      w(6, 'status', m.fault.label, m.fault.id, null, { color: 'red' }, { x: 10, y: 0, w: 2, h: 2 }),
+      w(1, 'counter', 'Producido', m.prod.id, m.prodUnit, { color: 'green' }, { x: 0, y: 0, w: 2, h: 2 }),
+      w(2, 'counter', 'Rechazos', m.rej.id, m.prodUnit, { color: 'red' }, { x: 2, y: 0, w: 2, h: 2 }),
+      w(3, 'counter', 'Energía', m.energy.id, 'kWh', { color: 'blue' }, { x: 4, y: 0, w: 2, h: 2 }),
+      w(4, 'status', 'Produciendo', m.run.id, null, { color: 'green' }, { x: 6, y: 0, w: 2, h: 2 }),
+      w(5, 'status', 'Film', m.starved.id, null, { color: 'yellow' }, { x: 8, y: 0, w: 2, h: 2 }),
+      w(6, 'status', 'Falla', m.fault.id, null, { color: 'red' }, { x: 10, y: 0, w: 2, h: 2 }),
 
       // Las áreas de las últimas 8 horas
       w(7, 'chart', m.speed.label, m.speed.id, m.speedUnit,
@@ -702,11 +702,11 @@ const DASHBOARDS = {
     return [
       w(1, 'gauge', m.speed.label, m.speed.id, m.speedUnit, { max: m.speedMax }, { x: 0, y: 0, w: 3, h: 4 }),
       w(2, 'gauge', 'Tensión de film', 'tension_film', 'N', { max: 40 }, { x: 3, y: 0, w: 3, h: 4 }),
-      w(3, 'counter', 'Producido hoy', m.prod.id, m.prodUnit, { color: 'green' }, { x: 6, y: 0, w: 3, h: 2 }),
-      w(4, 'counter', 'Rechazos hoy', m.rej.id, m.prodUnit, { color: 'red' }, { x: 9, y: 0, w: 3, h: 2 }),
-      w(5, 'status', m.run.label, m.run.id, null, { color: 'green' }, { x: 6, y: 2, w: 2, h: 2 }),
-      w(6, 'status', m.starved.label, m.starved.id, null, { color: 'yellow' }, { x: 8, y: 2, w: 2, h: 2 }),
-      w(7, 'status', m.fault.label, m.fault.id, null, { color: 'red' }, { x: 10, y: 2, w: 2, h: 2 }),
+      w(3, 'counter', 'Producido', m.prod.id, m.prodUnit, { color: 'green' }, { x: 6, y: 0, w: 3, h: 2 }),
+      w(4, 'counter', 'Rechazos', m.rej.id, m.prodUnit, { color: 'red' }, { x: 9, y: 0, w: 3, h: 2 }),
+      w(5, 'status', 'Produciendo', m.run.id, null, { color: 'green' }, { x: 6, y: 2, w: 2, h: 2 }),
+      w(6, 'status', 'Film', m.starved.id, null, { color: 'yellow' }, { x: 8, y: 2, w: 2, h: 2 }),
+      w(7, 'status', 'Falla', m.fault.id, null, { color: 'red' }, { x: 10, y: 2, w: 2, h: 2 }),
 
       w(8, 'chart', 'Temperatura de sellado', 'temp_sellado_h', '°C',
         lineChart(['temp_sellado_h', 'temp_sellado_v'], { color: 'orange', yMin: 120, yMax: 160 }), { x: 0, y: 4, w: 7, h: 4 }),
