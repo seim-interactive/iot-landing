@@ -41,17 +41,17 @@
       </div>
     </section>
 
+    <!-- ==================== PARTNER ==================== -->
+    <section id="alianza" class="section partner-section">
+      <div class="container">
+        <PartnerBand />
+      </div>
+    </section>
+
     <!-- ==================== CÓMO FUNCIONA (con los servicios) ==================== -->
     <section id="technology" class="section how-section" aria-label="Cómo funciona">
       <div class="container">
         <HowItWorks />
-      </div>
-    </section>
-
-    <!-- ==================== PARTNER ==================== -->
-    <section class="partner-section">
-      <div class="container">
-        <PartnerBand />
       </div>
     </section>
 
