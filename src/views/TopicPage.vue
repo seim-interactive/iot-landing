@@ -154,7 +154,18 @@ usePageMeta(tema.value)
   overflow-x: clip;
 }
 
-.landing :where(h1, h2, p, dl, dd, ol, ul) {
+/* Sin los márgenes del navegador, solo en lo propio de la página: un reseteo genérico
+   (h1, p, dl…) también les pegaría al contacto y al pie */
+.topic-eyebrow,
+.topic-title,
+.topic-lede,
+.topic-steps,
+.topic-step-title,
+.topic-step-text,
+.topic-h2,
+.topic-faq,
+.topic-faq-item dd,
+.topic-links {
   margin: 0;
   padding: 0;
 }
