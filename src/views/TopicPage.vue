@@ -110,15 +110,27 @@ usePageMeta(tema.value)
       </div>
     </section>
 
+    <!-- Las otras páginas, en un panel como la grilla de la home: cada celda es un afiche
+         chico con el título de esa página, y toda la celda es el link -->
     <section class="section" aria-labelledby="more-title">
       <div class="container">
-        <h2 id="more-title" class="topic-h2" data-reveal>Más de la plataforma</h2>
-        <ul class="topic-links">
-          <li v-for="t in otros" :key="t.slug" data-reveal>
-            <a :href="href(t.slug)">{{ t.nav }}</a>
-          </li>
-          <li data-reveal><a href="/">La plataforma completa</a></li>
-        </ul>
+        <div class="topic-more-panel" data-reveal>
+          <header class="topic-more-head">
+            <h2 id="more-title" class="topic-h2">Más de la plataforma.<br><span>Cada parte, en detalle.</span></h2>
+          </header>
+          <ul class="topic-links">
+            <li v-for="t in otros" :key="t.slug">
+              <a :href="href(t.slug)" class="topic-link">
+                <span class="topic-link-eyebrow">{{ t.eyebrow }}</span>
+                <span class="topic-link-title">{{ t.h1 }}</span>
+                <span class="topic-link-text">{{ t.description }}</span>
+                <span class="topic-link-arrow" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                </span>
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
     </section>
 
@@ -349,41 +361,94 @@ usePageMeta(tema.value)
   color: var(--text-2);
 }
 
+.topic-h2 span {
+  color: var(--text-3);
+}
+
+.topic-more-panel {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+}
+
+.topic-more-head {
+  padding: clamp(28px, 3.4vw, 48px);
+  border-bottom: 1px solid var(--line);
+}
+
 .topic-links {
   list-style: none;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0 clamp(20px, 2.4vw, 40px);
-  margin-top: clamp(36px, 4vw, 56px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.topic-links li {
-  border-top: 1px solid var(--line);
+.topic-links li + li {
+  border-left: 1px solid var(--line);
 }
 
-.topic-links a {
-  display: block;
-  padding: 20px 0;
-  font-size: clamp(17px, 1.35vw, 20px);
-  font-weight: 400;
-  letter-spacing: -0.015em;
+.topic-link {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  padding: clamp(28px, 3vw, 44px) clamp(22px, 2.4vw, 36px);
   color: #fff;
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: background-color 0.4s ease;
 }
 
-.topic-links a:hover {
+.topic-link-eyebrow {
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--text-3);
+}
+
+.topic-link-title {
+  margin-top: 16px;
+  font-size: clamp(22px, 2vw, 30px);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.topic-link-text {
+  margin-top: 16px;
+  font-size: 15px;
+  line-height: 1.55;
   color: var(--text-2);
 }
 
-/* ---------- Tablet y celular ---------- */
-@media (max-width: 960px) {
-  .topic-links {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+/* La flecha, abajo de todo: las tres celdas la tienen a la misma altura */
+.topic-link-arrow {
+  margin-top: auto;
+  padding-top: 32px;
+  color: var(--text-3);
+  transition: color 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .topic-link:hover {
+    background: rgba(255, 255, 255, 0.025);
+  }
+
+  .topic-link:hover .topic-link-arrow {
+    color: #fff;
+    transform: translateX(6px);
   }
 }
 
+/* ---------- Tablet y celular ---------- */
 @media (max-width: 900px) {
+  /* Las celdas, una debajo de otra */
+  .topic-links {
+    grid-template-columns: 1fr;
+  }
+
+  .topic-links li + li {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+
   .topic-hero,
   .topic-step,
   .topic-step.is-flipped,
@@ -436,8 +501,5 @@ usePageMeta(tema.value)
     border-radius: 28px;
   }
 
-  .topic-links {
-    grid-template-columns: 1fr;
-  }
 }
 </style>

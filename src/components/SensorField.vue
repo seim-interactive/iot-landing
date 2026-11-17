@@ -14,7 +14,7 @@ import { createSensorField } from './sensorField'
 const canvas = ref(null)
 
 // Las cajas enteras (marcos, la grilla de piezas, el contacto) y, fuera de ellas, cada video
-const BOXES = '.stage-shell, .fit-stage, .ask-stage, .pieces'
+const BOXES = '.stage-shell, .fit-stage, .ask-stage, .pieces, .topic-more-panel'
 const TITLES = '.hero-content, .topic-hero-copy'
 
 let field = null
