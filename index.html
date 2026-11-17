@@ -12,6 +12,25 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
   </script>
+  <script>
+    // Conversión de Google Ads al tocar un link a WhatsApp, al calendario o a Instagram.
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[href]');
+      if (!a || typeof gtag !== 'function') return;
+      var h = a.href;
+      if (h.indexOf('wa.me') !== -1 ||
+          h.indexOf('whatsapp') !== -1 ||
+          h.indexOf('calendar.app.google') !== -1 ||
+          h.indexOf('ig.me') !== -1) {
+        gtag('event', 'conversion', {
+          'send_to': 'AW-18565933587/y8PSCLjUqLUdEJPU9pRF',
+          'value': 1.0,
+          'currency': 'ARS',
+          'transport_type': 'beacon'
+        });
+      }
+    }, true);
+  </script>
 
   <!-- Primary SEO -->
   <title>Soluciones IoT Argentina | Industria 4.0 y IoT Industrial — Seim Interactive</title>
