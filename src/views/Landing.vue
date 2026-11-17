@@ -76,7 +76,7 @@
       <div class="container">
         <div class="footer-grid">
           <div class="footer-brand">
-            <img src="@/assets/MARCA-14.png" alt="Seim Interactive" class="footer-logo" loading="lazy" decoding="async" />
+            <img :src="logo2x" :srcset="`${logo2x} 2x, ${logo3x} 3x`" width="300" height="49" alt="Seim Interactive" class="footer-logo" loading="lazy" decoding="async" />
             <p class="footer-about">
               Soluciones de telemetría industrial que conectan planta y nube de forma segura y confiable.
             </p>
@@ -148,6 +148,9 @@ import ContactAsk from '@/components/ContactAsk.vue'
 import FaqSection from '@/components/FaqSection.vue'
 import PartnerBand from '@/components/PartnerBand.vue'
 import { useLandingMotion } from '@/composables/useLandingMotion'
+// El logo a 2x y 3x de lo que se muestra (~150 px de ancho); el original es de 3500 px
+import logo2x from '@/assets/logo-seim-300.png'
+import logo3x from '@/assets/logo-seim-450.png'
 
 const rootEl = ref(null)
 
