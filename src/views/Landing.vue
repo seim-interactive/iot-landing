@@ -6,7 +6,7 @@
     <main id="top" class="hero">
       <div class="hero-content">
         <h1 class="hero-kicker">
-          Plataforma IoT para la Industria 4.0
+          Monitoreo de producción con IoT industrial
         </h1>
         <p class="hero-title">
           La nueva era<br>
