@@ -48,17 +48,15 @@ const differences = [
 <style scoped>
 .fit {
   --rule: rgba(255, 255, 255, 0.09);
-  /* El ancho del bloque (título, plataforma y diferencias), centrado en la página: sale
+  /* El ancho de la plataforma, centrada en la página: sale
      del alto de la pantalla (header, pestañas y margen ≈ 240 px) para que la plataforma
      entre casi entera, nunca menos de 900 ni más que el contenedor */
   --fit-w: min(100%, max(900px, calc((100vh - 240px) * 16 / 9)));
 }
 
-/* Todo el bloque centrado; el título, alineado con el borde de la plataforma */
-.fit-title,
-.fit-stage,
-.fit-list,
-.fit-close {
+/* La plataforma, centrada. El título, las diferencias y el cierre van al ancho del
+   contenedor, como en las demás secciones */
+.fit-stage {
   max-width: var(--fit-w);
   margin-left: auto;
   margin-right: auto;
