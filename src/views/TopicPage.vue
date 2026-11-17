@@ -79,7 +79,7 @@ usePageMeta(tema.value)
         <a href="#contact" class="topic-cta">Hablemos</a>
       </div>
       <div class="topic-visual" :class="visualClass(tema.video)">
-        <PlatformVideo class="topic-video" :name="tema.video.d" :mobile-name="tema.video.m" :style="ratio(tema.video)" />
+        <PlatformVideo class="topic-video" :name="tema.video.d" :mobile-name="tema.video.m" :style="ratio(tema.video)" priority />
       </div>
     </main>
 

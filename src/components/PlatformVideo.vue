@@ -6,7 +6,10 @@
   - Nunca se ve negro ni vacío: abajo está el primer cuadro como imagen (con su
     versión de celular), y el video aparece recién cuando muestra ese mismo cuadro,
     así el cambio no se nota.
-  - Se pide una pantalla antes de entrar, corre mientras se ve y se pausa fuera.
+  - Se baja en orden (videoQueue.js): el de prioridad (el hero) apenas se arma la
+    página y el resto después, en segundo plano y en el orden de la página. Si la
+    persona se acerca a uno antes, se pide en el momento. Corre mientras se ve y se
+    pausa fuera.
   - Cada navegador baja un solo archivo: AV1 (Chrome, Firefox, Edge), HEVC (Safari)
     o H.264, según lo que sepa reproducir (el códec exacto sale de platformVideos.json).
   - El loop es el del navegador: el último cuadro empalma con el primero.
@@ -17,6 +20,7 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue'
 import VIDEOS from './platformVideos.json'
+import { claimPriority, enqueue, queueStarted, startQueue } from './videoQueue'
 
 const props = defineProps({
   name: { type: String, required: true },
@@ -27,6 +31,8 @@ const props = defineProps({
   mobileQuery: { type: String, default: '(max-width: 719px)' },
   // Los bordes se funden con el negro de la página (la grilla)
   fade: { type: Boolean, default: false },
+  // Se baja primero, apenas se arma la página (el hero); después, los demás en cola
+  priority: { type: Boolean, default: false },
 })
 // `mark`: lo que pasa en el video en cada momento (en «A tu medida», el equipo)
 const emit = defineEmits(['mark'])
@@ -39,6 +45,7 @@ const file = (version) => BASE + nameFor(version) + (version === 'celular' ? '-c
 const stamp = (version) => (metaFor(version)?.v ? `?v=${metaFor(version).v}` : '')
 const poster = (version) => `${file(version)}-poster.webp${stamp(version)}`
 
+const root = ref(null)
 const video = ref(null)
 const sources = ref([])
 const playing = ref(false)
@@ -49,8 +56,12 @@ let seen = null
 let visible = false
 let frameCb = 0
 let lastMark = null
+let pending = null
+let cancelQueue = () => {}
 
 const versionNow = () => (mq?.matches ? 'celular' : 'escritorio')
+// La cola de los demás espera a este (ver videoQueue.js)
+if (props.priority) claimPriority()
 
 function load() {
   const version = versionNow()
@@ -70,6 +81,30 @@ function load() {
     video.value?.load()
     if (visible) play()
   })
+}
+
+// Pide el video (una sola vez) y se resuelve cuando ya se puede reproducir de corrido,
+// si falla o, como tope, a los 12 s (en algunos navegadores un video que no se ve no
+// termina de cargar: la cola no se queda esperándolo)
+function request() {
+  if (pending) return pending
+  cancelQueue()
+  pending = new Promise((resolve) => {
+    const v = video.value
+    let timer = 0
+    const done = () => {
+      clearTimeout(timer)
+      v?.removeEventListener('canplaythrough', done)
+      v?.removeEventListener('error', done, true)
+      resolve()
+    }
+    timer = setTimeout(done, 12000)
+    v?.addEventListener('canplaythrough', done, { once: true })
+    v?.addEventListener('error', done, { capture: true, once: true })
+    load()
+    if (!metaFor(versionNow())?.codecs) done()
+  })
+  return pending
 }
 
 function play() {
@@ -131,23 +166,31 @@ onMounted(() => {
   if (still) return
 
   trackMarks()
-  // Se pide una pantalla antes de que entre: cuando llega, ya tiene cuadros
+  // El de prioridad se pide ya y, cuando se puede reproducir, arranca la cola de los demás
+  if (props.priority) request().then(startQueue)
+  else cancelQueue = enqueue(root.value, request)
+  // Si la persona se acerca antes de que le toque en la cola, se adelanta. Antes de que la
+  // cola arranque, no: lo de cerca espera a que el de prioridad esté listo
   near = new IntersectionObserver(
     ([entry]) => {
-      if (entry.isIntersecting && !sources.value.length) load()
+      if (entry.isIntersecting && queueStarted()) request()
     },
     { rootMargin: '100% 0px' }
   )
   near.observe(video.value)
+  // Lo que está a la vista se pide siempre en el momento
   seen = new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting
-    if (visible) play()
-    else video.value?.pause()
+    if (visible) {
+      request()
+      play()
+    } else video.value?.pause()
   })
   seen.observe(video.value)
 })
 
 onUnmounted(() => {
+  cancelQueue()
   mq?.removeEventListener('change', onVersionChange)
   near?.disconnect()
   seen?.disconnect()
@@ -156,7 +199,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="platform-video" :class="{ 'platform-video--fade': fade }" aria-hidden="true">
+  <div ref="root" class="platform-video" :class="{ 'platform-video--fade': fade }" aria-hidden="true">
     <picture>
       <source :media="mobileQuery" :srcset="poster('celular')" />
       <!-- Si la imagen faltara, no queda el ícono de imagen rota -->

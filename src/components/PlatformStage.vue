@@ -105,7 +105,7 @@ onUnmounted(() => {
     <div class="stage-light" aria-hidden="true"></div>
     <div class="stage-shell">
       <div ref="viewport" class="stage-viewport" :style="{ aspectRatio: `${screen.w} / ${screen.h}` }">
-        <PlatformVideo class="stage-video" name="hero" mobile-query="(max-width: 720px)" />
+        <PlatformVideo class="stage-video" name="hero" mobile-query="(max-width: 720px)" priority />
       </div>
     </div>
   </div>
