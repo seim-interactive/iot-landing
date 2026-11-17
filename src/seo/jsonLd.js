@@ -75,10 +75,10 @@ export function jsonLd({ title, description, videoDuration }) {
       {
         '@type': 'Service',
         '@id': `${SITE}/#service`,
-        name: 'Monitoreo de producción con IoT industrial',
-        serviceType: 'Monitoreo de producción',
+        name: 'Plataforma IoT industrial a medida',
+        serviceType: 'IoT industrial',
         description:
-          'Conectamos las máquinas que ya tenés, sin parar la planta, y ves la producción en vivo en una plataforma que se adapta a tu proceso.',
+          'Conectamos los equipos que ya tenés, sin parar la planta, y los ves en vivo en una plataforma que se adapta a tu proceso. Argus, nuestra IA, te dice qué mejorar.',
         url: `${SITE}/`,
         provider: { '@id': ORG },
         areaServed: ARGENTINA,

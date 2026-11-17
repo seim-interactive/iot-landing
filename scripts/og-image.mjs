@@ -54,7 +54,7 @@ const html = `<!DOCTYPE html>
     <path fill="#fff" d="M0 0 842 395v78L0 868V749l673-315L0 118Z"/>
     <path fill="#fff" d="M2014 0 1172 395v78l842 395V749L1341 434l673-316Z"/>
   </svg>
-  <h1>Monitoreo de producción<br><span>con IoT industrial.</span></h1>
+  <h1>Plataforma IoT industrial<br><span>a la medida de tu planta.</span></h1>
 </body>
 </html>`
 
