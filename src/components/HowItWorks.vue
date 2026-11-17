@@ -13,19 +13,20 @@ const STEPS = [
     key: 'conectar',
     title: 'Conectamos tus máquinas, sin parar la planta.',
     text: 'No importa la marca ni la edad del equipo. Nos conectamos a lo que ya tenés y los datos empiezan a salir, cifrados, sin tocar cómo trabaja la línea.',
-    service: 'Integración industrial y ciberseguridad OT',
+    service: 'Vamos a tu planta, relevamos los equipos y los conectamos sin frenar la producción.',
   },
   {
     key: 'ver',
     title: 'Lo ves en vivo, desde donde estés.',
-    text: 'Cada máquina, cada variable, en un tablero armado para tu proceso. Lo abrís en la planta o desde el celular.',
-    service: 'Tableros a medida, en una nube privada',
+    text: 'Cada máquina y cada variable, en un tablero armado para tu proceso. Lo abrís desde cualquier lado: la compu de la planta, una tablet o tu celular.',
+    service: 'Armamos los tableros con tu equipo, uno para cada máquina y para cada rol.',
   },
   {
     key: 'avisar',
-    title: 'Te avisa y te dice qué hacer.',
-    text: 'Si algo se sale de rango te enterás al instante, y Argus te explica qué pasó y qué conviene revisar antes de que se convierta en una parada.',
-    service: 'Alertas a medida e inteligencia artificial',
+    title: 'Argus, nuestra IA, analiza tu fábrica.',
+    subtitle: 'Y te dice cómo mejorarla.',
+    text: 'Revisa todos los datos de la planta, encuentra lo que se sale de lo normal, te explica por qué pasa y te propone qué hacer. Y si tenés una duda, se la preguntás.',
+    service: 'Definimos con vos qué es un desvío y le damos a Argus el contexto de tu planta.',
   },
 ]
 </script>
@@ -37,9 +38,9 @@ const STEPS = [
     <ol class="how-steps">
       <li v-for="(step, index) in STEPS" :key="step.key" class="how-step" :class="{ 'is-flipped': index % 2 === 1 }">
         <div class="how-copy" data-reveal>
-          <h3 class="how-step-title">{{ step.title }}</h3>
+          <h3 class="how-step-title">{{ step.title }}<template v-if="step.subtitle"><br><span>{{ step.subtitle }}</span></template></h3>
           <p class="how-step-text">{{ step.text }}</p>
-          <p class="how-service"><span>Lo hacemos nosotros:</span> {{ step.service }}</p>
+          <p class="how-service"><span>Lo que hacemos</span>{{ step.service }}</p>
         </div>
 
         <!-- Los tres visuales en la misma caja -->
@@ -60,11 +61,11 @@ const STEPS = [
 
           <PlatformPiece v-else-if="step.key === 'ver'" :piece="HOW_PIECES.widget" ratio="4 / 3" :fade="false" />
 
+          <!-- Argus: dos piezas del mismo ancho, alineadas y separadas. Arriba el campo
+               del chat, grande; abajo el reporte, más chico, en su propia tarjeta -->
           <div v-else class="how-pair">
-            <!-- Una sola pieza: los dos paneles del mismo ancho, alineados, con una
-                 separación chica (ver pin() en howPieces.js). Las proporciones suman 4:3. -->
-            <PlatformPiece :piece="HOW_PIECES.alarma" ratio="740 / 190" :fade="false" />
-            <PlatformPiece :piece="HOW_PIECES.argus" ratio="740 / 365" :fade="false" />
+            <PlatformPiece class="how-ask" :piece="HOW_PIECES.ask" ratio="25 / 4" :fade="false" />
+            <PlatformPiece class="how-report" :piece="HOW_PIECES.report" ratio="1 / 1" :fade="false" />
           </div>
         </div>
       </li>
@@ -130,6 +131,9 @@ const STEPS = [
 }
 
 .how-service {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   margin-top: 28px;
   font-size: 14px;
   line-height: 1.5;
@@ -137,6 +141,8 @@ const STEPS = [
 }
 
 .how-service span {
+  font-size: 12px;
+  letter-spacing: 0.04em;
   color: rgba(255, 255, 255, 0.42);
 }
 
@@ -162,10 +168,26 @@ const STEPS = [
   aspect-ratio: auto !important;
 }
 
+.how-step-title span {
+  color: rgba(255, 255, 255, 0.45);
+}
+
 .how-pair {
   display: flex;
   flex-direction: column;
+  gap: 28px;
+  width: 82%;
   height: 100%;
+  margin: 0 auto;
+}
+
+/* El reporte, en una tarjeta como las de la plataforma */
+.how-pair > .how-report {
+  flex: 1;
+  aspect-ratio: auto !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.05));
 }
 
 @media (max-width: 900px) {
@@ -189,13 +211,13 @@ const STEPS = [
     aspect-ratio: 2 / 3;
   }
 
-  .how-pair :deep(.piece-stage:first-child) {
-    aspect-ratio: 342 / 129 !important;
+  .how-pair {
+    width: 100%;
+    gap: 22px;
   }
 
-  .how-pair :deep(.piece-stage:last-child) {
-    flex: 1;
-    aspect-ratio: auto !important;
+  .how-pair > .how-ask {
+    aspect-ratio: 342 / 72 !important;
   }
 }
 </style>
