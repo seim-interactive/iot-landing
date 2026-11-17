@@ -36,5 +36,8 @@
     "shadcn-vue": "^2.4.3",
     "tailwindcss": "^4.1.18",
     "vite": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=24"
   }
 }
