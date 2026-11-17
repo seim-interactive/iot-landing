@@ -1,11 +1,11 @@
 <template>
   <div ref="rootEl" class="landing">
+    <!-- De fondo, en toda la página, la red de sensores (SensorField) -->
+    <SensorField />
     <Navbar />
 
     <!-- ==================== HERO ==================== -->
     <main id="top" class="hero">
-      <!-- De fondo, la red de sensores: los pulsos llegan al filo del marco de la plataforma -->
-      <SensorField />
       <div class="hero-content">
         <h1 class="hero-kicker">
           Plataforma IoT industrial a medida
@@ -237,7 +237,7 @@ button:focus-visible {
   width: 100%;
   z-index: 10;
   padding: calc(var(--header-h) + clamp(48px, 10vh, 112px)) var(--gutter) 0;
-  background: #000;
+  /* Sin fondo propio: detrás está la red de sensores (el negro es el de la página) */
 }
 
 .hero-content {

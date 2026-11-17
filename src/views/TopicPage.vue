@@ -12,6 +12,7 @@ import Navbar from '@/components/Navbar.vue'
 import PlatformVideo from '@/components/PlatformVideo.vue'
 import ContactAsk from '@/components/ContactAsk.vue'
 import SiteFooter from '@/components/SiteFooter.vue'
+import SensorField from '@/components/SensorField.vue'
 import { TEMAS, temaPorSlug } from '@/content/temas'
 import { useLandingMotion } from '@/composables/useLandingMotion'
 import { usePageMeta } from '@/composables/usePageMeta'
@@ -57,6 +58,8 @@ usePageMeta(tema.value)
 
 <template>
   <div ref="rootEl" class="landing topic">
+    <!-- De fondo, la red de sensores, como en la landing -->
+    <SensorField />
     <Navbar home="/" />
 
     <main id="top" class="topic-hero container">

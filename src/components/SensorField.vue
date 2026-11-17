@@ -1,96 +1,101 @@
 <!--
-  La red de sensores del fondo del hero (sensorField.js). Va dentro de .hero, detrás del
-  título, y cubre solo la franja que está arriba del marco de la plataforma: los pulsos
-  llegan al filo de ese marco, donde está su luz.
-
-  Las medidas salen del layout (offsetTop/offsetLeft), no de la pantalla: la entrada del
-  hero mueve el marco con transform y, si no, los pulsos llegarían a un lugar corrido.
+  La red de sensores del fondo (sensorField.js): un lienzo fijo, del tamaño de la ventana,
+  detrás de todo el contenido. En cada cuadro le cuenta al shader dónde están, en la
+  ventana:
+  - el título del hero o de la página por tema (detrás, la grilla va más tenue);
+  - el marco de la plataforma del hero (los pulsos llegan a su filo de arriba);
+  - los videos y los marcos (alrededor, la grilla se abre en un claro, y los pulsos
+    llegan a su borde).
 -->
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue'
 import { createSensorField } from './sensorField'
 
 const canvas = ref(null)
-const height = ref(0)
+
+// Las cajas enteras (marcos, la grilla de piezas, el contacto) y, fuera de ellas, cada video
+const BOXES = '.stage-shell, .fit-stage, .ask-stage, .pieces'
+const TITLES = '.hero-content, .topic-hero-copy'
 
 let field = null
-let resizeObserver = null
-let observer = null
-let raf = 0
+let boxes = []
+let titles = []
+let lastQuery = 0
 
-// Posición de un elemento relativa a `root`, sumando offsets hasta llegar a él
-function offsetIn(el, root) {
-  let x = 0
-  let y = 0
-  for (let node = el; node && node !== root; node = node.offsetParent) {
-    x += node.offsetLeft
-    y += node.offsetTop
-  }
-  return { x, y, w: el.offsetWidth, h: el.offsetHeight }
+const rectOf = (el) => {
+  const r = el.getBoundingClientRect()
+  return [r.left, r.top, r.width, r.height]
 }
 
-function measure() {
-  const hero = canvas.value?.parentElement
-  const shell = hero?.querySelector('.stage-shell')
-  const content = hero?.querySelector('.hero-content')
-  if (!hero || !shell || !content || !field) return
-  const edge = offsetIn(shell, hero)
-  const text = offsetIn(content, hero)
-  const header = parseFloat(getComputedStyle(hero).getPropertyValue('--header-h')) || 72
-  height.value = Math.round(edge.y)
-  field.resize(
-    { w: hero.clientWidth, h: edge.y },
-    { top: header, text: [text.x, text.y, text.w, text.h], target: { x0: edge.x, x1: edge.x + edge.w } }
-  )
+// Los elementos se buscan de vez en cuando (la página puede cambiar); sus posiciones, en
+// cada cuadro (cambian con el scroll)
+function query() {
+  const containers = [...document.querySelectorAll(BOXES)]
+  const videos = [...document.querySelectorAll('.platform-video')].filter((v) => !containers.some((c) => c.contains(v)))
+  boxes = [...containers, ...videos]
+  titles = [...document.querySelectorAll(TITLES)]
+  lastQuery = performance.now()
+}
+
+function layout() {
+  if (performance.now() - lastQuery > 1000) query()
+  const header = document.querySelector('.header')
+  const shell = boxes.find((el) => el.classList.contains('stage-shell'))
+  return {
+    top: header ? header.getBoundingClientRect().bottom : 72,
+    text: titles[0] ? rectOf(titles[0]) : null,
+    edge: shell ? rectOf(shell) : null,
+    rects: boxes.map(rectOf),
+  }
+}
+
+function resize() {
+  field?.resize(window.innerWidth, window.innerHeight)
 }
 
 function onPointer(event) {
-  const r = canvas.value.getBoundingClientRect()
-  const x = event.clientX - r.left
-  const y = event.clientY - r.top
-  field.pointer(x >= 0 && y >= 0 && x <= r.width && y <= r.height ? { x, y } : null)
+  field.pointer({ x: event.clientX, y: event.clientY })
+}
+
+function onLeave() {
+  field.pointer(null)
 }
 
 onMounted(() => {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   const touch = window.matchMedia('(hover: none), (pointer: coarse)').matches
-  field = createSensorField(canvas.value, { reduceMotion, touch })
+  query()
+  field = createSensorField(canvas.value, layout, { reduceMotion, touch })
   if (!field) return
-
-  const schedule = () => {
-    cancelAnimationFrame(raf)
-    raf = requestAnimationFrame(measure)
+  resize()
+  field.start()
+  window.addEventListener('resize', resize, { passive: true })
+  if (!touch) {
+    window.addEventListener('pointermove', onPointer, { passive: true })
+    document.documentElement.addEventListener('pointerleave', onLeave)
   }
-  measure()
-  resizeObserver = new ResizeObserver(schedule)
-  resizeObserver.observe(canvas.value.parentElement)
-  document.fonts?.ready.then(schedule)
-  window.addEventListener('load', schedule, { once: true })
-
-  observer = new IntersectionObserver(([entry]) => field.setVisible(entry.isIntersecting))
-  observer.observe(canvas.value)
-  if (!touch) window.addEventListener('pointermove', onPointer, { passive: true })
 })
 
 onUnmounted(() => {
-  cancelAnimationFrame(raf)
-  resizeObserver?.disconnect()
-  observer?.disconnect()
+  window.removeEventListener('resize', resize)
   window.removeEventListener('pointermove', onPointer)
+  document.documentElement.removeEventListener('pointerleave', onLeave)
   field?.destroy()
 })
 </script>
 
 <template>
-  <canvas ref="canvas" class="sensor-field" :style="{ height: `${height}px` }" aria-hidden="true"></canvas>
+  <canvas ref="canvas" class="sensor-field" aria-hidden="true"></canvas>
 </template>
 
 <style scoped>
+/* Detrás de todo: las secciones van por encima (posicionadas y sin fondo propio) */
 .sensor-field {
-  position: absolute;
-  top: 0;
-  left: 0;
+  position: fixed;
+  inset: 0;
   width: 100%;
+  height: 100%;
+  z-index: 0;
   pointer-events: none;
 }
 </style>
