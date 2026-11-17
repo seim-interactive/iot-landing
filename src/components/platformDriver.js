@@ -108,14 +108,24 @@ export function createDriver({ frame, cursor, script, reset, camera = false, tou
 
     // Cámara: encuadra un elemento de la app (o un rectángulo {left, top, width, height}
     // en px de la app) dentro del contenedor, con `pad` px de aire alrededor.
-    async function frameOn(target, { pad = 24, duration = 1.4, max = 1.25, align = 'center' } = {}) {
+    // `within`: hasta dónde hay contenido. La cámara no muestra más allá de sus bordes
+    // de arriba y de abajo (más el aire): así no quedan huecos vacíos en el cuadro.
+    async function frameOn(target, { pad = 24, duration = 1.4, max = 1.25, align = 'center', within } = {}) {
       const rect = target.getBoundingClientRect ? target.getBoundingClientRect() : target
       const stage = cursor.offsetParent
       const w = stage.clientWidth
       const h = stage.clientHeight
       const scale = Math.min(max, (w - pad * 2) / rect.width, (h - pad * 2) / rect.height)
       const x = (w - rect.width * scale) / 2 - rect.left * scale
-      const y = align === 'top' ? pad - rect.top * scale : (h - rect.height * scale) / 2 - rect.top * scale
+      let y = align === 'top' ? pad - rect.top * scale : (h - rect.height * scale) / 2 - rect.top * scale
+      if (within) {
+        const box = within.getBoundingClientRect ? within.getBoundingClientRect() : within
+        const lowest = h - pad - (box.top + box.height) * scale
+        const highest = pad - box.top * scale
+        // Si el contenido es más bajo que el cuadro, manda el borde de arriba: lo
+        // que viene después (una respuesta que se está escribiendo) crece hacia abajo.
+        y = lowest > highest ? highest : Math.min(highest, Math.max(lowest, y))
+      }
       gsap.to(cursor, { opacity: 0, duration: 0.2, overwrite: 'auto' })
       if (duration === 0) {
         Object.assign(view, { x, y, scale })

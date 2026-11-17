@@ -40,10 +40,18 @@ export const PIECES = [
       // sin la pantalla de atrás.
       isolate(drawer)
       await d.wait(700)
-      const typing = () => part(drawer, { top: drawer.offsetHeight - 250, height: 250 })
+      const messages = () => d.find('.chat-messages')
+      const r = () => drawer.getBoundingClientRect()
+      // Lo que hay escrito en el chat: desde arriba del panel hasta la última línea.
+      const written = () => {
+        const last = Math.max(...[...messages().children].map((c) => c.getBoundingClientRect().bottom))
+        return { left: r().left, top: r().top, width: r().width, height: last + 20 - r().top }
+      }
+      const shot = (target) => ({ pad: AIR, max: 1.1, within: written(), target })
 
-      // Arranca cerca del campo: se ve escribir la pregunta.
-      await d.frameOn(typing(), { pad: AIR, duration: 0 })
+      // Arranca con el campo apoyado abajo del cuadro y el chat vacío arriba: se ve
+      // escribir la pregunta.
+      await d.frameOn(part(drawer, { top: drawer.offsetHeight - 300, height: 300 }), { pad: AIR, duration: 0, within: drawer })
       d.fade(1)
       await d.wait(900)
       await d.moveTo(input)
@@ -52,18 +60,22 @@ export const PIECES = [
       await d.click(await d.until(() => d.find('.chat-send-btn')))
       d.hideCursor()
 
-      // Sube a la conversación y va siguiendo la respuesta mientras llega.
+      // Sube a la pregunta y va siguiendo la respuesta mientras llega, sin pasar
+      // nunca de la última línea escrita.
       const bubble = await d.until(() => d.find('.chat-bubble.user'))
-      await d.frameOn(part(bubble.parentElement, { top: bubble.offsetTop - 16, height: 230 }), { pad: AIR, duration: 1.3 })
+      await d.frameOn(part(bubble, { top: -16, height: 230, left: -(r().width - bubble.offsetWidth) }), { ...shot(), duration: 1.3, align: 'top' })
       await d.wait(1500)
-      await d.frameOn(await d.until(() => d.find('.rich-table-block'), 12000), { pad: AIR, duration: 1.4 })
+      const table = await d.until(() => d.find('.rich-table-block'), 12000)
+      await d.frameOn(table, { ...shot(), duration: 1.4 })
       await d.wait(3000)
-      await d.frameOn(await d.until(() => d.find('.rich-chart-block'), 12000), { pad: AIR, duration: 1.4 })
-      await d.wait(3000)
-      // Cierra abierto: la conclusión con el gráfico arriba.
-      const chart = d.find('.rich-chart-block')
-      await d.frameOn(part(chart, { top: 70, height: chart.offsetHeight + 40 }), { pad: AIR, duration: 1.4 })
-      await d.wait(3200)
+      const chart = await d.until(() => d.find('.rich-chart-block'), 12000)
+      await d.frameOn(chart, { ...shot(), duration: 1.4 })
+      await d.wait(2600)
+      // Cierra con el gráfico y la conclusión, que es lo último que escribe.
+      await d.until(() => written().top + written().height > chart.getBoundingClientRect().bottom + 30, 9000)
+      const c = chart.getBoundingClientRect()
+      await d.frameOn({ left: r().left, top: c.top, width: r().width, height: written().top + written().height - c.top }, { ...shot(), duration: 1.4 })
+      await d.wait(3400)
     },
     async reset(d) {
       d.find('button[aria-label="Nueva conversación"]')?.click()
