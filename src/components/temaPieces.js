@@ -5,8 +5,9 @@
 // pantalla, así que en escritorio tiene que verse la app de escritorio y en el celular
 // la de celular. Estas son las versiones que faltaban:
 //  - en escritorio (t-alarmas, t-activos, t-paradas, t-reporte, t-argus): los mismos
-//    guiones de la grilla (platformPieces.js), con la app a 1440 de ancho, que usa su
-//    diseño de escritorio;
+//    guiones de la grilla (platformPieces.js), con la app en su diseño de escritorio. A
+//    960 de ancho (más de 768, así que sigue siendo escritorio): los componentes son más
+//    angostos y la cámara los puede acercar hasta que se leen en una caja de 708;
 //  - en el celular (t-argus, t-equipos): la app a 390, con su diseño de celular.
 //
 // Se graban con scripts/grabar-plataforma (PIEZAS, claves t-*).
@@ -57,10 +58,10 @@ function equiposMovil() {
 
 export const TEMA_PIECES = {
   escritorio: {
-    't-alarmas': fromGrid('alarmas', 1440, 1700),
-    't-activos': fromGrid('activos', 1440, 1900),
-    't-paradas': fromGrid('paradas', 1440, 2400),
-    't-reporte': fromGrid('reporte', 1440, 3600),
+    't-alarmas': fromGrid('alarmas', 960, 1700),
+    't-activos': fromGrid('activos', 960, 1900),
+    't-paradas': fromGrid('paradas', 960, 2400),
+    't-reporte': fromGrid('reporte', 960, 3600),
     't-argus': fromGrid('argus', 1440, 1000),
   },
   celular: {
