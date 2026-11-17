@@ -50,26 +50,9 @@ function watchLayout(root) {
   }
 }
 
-// Intro del hero: mismos valores que el diseño original.
-function heroIntro(q) {
-  const tl = gsap.timeline()
-
-  // El header solo cambia de opacidad: un transform en él rompería el menú mobile
-  // (que es position: fixed dentro del header).
-  tl.from(q('.header'), { autoAlpha: 0, duration: 0.8, ease: 'power2.out' }, 0)
-    .fromTo(q('.hero-kicker'), { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 0)
-    .fromTo(
-      q('.hero-title'),
-      { opacity: 0, y: 40, filter: 'blur(10px)' },
-      { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.9, ease: 'power2.out' },
-      0.15
-    )
-    .fromTo(q('.hero-cta'), { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 0.35)
-    // La plataforma sube desde abajo y se apoya: es lo que sigue a la primera pantalla.
-    .fromTo(q('.hero-stage'), { opacity: 0, y: 70 }, { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out' }, 0.45)
-
-  return tl
-}
+// La entrada del hero (header, botón y plataforma) es CSS: ver Landing.vue y Navbar.vue.
+// Antes la hacía GSAP acá, y al cargar ocultaba el hero que ya venía prerenderizado
+// para volver a mostrarlo: parpadeaba y atrasaba el LCP.
 
 function heroParallax(q) {
   const hero = q('.hero')[0]
@@ -92,7 +75,10 @@ function reveals(q) {
   if (!items.length) return
 
   const hidden = { autoAlpha: 0, y: 36 }
-  gsap.set(items, hidden)
+  // Lo que ya está en pantalla cuando arranca el JS (por ejemplo, al recargar a mitad
+  // de página) no se apaga: ya se vio. Entra con la animación la próxima vez.
+  const inView = (el) => el.getBoundingClientRect().top < window.innerHeight
+  gsap.set(items.filter((el) => !inView(el)), hidden)
 
   ScrollTrigger.batch(items, {
     start: 'top 90%',
@@ -139,7 +125,6 @@ export function useLandingMotion(rootRef) {
       // breakpoint no vuelve a reproducir la intro ni a ocultar lo ya revelado.
       // Con movimiento reducido no se registra nada y el contenido queda estático.
       mm.add(MEDIA.motionOk, () => {
-        heroIntro(q)
         reveals(q)
       })
 

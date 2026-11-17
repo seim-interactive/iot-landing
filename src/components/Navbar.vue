@@ -2,7 +2,7 @@
   <header class="header" :class="{ 'is-scrolled': scrolled, 'is-open': menuOpen }">
     <div class="header-inner">
       <a :href="home || '#top'" class="logo" aria-label="Seim Interactive, ir al inicio" @click="closeMenu">
-        <img src="../assets/MARCA-14.png" alt="Seim Interactive" class="logo-img" />
+        <img :src="logo2x" :srcset="`${logo2x} 2x, ${logo3x} 3x`" width="300" height="49" alt="Seim Interactive" class="logo-img" />
       </a>
 
       <nav class="nav" aria-label="Secciones">
@@ -89,6 +89,9 @@ import { ref, watch, onMounted, onUnmounted } from 'vue'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { afterNextPaint, isPrerendering } from '../composables/animationUtils'
+// El logo a 2x y 3x de lo que se muestra (~150 px de ancho); el original es de 3500 px
+import logo2x from '../assets/logo-seim-300.png'
+import logo3x from '../assets/logo-seim-450.png'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -178,6 +181,20 @@ onUnmounted(() => {
   inset: 0 0 auto 0;
   z-index: 100;
   height: var(--header-h, 72px);
+}
+
+/* Entrada: solo opacidad (un transform rompería el menú mobile, que es fixed adentro).
+   Es CSS y arranca con el HTML prerenderizado (ver la entrada del hero en Landing.vue). */
+@media (prefers-reduced-motion: no-preference) {
+  .header {
+    animation: header-in 0.8s ease-out backwards;
+  }
+}
+
+@keyframes header-in {
+  from {
+    opacity: 0;
+  }
 }
 
 /* El blur va en un pseudo-elemento: si estuviera en .header, el menú mobile
