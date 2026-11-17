@@ -106,7 +106,8 @@ onUnmounted(() => {
   color-scheme: dark;
   pointer-events: none;
   opacity: 0;
-  will-change: transform;
+  /* Sin will-change: con él, Chrome guarda la app como una imagen y al acercar la
+     cámara la agranda pixelada, en vez de volver a dibujarla nítida */
 }
 
 .piece-cursor {

@@ -20,35 +20,31 @@ const differences = [
 const piece = {
   key: 'medida',
   route: '/dashboard',
-  width: 1280,
-  height: 900,
+  width: 1440,
+  height: 1008,
   cut: false,
   async script(d) {
     await d.until(() => d.find('.widget-card canvas'), 14000)
-    const main = d.find('.app-main')
-    const sidebar = d.find('#app-sidebar')
-    const left = sidebar ? sidebar.getBoundingClientRect().right + 8 : 0
-    // Todo el tablero, sin la barra lateral
-    const board = () => ({ left, top: 0, width: main.clientWidth - left, height: 760 })
-    await d.frameOn(board(), { pad: 14, max: 1, duration: this.started ? 1.5 : 0 })
-    this.started = true
+    // El menú lateral contraído: el tablero gana ancho y se ve entero.
+    const collapse = d.find('[data-test="sidebar-collapse"][aria-expanded="true"]')
+    if (collapse) {
+      collapse.click()
+      await d.wait(500)
+    }
+    // Siempre la pantalla entera, nunca más grande que su tamaño real: así no se
+    // pixela. El cursor hace el cambio de equipo sin que la cámara se acerque.
+    await d.frameOn(d.screen(), { pad: 0, max: 1, duration: 0 })
     d.fade(1)
     await d.wait(3000)
 
     for (const name of [...MACHINES.slice(1), MACHINES[0]]) {
-      // Se acerca al selector, elige el equipo y vuelve a abrir para ver su tablero.
-      const trigger = await d.until(() => d.find('[data-test="plc-switcher-trigger"]'))
-      const r = trigger.getBoundingClientRect()
-      await d.frameOn({ left: r.right - 560, top: 0, width: 580, height: 360 }, { pad: 14, max: 1.2, duration: 1.2 })
-      await d.click(trigger)
-      await d.wait(450)
+      await d.click(await d.until(() => d.find('[data-test="plc-switcher-trigger"]')))
+      await d.wait(500)
       await d.click(await d.until(() => d.find('.plc-switcher-option', name)))
       active.value = name
       d.hideCursor()
-      await d.wait(500)
-      await d.frameOn(board(), { pad: 14, max: 1, duration: 1.5 })
       await d.until(() => !d.find('[data-test="dashboard-skeleton"]') && d.find('.widget-card canvas'), 14000)
-      await d.wait(3400)
+      await d.wait(3600)
     }
   },
   async reset() {},
@@ -75,7 +71,7 @@ const piece = {
       <ul class="fit-machines" aria-hidden="true">
         <li v-for="name in MACHINES" :key="name" :class="{ 'is-active': name === active }">{{ name }}</li>
       </ul>
-      <PlatformPiece :piece="piece" ratio="1 / 0.7" :fade="false" />
+      <PlatformPiece :piece="piece" ratio="1440 / 1008" :fade="false" />
     </div>
   </div>
 </template>
