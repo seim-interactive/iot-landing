@@ -19,9 +19,16 @@ const DEMO_URL = import.meta.env.VITE_PLATFORM_DEMO_URL || '/plataforma/index.ht
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 const stage = ref(null)
-const frame = ref(null)
 const cursor = ref(null)
-const src = ref('')
+// Dos lugares para la app. Los guiones que terminan con la app cambiada (una alarma
+// resuelta, un motivo cargado) no se reinician a la vista: la vuelta siguiente carga
+// una app nueva en el otro lugar, por detrás, y entra con un fundido sobre la anterior.
+// Así el cuadrado nunca queda vacío.
+const frames = ref([])
+const srcs = ref(['', ''])
+const current = ref(0)
+const url = () => `${DEMO_URL}?logged&ruta=${props.piece.route}`
+const swaps = props.piece.cut !== false
 // El ancho puede depender de la pantalla (en celular, la app más angosta)
 const width = typeof props.piece.width === 'function' ? props.piece.width() : props.piece.width
 const height = ref(typeof props.piece.height === 'number' ? props.piece.height : 400)
@@ -32,27 +39,54 @@ let driver = null
 let seen = false
 
 function load() {
-  if (!src.value && !reduceMotion) src.value = `${DEMO_URL}?logged&ruta=${props.piece.route}`
+  if (!srcs.value[current.value] && !reduceMotion) srcs.value[current.value] = url()
+}
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+// Carga la app nueva en el otro lugar y, cuando está lista, la vuelve la actual. La
+// anterior queda a la vista hasta que la nueva entra (el guion la funde) y después se saca.
+async function swap() {
+  const next = 1 - current.value
+  const old = current.value
+  srcs.value[next] = url()
+  for (let t = 0; t < 20000; t += 100) {
+    const f = frames.value[next]
+    try {
+      if (f?.contentWindow?.__demo && f.contentDocument.querySelector('#app')?.firstElementChild) break
+    } catch {
+      /* todavía cargando */
+    }
+    await sleep(100)
+  }
+  const f = frames.value[next]
+  f.style.opacity = '0'
+  f.style.zIndex = '1'
+  frames.value[old].style.zIndex = '0'
+  current.value = next
+  setTimeout(() => {
+    if (current.value === next) srcs.value[old] = ''
+  }, 3000)
 }
 
 // Lejos de la pantalla: se corta el guion y se saca la app entera.
 function unload() {
-  if (!src.value) return
+  if (!srcs.value.some(Boolean)) return
   driver?.destroy()
   driver = null
-  src.value = ''
+  srcs.value = ['', '']
   props.piece.started = false
 }
 
-function onLoad() {
-  if (!src.value || driver) return
+function onLoad(i) {
+  if (!srcs.value[i] || driver || i !== current.value) return
   driver = createDriver({
-    frame: frame.value,
+    frame: () => frames.value[current.value],
     cursor: cursor.value,
     camera: true,
     script: (d) => props.piece.script(d),
-    reset: (d) => props.piece.reset(d),
-    cut: props.piece.cut !== false,
+    reset: swaps ? () => swap() : (d) => props.piece.reset(d),
+    cut: false,
   })
   driver.setVisible(seen)
 }
@@ -83,17 +117,19 @@ onUnmounted(() => {
 
 <template>
   <div ref="stage" class="piece-stage" :class="{ 'piece-stage--fade': fade }" :style="{ aspectRatio: ratio }" aria-hidden="true">
-    <iframe
-      v-if="src"
-      ref="frame"
-      class="piece-frame"
-      :src="src"
-      :width="width"
-      :height="height"
-      title=""
-      tabindex="-1"
-      @load="onLoad"
-    ></iframe>
+    <template v-for="(s, i) in srcs" :key="i">
+      <iframe
+        v-if="s"
+        :ref="(el) => (frames[i] = el)"
+        class="piece-frame"
+        :src="s"
+        :width="width"
+        :height="height"
+        title=""
+        tabindex="-1"
+        @load="onLoad(i)"
+      ></iframe>
+    </template>
     <div ref="cursor" class="piece-cursor">
       <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
         <path d="M4 2.5 17.5 11l-6 1.4-2.9 5.6L4 2.5Z" fill="#fff" stroke="#0b0c10" stroke-width="1.2" stroke-linejoin="round" />

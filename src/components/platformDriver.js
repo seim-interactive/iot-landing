@@ -10,7 +10,7 @@ import gsap from 'gsap'
 const STOP = Symbol('stop')
 
 /**
- * @param frame   el iframe con la app
+ * @param frame   el iframe con la app, o una función que lo devuelve (el cuadrado puede alternar entre dos)
  * @param cursor  el elemento del cursor; tiene que compartir contenedor con el iframe
  * @param script  async (driver) => {}: una vuelta completa del guion; se repite sola
  * @param reset   async (driver) => {}: deja la app lista para la vuelta siguiente
@@ -25,15 +25,16 @@ export function createDriver({ frame, cursor, script, reset, camera = false, tou
   let run = 0
   const view = { x: 0, y: 0, scale: 1 }
 
-  const doc = () => frame.contentDocument
-  const win = () => frame.contentWindow
+  const F = () => (typeof frame === 'function' ? frame() : frame)
+  const doc = () => F().contentDocument
+  const win = () => F().contentWindow
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
   const check = (id) => {
     if (!alive || id !== run) throw STOP
   }
 
   function applyView() {
-    frame.style.transform = `translate3d(${view.x}px, ${view.y}px, 0) scale(${view.scale})`
+    F().style.transform = `translate3d(${view.x}px, ${view.y}px, 0) scale(${view.scale})`
   }
 
   function make(id) {
@@ -66,9 +67,9 @@ export function createDriver({ frame, cursor, script, reset, camera = false, tou
     // Dónde cae un punto de la app dentro del contenedor, con el zoom y el paneo actuales.
     function place(el) {
       const rect = el.getBoundingClientRect()
-      const box = frame.getBoundingClientRect()
+      const box = F().getBoundingClientRect()
       const parent = cursor.offsetParent.getBoundingClientRect()
-      const k = box.width / frame.offsetWidth
+      const k = box.width / F().offsetWidth
       return {
         x: box.left - parent.left + (rect.left + Math.min(rect.width / 2, 120)) * k,
         y: box.top - parent.top + (rect.top + rect.height / 2) * k,
@@ -141,17 +142,17 @@ export function createDriver({ frame, cursor, script, reset, camera = false, tou
     }
 
     // La pantalla entera de la app, como rectángulo para la cámara
-    const screen = () => ({ left: 0, top: 0, width: frame.offsetWidth, height: frame.offsetHeight })
+    const screen = () => ({ left: 0, top: 0, width: F().offsetWidth, height: F().offsetHeight })
     // Vuelve a cargar la app desde su dirección original. No sirve location.reload():
     // la app ya cambió su propia dirección a la de la ruta (/operations…), que en el
     // origen de la landing es otra página.
     async function reload() {
-      frame.src = frame.getAttribute('src')
+      F().src = F().getAttribute('src')
       await wait(600)
       await until(() => doc()?.querySelector('#app')?.firstElementChild && win().__demo, 20000)
     }
 
-    const fade = (opacity, duration = 0.5) => gsap.to(frame, { opacity, duration })
+    const fade = (opacity, duration = 0.5) => gsap.to(F(), { opacity, duration })
     const hideCursor = () => gsap.to(cursor, { opacity: 0, duration: 0.3 })
 
     return { wait, find, until, moveTo, click, type, scroll, frameOn, screen, reload, fade, hideCursor, doc, win, touch }
@@ -173,7 +174,7 @@ export function createDriver({ frame, cursor, script, reset, camera = false, tou
       console.warn('[plataforma]', error.message)
       await sleep(1500)
       if (!alive || id !== run) return
-      await gsap.to(frame, { opacity: 0, duration: 0.4 })
+      await gsap.to(F(), { opacity: 0, duration: 0.4 })
       try {
         await reset?.(make(id))
       } catch {
@@ -202,7 +203,7 @@ export function createDriver({ frame, cursor, script, reset, camera = false, tou
     },
     destroy() {
       alive = false
-      gsap.killTweensOf([cursor, frame, view])
+      gsap.killTweensOf([cursor, F(), view])
     },
   }
 }
