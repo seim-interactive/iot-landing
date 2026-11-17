@@ -22,7 +22,7 @@
 // respaldo) y -poster.jpg. Ver README.md de esta carpeta.
 import { chromium } from 'playwright-core'
 import { execFileSync, spawnSync } from 'node:child_process'
-import { mkdir, readdir, rm, stat, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -319,4 +319,9 @@ for (const key of opts.piezas) {
     report.push(entry)
   }
 }
-await writeFile(path.join(OUT, 'grabacion.json'), JSON.stringify(report, null, 2))
+// grabacion.json acumula: cada corrida reemplaza solo las piezas que grabó
+const reportFile = path.join(OUT, 'grabacion.json')
+const previous = await readFile(reportFile, 'utf8').then(JSON.parse).catch(() => [])
+const id = (e) => `${e.key}/${e.version ?? ''}`
+const merged = [...previous.filter((e) => !report.some((r) => id(r) === id(e))), ...report]
+await writeFile(reportFile, JSON.stringify(merged, null, 2))
