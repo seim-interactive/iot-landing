@@ -1,7 +1,8 @@
 <!--
   Un cuadrado de la grilla: la plataforma real en un iframe, con la cámara puesta
   sobre un componente y un guion en loop (platformPieces.js). Se carga cuando el
-  cuadrado está por entrar en pantalla y corre solo mientras se ve.
+  cuadrado está por entrar en pantalla, corre solo mientras se ve y se descarga
+  cuando queda lejos: así la página nunca tiene muchas copias de la app a la vez.
 -->
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue'
@@ -21,11 +22,27 @@ const stage = ref(null)
 const frame = ref(null)
 const cursor = ref(null)
 const src = ref('')
+// El ancho puede depender de la pantalla (en celular, la app más angosta)
+const width = typeof props.piece.width === 'function' ? props.piece.width() : props.piece.width
 const height = ref(typeof props.piece.height === 'number' ? props.piece.height : 400)
 
 let observer = null
+let farObserver = null
 let driver = null
 let seen = false
+
+function load() {
+  if (!src.value && !reduceMotion) src.value = `${DEMO_URL}?logged&ruta=${props.piece.route}`
+}
+
+// Lejos de la pantalla: se corta el guion y se saca la app entera.
+function unload() {
+  if (!src.value) return
+  driver?.destroy()
+  driver = null
+  src.value = ''
+  props.piece.started = false
+}
 
 function onLoad() {
   if (!src.value || driver) return
@@ -42,21 +59,24 @@ function onLoad() {
 
 onMounted(() => {
   if (props.piece.height === 'fit') {
-    height.value = Math.round((props.piece.width * stage.value.clientHeight) / stage.value.clientWidth)
+    height.value = Math.round((width * stage.value.clientHeight) / stage.value.clientWidth)
   }
   observer = new IntersectionObserver(
     ([entry]) => {
       seen = entry.intersectionRatio > 0.3
-      if (entry.isIntersecting && !src.value && !reduceMotion) src.value = `${DEMO_URL}?logged&ruta=${props.piece.route}`
+      if (entry.isIntersecting) load()
       driver?.setVisible(seen)
     },
     { rootMargin: '300px 0px', threshold: [0, 0.3, 0.6] }
   )
   observer.observe(stage.value)
+  farObserver = new IntersectionObserver(([entry]) => !entry.isIntersecting && unload(), { rootMargin: '150% 0px' })
+  farObserver.observe(stage.value)
 })
 
 onUnmounted(() => {
   observer?.disconnect()
+  farObserver?.disconnect()
   driver?.destroy()
 })
 </script>
@@ -64,10 +84,11 @@ onUnmounted(() => {
 <template>
   <div ref="stage" class="piece-stage" :class="{ 'piece-stage--fade': fade }" :style="{ aspectRatio: ratio }" aria-hidden="true">
     <iframe
+      v-if="src"
       ref="frame"
       class="piece-frame"
-      :src="src || undefined"
-      :width="piece.width"
+      :src="src"
+      :width="width"
       :height="height"
       title=""
       tabindex="-1"

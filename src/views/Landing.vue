@@ -42,9 +42,9 @@
     </section>
 
     <!-- ==================== CÓMO FUNCIONA (con los servicios) ==================== -->
-    <section id="technology" class="section journey-section" aria-label="Cómo funciona">
+    <section id="technology" class="section how-section" aria-label="Cómo funciona">
       <div class="container">
-        <DataJourney />
+        <HowItWorks />
       </div>
     </section>
 
@@ -128,7 +128,7 @@ import Navbar from '@/components/Navbar.vue'
 import PlatformStage from '@/components/PlatformStage.vue'
 import PlatformPieces from '@/components/PlatformPieces.vue'
 import PlatformFit from '@/components/PlatformFit.vue'
-import DataJourney from '@/components/DataJourney.vue'
+import HowItWorks from '@/components/HowItWorks.vue'
 import ContactAsk from '@/components/ContactAsk.vue'
 import { useLandingMotion } from '@/composables/useLandingMotion'
 

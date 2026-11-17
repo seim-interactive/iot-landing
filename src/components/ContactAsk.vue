@@ -61,6 +61,10 @@ function useExample(example) {
       </div>
     </div>
 
+    <p class="ask-after" data-reveal>
+      Y después del arranque seguimos con vos: operamos la plataforma <strong>24/7</strong> y armamos juntos la hoja de ruta para que tu planta avance paso a paso.
+    </p>
+
     <dl class="ask-meta" data-reveal>
       <div>
         <dt>Email</dt>
@@ -213,6 +217,19 @@ function useExample(example) {
 .ask-example:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 3px;
+}
+
+.ask-after {
+  max-width: 640px;
+  margin-top: clamp(40px, 5vw, 64px);
+  font-size: 17px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.ask-after strong {
+  font-weight: 500;
+  color: #fff;
 }
 
 /* Los datos de siempre, chicos, abajo */
