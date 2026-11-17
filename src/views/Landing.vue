@@ -55,6 +55,13 @@
       </div>
     </section>
 
+    <!-- ==================== PREGUNTAS FRECUENTES ==================== -->
+    <section id="preguntas" class="section faq-section" aria-labelledby="preguntas-titulo">
+      <div class="container">
+        <FaqSection />
+      </div>
+    </section>
+
     <!-- ==================== CONTACTO ==================== -->
     <section id="contact" class="section contact-section">
       <div class="container">
@@ -91,6 +98,7 @@
               <li><a href="#partes">Plataforma</a></li>
               <li><a href="#solution">A tu medida</a></li>
               <li><a href="#technology">Cómo funciona</a></li>
+              <li><a href="#preguntas">Preguntas frecuentes</a></li>
               <li><a href="#contact">Contacto</a></li>
             </ul>
           </nav>
@@ -137,6 +145,7 @@ import PlatformPieces from '@/components/PlatformPieces.vue'
 import PlatformFit from '@/components/PlatformFit.vue'
 import HowItWorks from '@/components/HowItWorks.vue'
 import ContactAsk from '@/components/ContactAsk.vue'
+import FaqSection from '@/components/FaqSection.vue'
 import PartnerBand from '@/components/PartnerBand.vue'
 import { useLandingMotion } from '@/composables/useLandingMotion'
 

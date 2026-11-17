@@ -2,6 +2,7 @@
 // arma en el build y lo pone en el head de index.html, con el title y la description
 // que ya tiene ese archivo. Solo datos que están en la landing: nada de dirección,
 // coordenadas ni año de fundación.
+import { FAQ } from './faq.js'
 const SITE = 'https://iot.seiminteractive.io'
 const ORG = `${SITE}/#organization`
 const WEBSITE = `${SITE}/#website`
@@ -54,7 +55,8 @@ export function jsonLd({ title, description, videoDuration }) {
         publisher: { '@id': ORG },
       },
       {
-        '@type': 'WebPage',
+        // La landing es también la página de preguntas frecuentes: las de la sección visible
+        '@type': ['WebPage', 'FAQPage'],
         '@id': WEBPAGE,
         url: `${SITE}/`,
         name: title,
@@ -64,6 +66,11 @@ export function jsonLd({ title, description, videoDuration }) {
         about: { '@id': `${SITE}/#service` },
         primaryImageOfPage: { '@type': 'ImageObject', url: `${SITE}/og/og-es.png`, width: 1200, height: 630 },
         video: { '@id': `${SITE}/#video-hero` },
+        mainEntity: FAQ.map(({ q, a }) => ({
+          '@type': 'Question',
+          name: q,
+          acceptedAnswer: { '@type': 'Answer', text: a },
+        })),
       },
       {
         '@type': 'Service',

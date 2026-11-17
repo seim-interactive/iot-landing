@@ -14,7 +14,8 @@ function heroVideoDuration() {
 }
 
 // El JSON-LD del head se arma con src/seo/jsonLd.js: el WebPage usa el title y la
-// description de index.html, así nunca dicen cosas distintas.
+// description de index.html, y el FAQPage, las preguntas de src/seo/faq.js, las mismas
+// que muestra la página. Así nunca dicen cosas distintas.
 function structuredData() {
   return {
     name: 'seim-structured-data',
