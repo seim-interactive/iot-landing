@@ -85,7 +85,13 @@ void main() {
 }
 `
 
-export function createStageLight(canvas, { reduceMotion = false } = {}) {
+/**
+ * @param fps  tope de cuadros por segundo. La respiración es muy lenta: en equipos
+ *             modestos, 30 se ve igual que 60 y gasta la mitad. Si cambia el brillo
+ *             (setGlint, con el scroll), el cuadro siguiente se dibuja sin esperar.
+ *             Por defecto, todos (el hero no lo pasa).
+ */
+export function createStageLight(canvas, { reduceMotion = false, fps = 60 } = {}) {
   const gl = canvas.getContext('webgl', { premultipliedAlpha: true, alpha: true, antialias: false })
   if (!gl) return null
 
@@ -113,6 +119,9 @@ export function createStageLight(canvas, { reduceMotion = false } = {}) {
 
   let dpr = 1
   let frame = 0
+  const interval = fps >= 60 ? 0 : 1000 / fps
+  let last = -Infinity
+  let dirty = true
   let visible = false
   let glint = 0
   let below = 0
@@ -130,10 +139,15 @@ export function createStageLight(canvas, { reduceMotion = false } = {}) {
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
 
-  function loop() {
+  function loop(now = performance.now()) {
     frame = 0
     if (!visible) return
-    draw()
+    // 1 ms de margen: los cuadros del monitor no caen exactos
+    if (!interval || dirty || now - last >= interval - 1) {
+      draw()
+      last = now
+      dirty = false
+    }
     if (!reduceMotion) frame = requestAnimationFrame(loop)
   }
 
@@ -149,10 +163,12 @@ export function createStageLight(canvas, { reduceMotion = false } = {}) {
     },
     setGlint(value) {
       glint = value
+      dirty = true
       if (reduceMotion && visible) draw()
     },
     setVisible(next) {
       visible = next
+      dirty = true
       if (visible && !frame) loop()
     },
     destroy() {

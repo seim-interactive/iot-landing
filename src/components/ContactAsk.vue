@@ -2,9 +2,14 @@
   Contacto: un campo grande, como el de Argus. Lo que se escribe abre WhatsApp con
   el mensaje ya redactado. Es un link (no un window.open) para que el script del
   head mida la conversión como cualquier otro link a wa.me.
+
+  Sobre la caja, la misma luz del marco del hero (stageLight.js): nace en el filo de
+  arriba y cae hacia arriba, por detrás del título. Se dibuja solo mientras se ve, a
+  30 cuadros en equipos modestos y quieta con movimiento reducido.
 -->
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { createStageLight } from './stageLight'
 
 const WHATSAPP = '5493413551507'
 const EMAIL = 'hello@seiminteractive.io'
@@ -29,40 +34,114 @@ function onKeydown(event) {
 function useExample(example) {
   text.value = example
 }
+
+// ---------- La luz ----------
+// El lienzo sobresale LIGHT_ABOVE px por arriba de la caja y entra LIGHT_BELOW por
+// debajo del filo; a los costados, apenas (fuera del ancho de la caja la luz es cero).
+const LIGHT_ABOVE = 220
+const LIGHT_BELOW = 40
+const LIGHT_SIDE = 0.04
+
+const stage = ref(null)
+const lightCanvas = ref(null)
+const hasLight = ref(false)
+let light = null
+let resizeObserver = null
+let observer = null
+let raf = 0
+let glint = 0.5
+
+function fit() {
+  const width = stage.value?.clientWidth
+  if (width) light?.resize(width * (1 + LIGHT_SIDE * 2), LIGHT_ABOVE + LIGHT_BELOW, LIGHT_BELOW, width)
+}
+
+// Como en el hero: el brillo recorre el filo mientras la caja sube por la pantalla
+function trackLight() {
+  raf = 0
+  const el = stage.value
+  if (!el) return
+  const rect = el.getBoundingClientRect()
+  const vh = window.innerHeight
+  if (rect.bottom < 0 || rect.top > vh) return
+  const target = Math.min(1, Math.max(0, (vh - rect.top) / (vh + rect.height)))
+  glint += (target - glint) * 0.12
+  el.style.setProperty('--glint', glint.toFixed(4))
+  light.setGlint(glint)
+  if (Math.abs(target - glint) > 0.0005) raf = requestAnimationFrame(trackLight)
+}
+
+function onScroll() {
+  if (!raf) raf = requestAnimationFrame(trackLight)
+}
+
+onMounted(() => {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const modest = window.matchMedia('(max-width: 900px)').matches || (navigator.hardwareConcurrency || 8) <= 4
+  light = createStageLight(lightCanvas.value, { reduceMotion, fps: modest ? 30 : 60 })
+  if (!light) return
+  hasLight.value = true
+  fit()
+  resizeObserver = new ResizeObserver(fit)
+  resizeObserver.observe(stage.value)
+  observer = new IntersectionObserver(([entry]) => {
+    light.setVisible(entry.isIntersecting)
+    if (entry.isIntersecting) onScroll()
+  })
+  observer.observe(stage.value)
+  if (!reduceMotion) window.addEventListener('scroll', onScroll, { passive: true })
+})
+
+onUnmounted(() => {
+  observer?.disconnect()
+  resizeObserver?.disconnect()
+  window.removeEventListener('scroll', onScroll)
+  cancelAnimationFrame(raf)
+  light?.destroy()
+})
 </script>
 
 <template>
   <div class="ask">
     <h2 class="ask-title" data-reveal>Contanos qué querés medir<br><span>en tu planta.</span></h2>
 
-    <div class="ask-box" data-reveal>
-      <label class="visually-hidden" for="ask-input">Qué querés medir en tu planta</label>
-      <textarea
-        id="ask-input"
-        v-model="text"
-        class="ask-input"
-        rows="3"
-        maxlength="600"
-        placeholder="Por ejemplo: cuánto produce cada línea por turno y por qué para."
-        @keydown="onKeydown"
-      ></textarea>
-      <div class="ask-bar">
-        <div class="ask-examples" aria-label="Ejemplos">
-          <button v-for="example in EXAMPLES" :key="example" type="button" class="ask-example" @click="useExample(example)">
-            {{ example }}
-          </button>
+    <div ref="stage" class="ask-stage" :class="{ 'has-light': hasLight }" data-reveal>
+      <canvas
+        ref="lightCanvas"
+        class="ask-glow"
+        :style="{ height: `${LIGHT_ABOVE + LIGHT_BELOW}px`, bottom: `calc(100% - ${LIGHT_BELOW}px)`, left: `${-LIGHT_SIDE * 100}%`, width: `${(1 + LIGHT_SIDE * 2) * 100}%` }"
+        aria-hidden="true"
+      ></canvas>
+      <div class="ask-edge" aria-hidden="true"></div>
+      <div class="ask-box">
+        <label class="visually-hidden" for="ask-input">Qué querés medir en tu planta</label>
+        <textarea
+          id="ask-input"
+          v-model="text"
+          class="ask-input"
+          rows="3"
+          maxlength="600"
+          placeholder="Por ejemplo: cuánto produce cada línea por turno y por qué para."
+          @keydown="onKeydown"
+        ></textarea>
+        <div class="ask-bar">
+          <div class="ask-examples" aria-label="Ejemplos">
+            <button v-for="example in EXAMPLES" :key="example" type="button" class="ask-example" @click="useExample(example)">
+              {{ example }}
+            </button>
+          </div>
+          <a ref="send" :href="href" target="_blank" rel="noopener" class="ask-send">
+            Enviar por WhatsApp
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
         </div>
-        <a ref="send" :href="href" target="_blank" rel="noopener" class="ask-send">
-          Enviar por WhatsApp
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-        </a>
       </div>
     </div>
 
     <p class="ask-after" data-reveal>
-      Y después del arranque seguimos con vos: operamos la plataforma <strong>24/7</strong> y armamos juntos la hoja de ruta para que tu planta avance paso a paso.
+      Después del arranque seguimos con vos: operamos la plataforma <strong>24/7</strong> y armamos juntos la hoja de ruta.
     </p>
 
     <dl class="ask-meta" data-reveal>
@@ -94,6 +173,9 @@ function useExample(example) {
 }
 
 .ask-title {
+  /* Por encima de la luz de la caja */
+  position: relative;
+  z-index: 2;
   font-size: clamp(32px, 4.2vw, 60px);
   font-weight: 400;
   line-height: 1.06;
@@ -106,10 +188,42 @@ function useExample(example) {
   color: rgba(255, 255, 255, 0.45);
 }
 
+/* La caja y su luz */
+.ask-stage {
+  --glint: 0.5;
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+  margin-top: clamp(40px, 5vw, 64px);
+}
+
+.ask-glow {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* La línea nítida del filo, con el brillo que sigue al scroll (como en el hero) */
+.ask-edge {
+  display: none;
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 4%;
+  right: 4%;
+  height: 1px;
+  pointer-events: none;
+  background: radial-gradient(ellipse 40% 100% at calc(26% + var(--glint) * 48%) 50%, #fff, rgba(226, 236, 255, 0.5) 40%, transparent);
+}
+
+.has-light .ask-edge {
+  display: block;
+}
+
 /* La caja: el mismo lenguaje que el marco de la plataforma, con su filo de luz */
 .ask-box {
   position: relative;
-  margin-top: clamp(40px, 5vw, 64px);
+  z-index: 1;
   border-radius: 22px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
   box-shadow:
@@ -278,11 +392,33 @@ function useExample(example) {
   white-space: nowrap;
 }
 
+/* ---------- Celular: alineado a la izquierda, un solo eje ---------- */
 @media (max-width: 760px) {
+  .ask-title {
+    font-size: 30px;
+    line-height: 1.1;
+    text-align: left;
+    text-wrap: pretty;
+  }
+
+  .ask-stage {
+    margin-top: 44px;
+  }
+
+  .ask-box {
+    border-radius: 20px;
+  }
+
+  .ask-input {
+    min-height: 112px;
+    padding: 20px 20px 4px;
+    font-size: 17px;
+  }
+
+  /* El botón a la derecha, a su medida: fino y proporcionado a la caja */
   .ask-bar {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 10px 14px 14px;
+    justify-content: flex-end;
+    padding: 8px 10px 10px;
   }
 
   .ask-examples {
@@ -290,11 +426,45 @@ function useExample(example) {
   }
 
   .ask-send {
-    justify-content: center;
+    height: 40px;
+    gap: 8px;
+    padding: 0 16px;
+    font-size: 14px;
   }
 
+  .ask-after {
+    max-width: none;
+    margin-top: 28px;
+    text-align: left;
+    text-wrap: pretty;
+    font-size: 15px;
+  }
+
+  /* Los datos, como filas: el nombre a la izquierda y el dato a la derecha */
   .ask-meta {
-    grid-template-columns: 1fr 1fr;
+    display: block;
+    margin-top: 36px;
+    padding-top: 0;
+  }
+
+  .ask-meta > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--rule);
+    text-align: left;
+  }
+
+  .ask-meta dt {
+    flex: none;
+    font-size: 13px;
+  }
+
+  .ask-meta dd {
+    margin: 0;
+    text-align: right;
   }
 }
 </style>

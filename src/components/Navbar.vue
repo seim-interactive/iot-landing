@@ -42,32 +42,41 @@
     <Transition name="menu-fade">
       <div v-if="menuOpen" id="mobile-menu" class="mobile-menu">
         <div class="menu-content">
-          <nav class="mobile-nav" aria-label="Secciones">
+          <!-- Los links grandes, desde arriba; la sección donde estás, en blanco -->
+          <nav class="mobile-nav" :class="{ 'has-active': activeId }" aria-label="Secciones">
             <a
               v-for="(item, index) in menuItems"
               :key="item.id"
               :href="`#${item.id}`"
               class="mobile-nav-link"
+              :class="{ 'is-active': activeId === item.id }"
+              :aria-current="activeId === item.id ? 'location' : undefined"
               :style="{ animationDelay: `${80 + index * 55}ms` }"
               @click="closeMenu"
             >
-              <span class="nav-text">{{ item.label }}</span>
-              <span class="nav-arrow" aria-hidden="true">
-                <i class="pi pi-arrow-right"></i>
-              </span>
+              {{ item.label }}
             </a>
           </nav>
 
-          <div class="menu-footer">
-            <div class="menu-contact">
-              <a href="https://wa.me/5493413551507" target="_blank" rel="noopener" class="menu-contact-link" aria-label="WhatsApp">
-                <i class="pi pi-whatsapp"></i>
-              </a>
-              <a href="mailto:hello@seiminteractive.io" class="menu-contact-link" aria-label="Email">
-                <i class="pi pi-envelope"></i>
-              </a>
+          <!-- Abajo, a mano del pulgar: el mismo CTA del header y los contactos -->
+          <div class="menu-bottom" :style="{ animationDelay: `${80 + menuItems.length * 55}ms` }">
+            <a href="#contact" class="menu-cta" @click="closeMenu">
+              Hablemos
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </a>
+            <div class="menu-footer">
+              <div class="menu-contact">
+                <a href="https://wa.me/5493413551507" target="_blank" rel="noopener" class="menu-contact-link" aria-label="WhatsApp">
+                  <i class="pi pi-whatsapp"></i>
+                </a>
+                <a href="mailto:hello@seiminteractive.io" class="menu-contact-link" aria-label="Email">
+                  <i class="pi pi-envelope"></i>
+                </a>
+              </div>
+              <span class="menu-copyright">© 2026 Seim Interactive</span>
             </div>
-            <span class="menu-copyright">© 2026 Seim Interactive</span>
           </div>
         </div>
       </div>
@@ -273,6 +282,7 @@ onUnmounted(() => {
 .logo:focus-visible,
 .menu-toggle:focus-visible,
 .mobile-nav-link:focus-visible,
+.menu-cta:focus-visible,
 .menu-contact-link:focus-visible {
   outline: 2px solid var(--accent, #afe3e8);
   outline-offset: 3px;
@@ -320,14 +330,6 @@ onUnmounted(() => {
   flex-direction: column;
 }
 
-.mobile-menu::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse 90% 60% at 100% 0%, rgba(175, 227, 232, 0.12), transparent 60%);
-  pointer-events: none;
-}
-
 .menu-fade-enter-active,
 .menu-fade-leave-active {
   transition: opacity 0.35s ease;
@@ -343,29 +345,33 @@ onUnmounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 96px 28px 120px;
+  padding: calc(var(--header-h, 72px) + 40px) var(--gutter, 24px) max(28px, env(safe-area-inset-bottom));
+  overflow-y: auto;
 }
 
 .mobile-nav {
   display: flex;
   flex-direction: column;
+  gap: 6px;
 }
 
 .mobile-nav-link {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 18px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 8px 0;
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+  color: #fff;
   text-decoration: none;
   opacity: 0;
   transform: translateY(12px);
   animation: menu-item-in 0.6s var(--ease-out, ease) forwards;
+  transition: color 0.3s ease;
 }
 
-.mobile-nav-link:first-child {
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
+/* Con una sección activa, las otras pasan a segundo plano */
+.mobile-nav.has-active .mobile-nav-link:not(.is-active) {
+  color: rgba(255, 255, 255, 0.42);
 }
 
 @keyframes menu-item-in {
@@ -375,24 +381,38 @@ onUnmounted(() => {
   }
 }
 
-.nav-text {
-  flex: 1;
-  font-size: 26px;
-  font-weight: 300;
-  letter-spacing: -0.02em;
-  color: rgba(255, 255, 255, 0.9);
+.menu-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: auto;
+  padding-top: 40px;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: menu-item-in 0.6s var(--ease-out, ease) forwards;
 }
 
-.nav-arrow {
-  font-size: 12px;
-  color: rgba(175, 227, 232, 0.6);
+.menu-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 52px;
+  border-radius: 999px;
+  background: #fff;
+  color: #0a0a0a;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+}
+
+.menu-cta:active {
+  transform: scale(0.98);
 }
 
 .menu-footer {
-  position: absolute;
-  left: 28px;
-  right: 28px;
-  bottom: 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -450,7 +470,8 @@ onUnmounted(() => {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mobile-nav-link {
+  .mobile-nav-link,
+  .menu-bottom {
     animation: none;
     opacity: 1;
     transform: none;

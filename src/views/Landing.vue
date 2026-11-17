@@ -525,6 +525,11 @@ button:focus-visible {
     padding: calc(var(--section-pad) / 2) 0;
   }
 
+  /* El contacto es lo último antes del footer: sin aire de más abajo */
+  .contact-section {
+    padding-bottom: 16px;
+  }
+
   /* Footer */
   .footer-grid {
     grid-template-columns: 1fr 1fr;
