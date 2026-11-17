@@ -77,9 +77,11 @@ export const PIECES = [
       await d.frameOn({ left: r().left, top: c.top, width: r().width, height: written().top + written().height - c.top }, { ...shot(), duration: 1.4 })
       await d.wait(3400)
     },
+    // Al toque: conversación nueva y la cámara vuelve al campo, sin fundido
+    cut: false,
     async reset(d) {
       d.find('button[aria-label="Nueva conversación"]')?.click()
-      await d.wait(400)
+      await d.until(() => !d.find('.chat-bubble.user'), 4000)
     },
   },
   {
@@ -110,13 +112,13 @@ export const PIECES = [
       await d.frameOn(list(), { pad: AIR, duration: 1 })
       await d.wait(2400)
     },
-    // Borra lo hecho y vuelve a entrar a la pantalla: las alarmas quedan como al principio.
+    // Al toque: borra lo hecho y la app vuelve a pedir las alarmas (le avisa que la
+    // pestaña volvió a estar visible): reaparecen abiertas en menos de medio segundo
+    cut: false,
     async reset(d) {
       d.win().__demoReset?.()
-      d.find('.bottom-nav-item', 'Activos')?.click()
-      await d.wait(600)
-      d.find('.bottom-nav-item', 'Acciones')?.click()
-      await d.until(() => d.find('.alarm-row.status-open'), 12000)
+      d.doc().dispatchEvent(new (d.win().Event)('visibilitychange'))
+      await d.until(() => d.find('.alarm-row.status-open'), 6000)
     },
   },
   {
@@ -186,16 +188,36 @@ export const PIECES = [
     route: '/operations',
     width: 430,
     height: 2400,
+    // Al toque, sin fundido: el reinicio deja a la vista las paradas de la Envasadora 2 y
+    // el guion arranca eligiendo la Envasadora 1 en el selector real, que llega con su
+    // parada sin motivo (la app vuelve a pedir las paradas al cambiar de equipo).
+    cut: false,
     async script(d) {
       const tab = await d.until(() => d.find('.tab-btn', 'Paradas'), 12000)
       if (!d.find('.stops-section')) tab.click()
-      const pending = () => d.find('.stops-row', 'Sin motivo')
-      const row = await d.until(pending, 12000)
+      const picker = () => d.find('.stops-section .base-select-trigger')
       const summary = () => part(d.find('.stops-kpis'), { height: 172 })
-      // El resumen del día: cuántas paradas quedaron sin motivo.
-      await d.frameOn(summary(), { pad: AIR, duration: 0 })
+      const head = () => {
+        const p = picker().getBoundingClientRect()
+        const k = d.find('.stops-kpis').getBoundingClientRect()
+        return { left: k.left, top: p.top - 6, width: k.width, height: k.top + 172 - p.top + 6 }
+      }
+      await d.until(() => picker() && d.find('.stops-kpis') && d.find('.stops-row'), 12000)
+      await d.frameOn(head(), { pad: AIR, duration: 0 })
       d.fade(1)
-      await d.wait(2400)
+      if (!picker().textContent.includes('Envasadora 1')) {
+        await d.wait(1400)
+        await d.click(picker())
+        await d.wait(400)
+        await d.click(await d.until(() => d.find('.base-select-option', 'Envasadora 1')))
+        d.hideCursor()
+      }
+      const pending = () => d.find('.stops-row', 'Sin motivo')
+      const row = await d.until(() => d.find('.stops-kpis') && pending(), 12000)
+      await d.wait(300)
+      // El resumen del día: cuántas paradas quedaron sin motivo.
+      await d.frameOn(summary(), { pad: AIR, duration: 1 })
+      await d.wait(2200)
       // Baja a la parada sin motivo, se lo pone y lo guarda.
       await d.frameOn(row, { pad: AIR, max: 1.1, duration: 1.4 })
       await d.click(await d.until(() => button(row, 'Poner motivo')))
@@ -212,12 +234,22 @@ export const PIECES = [
       await d.frameOn(summary(), { pad: AIR, duration: 1.4 })
       await d.wait(3000)
     },
-    // Recarga la app del cuadrado (ya está en caché): el motivo cargado vivía en
-    // memoria, así que vuelve a estar sin motivo. Borrarlo sin recargar no alcanza,
-    // porque la pestaña recién vuelve a pedir las paradas a los 30 s.
     async reset(d) {
-      await d.reload()
-      await d.until(() => d.find('.tab-btn', 'Paradas'), 15000)
+      d.win().__demoReset?.()
+      d.find('.stops-section .base-select-trigger')?.click()
+      const other = await d.until(() => d.find('.base-select-option', 'Envasadora 2'), 4000)
+      other.click()
+      // Con sus paradas ya dibujadas (el resumen se redibuja al cambiar de equipo)
+      await d.until(() => d.find('.stops-section .base-select-trigger', 'Envasadora 2') && d.find('.stops-kpis') && d.find('.stops-row'), 6000)
+      await d.wait(300)
+      await d.frameOn(
+        (() => {
+          const p = d.find('.stops-section .base-select-trigger').getBoundingClientRect()
+          const k = d.find('.stops-kpis').getBoundingClientRect()
+          return { left: k.left, top: p.top - 6, width: k.width, height: k.top + 172 - p.top + 6 }
+        })(),
+        { pad: AIR, duration: 1.2 },
+      )
     },
   },
   {
