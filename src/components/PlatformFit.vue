@@ -48,10 +48,20 @@ const differences = [
 <style scoped>
 .fit {
   --rule: rgba(255, 255, 255, 0.09);
-  /* El ancho del bloque (plataforma y diferencias), alineado con el título: el que
-     deja entrar el título y la plataforma en una pantalla (header, título, aire,
-     pestañas y margen ≈ 323 px), nunca menos de 720 */
-  --fit-w: min(100%, max(720px, calc((100vh - 323px) * 16 / 9)));
+  /* El ancho del bloque (título, plataforma y diferencias), centrado en la página: sale
+     del alto de la pantalla (header, pestañas y margen ≈ 240 px) para que la plataforma
+     entre casi entera, nunca menos de 900 ni más que el contenedor */
+  --fit-w: min(100%, max(900px, calc((100vh - 240px) * 16 / 9)));
+}
+
+/* Todo el bloque centrado; el título, alineado con el borde de la plataforma */
+.fit-title,
+.fit-stage,
+.fit-list,
+.fit-close {
+  max-width: var(--fit-w);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .fit-title {
@@ -67,7 +77,6 @@ const differences = [
 
 /* La plataforma, grande */
 .fit-stage {
-  max-width: var(--fit-w);
   margin-top: clamp(36px, 4vw, 56px);
   overflow: hidden;
   border: 1px solid var(--rule);
@@ -109,9 +118,8 @@ const differences = [
 .fit-list {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  max-width: var(--fit-w);
   gap: clamp(20px, 2.4vw, 40px);
-  margin: clamp(40px, 4.5vw, 64px) 0 0;
+  margin-top: clamp(40px, 4.5vw, 64px);
   padding: 0;
   list-style: none;
 }

@@ -55,8 +55,9 @@ const PIEZAS = {
   ask: { escritorio: [708, 113], celular: [342, 72] },
   report: { escritorio: [708, 529], celular: [342, 485] },
   // «A tu medida» (PlatformFit.vue). En escritorio la caja crece con el alto de la
-  // pantalla (hasta 1398 × 786): 1120 × 630 cubre a DPR 2 las notebooks comunes
-  medida: { escritorio: [1120, 630], celular: [340, 433] },
+  // pantalla, centrada, hasta el ancho del contenedor: 1280 × 720 cubre a DPR 2 las
+  // notebooks comunes y a DPR 1 cualquier monitor
+  medida: { escritorio: [1280, 720], celular: [340, 433] },
   // El hero (PlatformStage.vue): la pantalla dentro del marco, sin el marco
   hero: { escritorio: [1224, 765], celular: [330, 660] },
   // Las páginas por tema (TopicPage.vue, temaPieces.js): solo las versiones que faltan.
