@@ -42,7 +42,7 @@
     </section>
 
     <!-- ==================== PARTNER ==================== -->
-    <section id="alianza" class="section partner-section">
+    <section id="alianza" class="partner-section">
       <div class="container">
         <PartnerBand />
       </div>
