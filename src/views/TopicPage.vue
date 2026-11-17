@@ -13,6 +13,7 @@ import PlatformVideo from '@/components/PlatformVideo.vue'
 import ContactAsk from '@/components/ContactAsk.vue'
 import SiteFooter from '@/components/SiteFooter.vue'
 import SensorField from '@/components/SensorField.vue'
+import FaqSection from '@/components/FaqSection.vue'
 import { TEMAS, temaPorSlug } from '@/content/temas'
 import { useLandingMotion } from '@/composables/useLandingMotion'
 import { usePageMeta } from '@/composables/usePageMeta'
@@ -114,15 +115,10 @@ usePageMeta(tema.value)
       </div>
     </section>
 
+    <!-- Las mismas preguntas frecuentes que la landing (en el celular, un desplegable) -->
     <section class="section" aria-labelledby="faq-title">
       <div class="container">
-        <h2 id="faq-title" class="topic-h2" data-reveal>Preguntas frecuentes</h2>
-        <dl class="topic-faq">
-          <div v-for="item in tema.faq" :key="item.q" class="topic-faq-item" data-reveal>
-            <dt>{{ item.q }}</dt>
-            <dd>{{ item.a }}</dd>
-          </div>
-        </dl>
+        <FaqSection :items="tema.faq" :subtitle="`${tema.eyebrow}.`" title-id="faq-title" />
       </div>
     </section>
 
@@ -194,8 +190,6 @@ usePageMeta(tema.value)
 .topic-step-title,
 .topic-step-text,
 .topic-h2,
-.topic-faq,
-.topic-faq-item dd,
 .topic-links {
   margin: 0;
   padding: 0;
@@ -373,31 +367,9 @@ usePageMeta(tema.value)
   letter-spacing: -0.03em;
 }
 
-.topic-faq {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0 clamp(32px, 4vw, 72px);
-  margin-top: clamp(36px, 4vw, 56px);
-}
 
-.topic-faq-item {
-  padding: 24px 0 28px;
-  border-top: 1px solid var(--line);
-}
 
-.topic-faq-item dt {
-  font-size: clamp(17px, 1.35vw, 20px);
-  font-weight: 400;
-  line-height: 1.35;
-  letter-spacing: -0.015em;
-}
 
-.topic-faq-item dd {
-  margin-top: 10px;
-  font-size: 16px;
-  line-height: 1.55;
-  color: var(--text-2);
-}
 
 .topic-h2 span {
   color: var(--text-3);
@@ -499,9 +471,6 @@ usePageMeta(tema.value)
     order: 0;
   }
 
-  .topic-faq {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 768px) {

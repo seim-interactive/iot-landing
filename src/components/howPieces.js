@@ -118,7 +118,18 @@ export const HOW_PIECES = {
       float(row)
       // El campo solo: sin los bordes del panel del chat alrededor
       for (let node = row.parentElement; node && node.tagName !== 'BODY'; node = node.parentElement) node.style.border = 'none'
-      await d.wait(700)
+      // El panel entra deslizándose (en el celular, más lento): se encuadra recién cuando el
+      // campo dejó de moverse. Medido antes, la cámara apuntaba a donde el campo no está
+      let last = null
+      let still = 0
+      await d.until(() => {
+        const r = rectOf(row)
+        // Quieto y adentro de la pantalla de la app (antes de deslizarse está quieto, afuera)
+        const inside = r.left >= 0 && r.right <= d.win().innerWidth + 1
+        still = inside && last !== null && Math.abs(r.left - last) < 0.5 ? still + 1 : 0
+        last = r.left
+        return still >= 3
+      }, 6000)
       if (!this.started) {
         const { w } = stageOf(d)
         const r = rectOf(row)
