@@ -1,1 +1,0 @@
-import{d as a,e as o,h as r,aF as s,k as t,ci as n,aU as _}from"./main-CpgholBn.js";const f=a({__name:"PageHeaderActions",setup(c){return(e,p)=>(o(),r(s,{defer:"",to:`#${t(n)}`},[_(e.$slots,"default")],8,["to"]))}});export{f as _};

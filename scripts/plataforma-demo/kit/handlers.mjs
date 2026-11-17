@@ -103,11 +103,13 @@ const CREATED_AT = '2025-03-10T13:00:00.000Z';
 const actor = (email = USER.email, source = 'user') => ({ email, source });
 
 /**
- * Los cuatro equipos. Cada uno tiene las mismas nueve métricas (con otro
- * nombre y otra escala), así los cuatro tableros salen de la misma plantilla.
- *  - prod / rej: contadores del día (vuelven a 0 con la jornada).
+ * Los cuatro equipos. Todos comparten diez métricas de base (con otro nombre
+ * y otra escala), que son las que usan Activos, Acciones y Argus:
+ *  - prod / rej / energy: contadores del día (vuelven a 0 con la jornada).
  *  - speed / temp / pres / power: medidores.
  *  - run / starved / fault: estados.
+ * Además, cada tipo de máquina suma las suyas (ver EXTRAS) y tiene su propio
+ * tablero (ver DASHBOARDS): la Envasadora 1 es la de referencia.
  */
 const MACHINES = [
   {
@@ -262,6 +264,16 @@ function stopsOfDay(m, dayStart, now) {
       stops.unshift({ id: `stop-${m.key}-actual`, start, end: Infinity, reason: m.stoppedNow, hasReason: true, ongoing: true });
     }
   }
+  // La Envasadora 1 siempre tiene una parada de hoy para ponerle el motivo: si la
+  // jornada recién arranca y todavía no tuvo ninguna, una corta por falta de film,
+  // antes de que empiecen a moverse las mordazas y el aire (ver env1Drift).
+  if (m.key === 'env1' && dayStart === dayStartOf(boot) && !stops.some((s) => !s.micro) && boot - dayStart >= 45 * MIN) {
+    const start = Math.max(dayStart + 8 * MIN, boot - 70 * MIN);
+    const end = start + 5 * MIN + 20 * SEC;
+    stops = stops.filter((s) => s.end < start - 5 * MIN || s.start > end + 5 * MIN);
+    stops.push({ id: `stop-${m.key}-${dayNo}-r`, start, end, reason: m.reasons[0], hasReason: false, ongoing: false });
+    stops.sort((a, b) => a.start - b.start);
+  }
   // En las envasadoras, la última parada terminada todavía no tiene el motivo cargado
   if (m.key === 'env1' || m.key === 'env2') {
     const ended = stops.filter((s) => !s.micro && !s.ongoing);
@@ -384,8 +396,96 @@ function countedBetween(m, which, from, to, now) {
   return total;
 }
 
-/** El catálogo de métricas de un equipo. */
+/* ───────────────────────── lo propio de cada tipo de máquina ───────────────────────── */
+
+/** Ruido de proceso: una deriva lenta, una oscilación media y el temblor de la lectura. */
+const wobble = (t, seed, slow, mid) => 0.65 * noise(t, slow, seed) + 0.28 * noise(t, mid, seed + 1) + 0.07 * noise(t, 30 * SEC, seed + 2);
+
+/** Litros por botella del producto que corre ese día en la Llenadora. */
+function litersPerBottle(t) {
+  const products = PRODUCTS.llen;
+  return /1,5 l/.test(products[Math.floor(dayStartOf(t) / DAY) % products.length]) ? 1.5 : 0.5;
+}
+
+/**
+ * Horno: cuánto cae la temperatura (°C) cuando un quemador no enciende. Baja
+ * 1,5 °C por minuto mientras dura la falla y se recupera en unos minutos.
+ */
+function burnerDip(m, t, now) {
+  let dip = 0;
+  for (const s of stopsOfDay(m, dayStartOf(t), now)) {
+    if (s.reason.code !== 'falla_quemador' || t <= s.start) continue;
+    const depth = Math.min(16, ((Math.min(t, s.end) - s.start) / MIN) * 1.5);
+    dip = Math.max(dip, t < s.end ? depth : depth * Math.exp(-(t - s.end) / (5 * MIN)));
+  }
+  return dip;
+}
+const zoneTemp = (base, amp, seed, dipShare) => (m, t, now) => base + amp * wobble(t, m.seed + seed, 34 * MIN, 6 * MIN) - dipShare * burnerDip(m, t, now);
+const burnerFailed = (stop) => !!stop && stop.reason.code === 'falla_quemador';
+
+/** m³ de gas por kWh eléctrico: los dos siguen a la carga del horno. */
+const GAS_PER_KWH = 0.72;
+
+/**
+ * Las métricas que tiene cada equipo además de las de base:
+ *  - gauge: `at(m, t, now)` da el valor en un instante;
+ *  - counter: una parte (`share`) de un contador de base (`of`);
+ *  - state: `on(parada)` dice si está activo, según la parada que haya en ese instante.
+ */
+const EXTRAS = {
+  env2: [
+    {
+      id: 'tension_film', label: 'Tensión de film', valueType: 'gauge', unit: 'N', decimals: 1,
+      // Con la máquina detenida el film queda flojo
+      at: (m, t, now) => (24 + 1.5 * wobble(t, m.seed + 60, 17 * MIN, 2 * MIN)) * (0.3 + 0.7 * runFactor(m, t, now)),
+    },
+    { id: 'temp_sellado_h', label: 'Sellado horizontal', valueType: 'gauge', unit: '°C', decimals: 1, at: (m, t, now) => tempAt(m, t, now) },
+    { id: 'temp_sellado_v', label: 'Sellado vertical', valueType: 'gauge', unit: '°C', decimals: 1, at: (m, t) => 131 + 1.6 * wobble(t, m.seed + 64, 29 * MIN, 4 * MIN) },
+  ],
+  llen: [
+    {
+      id: 'nivel_tanque', label: 'Nivel de tanque', valueType: 'gauge', unit: '%', decimals: 1,
+      // Llenando, el tanque oscila con el consumo; con la máquina detenida se
+      // completa hasta que cierra la entrada y queda quieto.
+      at: (m, t, now) => {
+        const running = 68 + 9 * noise(t, 21 * MIN, m.seed + 70) + 3 * noise(t, 4 * MIN, m.seed + 71) + 0.3 * noise(t, 30 * SEC, m.seed + 72);
+        const stopStart = bootTime(now) - m.stoppedNow.sinceMin * MIN;
+        const full = 93 + 0.25 * noise(t, 2 * MIN, m.seed + 73);
+        return running + (full - running) * ease(ramp(t, stopStart, stopStart + 12 * MIN));
+      },
+    },
+    {
+      id: 'caudal_llenado', label: 'Caudal', valueType: 'gauge', unit: 'l/min', decimals: 1,
+      at: (m, t, now) => speedAt(m, t, now) * litersPerBottle(t) * (1 + 0.006 * noise(t, 45 * SEC, m.seed + 75)),
+    },
+    { id: 'rechazos_nivel', label: 'Rechazos por nivel', valueType: 'counter', unit: 'bot', of: 'rej', share: 0.64 },
+    { id: 'valvula_abierta', label: 'Válvula abierta', valueType: 'state', on: (stop) => !stop },
+  ],
+  horno: [
+    { id: 'temp_zona_1', label: 'Zona 1', valueType: 'gauge', unit: '°C', decimals: 1, at: zoneTemp(204, 2.4, 80, 0.35) },
+    { id: 'temp_zona_2', label: 'Zona 2', valueType: 'gauge', unit: '°C', decimals: 1, at: zoneTemp(225, 3.0, 83, 1) },
+    { id: 'temp_zona_3', label: 'Zona 3', valueType: 'gauge', unit: '°C', decimals: 1, at: zoneTemp(212, 2.0, 86, 0.5) },
+    { id: 'setpoint_zona_2', label: 'Setpoint', valueType: 'gauge', unit: '°C', decimals: 0, at: () => 225 },
+    {
+      id: 'consumo_gas', label: 'Consumo de gas', valueType: 'gauge', unit: 'm³/h', decimals: 1,
+      // Sigue a la carga del horno; con un quemador apagado, un tercio menos
+      at: (m, t, now) => GAS_PER_KWH * powerAt(m, t, now) * (burnerFailed(stopAt(m, t, now)) ? 0.67 : 1),
+    },
+    { id: 'gas_consumido', label: 'Gas consumido', valueType: 'counter', unit: 'm³', of: 'energy', share: GAS_PER_KWH },
+    { id: 'velocidad_banda', label: 'Velocidad de banda', valueType: 'gauge', unit: 'm/min', decimals: 1, at: (m, t, now) => speedAt(m, t, now) * 0.6 },
+    { id: 'quemador_1', label: 'Quemador 1', valueType: 'state', on: () => true },
+    { id: 'quemador_2', label: 'Quemador 2', valueType: 'state', on: (stop) => !burnerFailed(stop) },
+    { id: 'quemador_3', label: 'Quemador 3', valueType: 'state', on: () => true },
+  ],
+};
+/** El catálogo de métricas de un equipo: las de base y las propias. */
 function metricsOf(m) {
+  return [
+    ...baseMetricsOf(m),
+    ...(EXTRAS[m.key] || []).map((x) => ({ ...x, kind: 'extra', unit: x.unit ?? null, role: null })),
+  ];
+}
+function baseMetricsOf(m) {
   return [
     { ...m.prod, kind: 'prod', valueType: 'counter', unit: m.prodUnit, role: 'produced' },
     { ...m.rej, kind: 'rej', valueType: 'counter', unit: m.prodUnit, role: 'rejected' },
@@ -403,7 +503,15 @@ const metricOf = (m, metricId) => metricsOf(m).find((x) => x.id === metricId) ||
 
 const DECIMALS = { speed: 1, temp: 1, pres: 2, power: 1 };
 
-/** El valor de una métrica en un instante, como lo manda el PLC. */
+/** El valor de una métrica (de base o propia) en un instante, como lo manda el PLC. */
+function metricValueAt(m, metric, t, now) {
+  if (metric.kind !== 'extra') return valueAt(m, metric.kind, t, now);
+  if (metric.valueType === 'state') return metric.on(stopAt(m, t, now));
+  if (metric.valueType === 'counter') return Math.floor(counterAt(m, metric.of, t, now) * metric.share);
+  return round(metric.at(m, t, now), metric.decimals);
+}
+
+/** El valor de una métrica de base en un instante. */
 function valueAt(m, kind, t, now) {
   switch (kind) {
     case 'prod': return counterAt(m, 'prod', t, now);
@@ -515,6 +623,162 @@ function areaChart(m, metric, { color, hours = 8, interval = 5, yMin, yMax, aggr
   };
 }
 
+/** Varias métricas en un mismo gráfico, como líneas (un área casi sin relleno). */
+function lineChart(metricIds, { color, hours = 8, interval = 5, yMin, yMax }) {
+  return {
+    ...areaChart(null, { id: metricIds[0] }, { color, hours, interval, yMin, yMax }),
+    metrics: metricIds.map((metricId) => ({ metricId })),
+    areaOpacity: 0.06,
+    showLegend: true,
+  };
+}
+function hourlyBars(metricId, color) {
+  return {
+    metrics: [{ metricId }],
+    seriesQuery: { resolutionMode: 'fixed', intervalMinutes: 60, timeRange: { type: 'operationalDay', date: null } },
+    timeRange: { type: 'operationalDay', relative: { value: 24, unit: 'hours' }, absolute: { from: '', to: '' }, date: null, shiftIndex: 1 },
+    chartStyle: 'bar', color, horizontal: false, xAxisName: '', yAxisName: '', yAxisMin: 0, yAxisMax: null,
+    showBarLabels: false, showGridLines: true, showTooltip: true, userEditable: { timeRange: false },
+  };
+}
+const stateTimelineOf = (m, metricIds, hours = 8) => ({
+  signals: metricIds.map((metricId) => ({ plcId: m.id, metricId })),
+  timeRange: lastRange(hours, 'hours'),
+  userEditable: { timeRange: true },
+});
+
+/**
+ * El tablero de cada equipo: `w(n, tipo, título, métrica, unidad, config, lugar)`.
+ * La grilla tiene 12 columnas. Los títulos se capitalizan solos en la pantalla.
+ */
+const DASHBOARDS = {
+  // Envasadora 1, la de referencia: contadores y luces arriba, áreas, indicadores y la jornada
+  env1(m, w) {
+    const theoretical = Math.round(m.nominal * 1.08);
+    return [
+      // Arriba: los contadores del día y las luces de estado
+      w(1, 'counter', 'Producido hoy', m.prod.id, m.prodUnit, { color: 'green' }, { x: 0, y: 0, w: 2, h: 2 }),
+      w(2, 'counter', 'Rechazos hoy', m.rej.id, m.prodUnit, { color: 'red' }, { x: 2, y: 0, w: 2, h: 2 }),
+      w(3, 'counter', 'Energía hoy', m.energy.id, 'kWh', { color: 'blue' }, { x: 4, y: 0, w: 2, h: 2 }),
+      w(4, 'status', m.run.label, m.run.id, null, { color: 'green' }, { x: 6, y: 0, w: 2, h: 2 }),
+      w(5, 'status', m.starved.label, m.starved.id, null, { color: 'yellow' }, { x: 8, y: 0, w: 2, h: 2 }),
+      w(6, 'status', m.fault.label, m.fault.id, null, { color: 'red' }, { x: 10, y: 0, w: 2, h: 2 }),
+
+      // Las áreas de las últimas 8 horas
+      w(7, 'chart', m.speed.label, m.speed.id, m.speedUnit,
+        areaChart(m, m.speed, { color: 'cyan', yMin: 0, yMax: m.speedMax }), { x: 0, y: 2, w: 4, h: 4 }),
+      w(8, 'chart', m.temp.label, m.temp.id, m.temp.unit,
+        areaChart(m, m.temp, { color: 'orange', yMin: m.temp.min, yMax: m.temp.max }), { x: 4, y: 2, w: 4, h: 4 }),
+      w(9, 'chart', m.power.label, m.power.id, m.power.unit,
+        areaChart(m, m.power, { color: 'purple', yMin: m.power.min, yMax: m.power.max }), { x: 8, y: 2, w: 4, h: 4 }),
+      w(10, 'chart', m.pres.label, m.pres.id, m.pres.unit,
+        areaChart(m, m.pres, { color: 'blue', yMin: m.pres.min, yMax: m.pres.max }), { x: 0, y: 6, w: 6, h: 4 }),
+
+      // Los indicadores
+      w(11, 'gauge', m.speed.label, m.speed.id, m.speedUnit, { max: m.speedMax }, { x: 6, y: 6, w: 3, h: 4 }),
+      w(12, 'gauge', 'Rendimiento de línea', m.speed.id, '%', {
+        efficiency: { enabled: true, theoreticalProduction: theoretical },
+        userEditable: { theoreticalProduction: true },
+      }, { x: 9, y: 6, w: 3, h: 4 }),
+
+      // La producción por hora de la jornada y la línea de estado
+      w(13, 'chart', 'Producción por hora', m.prod.id, m.prodUnit, {
+        metrics: [{ metricId: m.prod.id }],
+        seriesQuery: { resolutionMode: 'fixed', intervalMinutes: 60, timeRange: { type: 'operationalDay', date: null } },
+        timeRange: { type: 'operationalDay', relative: { value: 24, unit: 'hours' }, absolute: { from: '', to: '' }, date: null, shiftIndex: 1 },
+        chartStyle: 'bar', color: 'green', horizontal: false, xAxisName: '', yAxisName: '', yAxisMin: 0, yAxisMax: null,
+        showBarLabels: false, showGridLines: true, showTooltip: true, userEditable: { timeRange: false },
+      }, { x: 0, y: 10, w: 6, h: 4 }),
+      w(14, 'state_timeline', 'Estados de la máquina', m.run.id, null, {
+        signals: [m.run, m.starved, m.fault].map((s) => ({ plcId: m.id, metricId: s.id })),
+        timeRange: lastRange(8, 'hours'),
+        userEditable: { timeRange: true },
+      }, { x: 6, y: 10, w: 6, h: 4 }),
+    ];
+  },
+
+  // Envasadora 2: los indicadores primero, y lo suyo es el film y las dos temperaturas de sellado
+  env2(m, w) {
+    return [
+      w(1, 'gauge', m.speed.label, m.speed.id, m.speedUnit, { max: m.speedMax }, { x: 0, y: 0, w: 3, h: 4 }),
+      w(2, 'gauge', 'Tensión de film', 'tension_film', 'N', { max: 40 }, { x: 3, y: 0, w: 3, h: 4 }),
+      w(3, 'counter', 'Producido hoy', m.prod.id, m.prodUnit, { color: 'green' }, { x: 6, y: 0, w: 3, h: 2 }),
+      w(4, 'counter', 'Rechazos hoy', m.rej.id, m.prodUnit, { color: 'red' }, { x: 9, y: 0, w: 3, h: 2 }),
+      w(5, 'status', m.run.label, m.run.id, null, { color: 'green' }, { x: 6, y: 2, w: 2, h: 2 }),
+      w(6, 'status', m.starved.label, m.starved.id, null, { color: 'yellow' }, { x: 8, y: 2, w: 2, h: 2 }),
+      w(7, 'status', m.fault.label, m.fault.id, null, { color: 'red' }, { x: 10, y: 2, w: 2, h: 2 }),
+
+      w(8, 'chart', 'Temperatura de sellado', 'temp_sellado_h', '°C',
+        lineChart(['temp_sellado_h', 'temp_sellado_v'], { color: 'orange', yMin: 120, yMax: 160 }), { x: 0, y: 4, w: 7, h: 4 }),
+      w(9, 'chart', 'Tensión de film', 'tension_film', 'N',
+        areaChart(m, { id: 'tension_film' }, { color: 'cyan', yMin: 0, yMax: 40 }), { x: 7, y: 4, w: 5, h: 4 }),
+
+      w(10, 'state_timeline', 'Estados de la máquina', m.run.id, null,
+        stateTimelineOf(m, [m.run.id, m.starved.id, m.fault.id]), { x: 0, y: 8, w: 12, h: 3 }),
+
+      w(11, 'chart', 'Producción por hora', m.prod.id, m.prodUnit, hourlyBars(m.prod.id, 'green'), { x: 0, y: 11, w: 6, h: 4 }),
+      w(12, 'chart', m.pres.label, m.pres.id, m.pres.unit,
+        areaChart(m, m.pres, { color: 'blue', yMin: m.pres.min, yMax: m.pres.max }), { x: 6, y: 11, w: 6, h: 4 }),
+    ];
+  },
+
+  // Llenadora: la presión de llenado, el tanque, el caudal y la válvula
+  llen(m, w) {
+    return [
+      // Tres horas, minuto a minuto: se ve la caída que la detuvo. (Va como gráfico y
+      // no como indicador: el indicador redondea a enteros y 2,06 bar quedaría en «2».)
+      w(1, 'chart', m.pres.label, m.pres.id, m.pres.unit,
+        areaChart(m, m.pres, { color: 'blue', hours: 3, interval: 1, yMin: m.pres.min, yMax: m.pres.max }), { x: 0, y: 0, w: 8, h: 4 }),
+      w(2, 'status', 'Válvula abierta', 'valvula_abierta', null, { color: 'blue' }, { x: 8, y: 0, w: 2, h: 2 }),
+      w(3, 'status', m.run.label, m.run.id, null, { color: 'green' }, { x: 10, y: 0, w: 2, h: 2 }),
+      w(4, 'counter', 'Botellas producidas', m.prod.id, m.prodUnit, { color: 'green' }, { x: 8, y: 2, w: 2, h: 2 }),
+      w(5, 'counter', 'Rechazos por nivel', 'rechazos_nivel', m.prodUnit, { color: 'red' }, { x: 10, y: 2, w: 2, h: 2 }),
+
+      w(6, 'gauge', 'Nivel de tanque', 'nivel_tanque', '%', { max: 100 }, { x: 0, y: 4, w: 4, h: 4 }),
+      w(7, 'gauge', 'Botellas por minuto', m.speed.id, m.speedUnit, { max: m.speedMax }, { x: 4, y: 4, w: 4, h: 4 }),
+      w(8, 'gauge', m.temp.label, m.temp.id, m.temp.unit, { max: m.temp.gaugeMax }, { x: 8, y: 4, w: 4, h: 4 }),
+
+      w(9, 'chart', 'Caudal', 'caudal_llenado', 'l/min',
+        areaChart(m, { id: 'caudal_llenado' }, { color: 'cyan', yMin: 0 }), { x: 0, y: 8, w: 6, h: 4 }),
+      w(10, 'chart', 'Nivel de tanque', 'nivel_tanque', '%',
+        areaChart(m, { id: 'nivel_tanque' }, { color: 'purple', yMin: 0, yMax: 100 }), { x: 6, y: 8, w: 6, h: 4 }),
+
+      w(11, 'chart', 'Botellas por hora', m.prod.id, m.prodUnit, hourlyBars(m.prod.id, 'green'), { x: 0, y: 12, w: 6, h: 4 }),
+      w(12, 'state_timeline', 'Estados de la máquina', m.run.id, null,
+        stateTimelineOf(m, [m.run.id, 'valvula_abierta', m.starved.id, m.fault.id]), { x: 6, y: 12, w: 6, h: 4 }),
+    ];
+  },
+
+  // Horno: temperatura por zona, quemadores y gas; pocos contadores
+  horno(m, w) {
+    const zone = (n) => `temp_zona_${n}`;
+    return [
+      w(1, 'gauge', 'Zona 1', zone(1), '°C', { max: 300 }, { x: 0, y: 0, w: 4, h: 4 }),
+      w(2, 'gauge', 'Zona 2', zone(2), '°C', { max: 300 }, { x: 4, y: 0, w: 4, h: 4 }),
+      w(3, 'gauge', 'Zona 3', zone(3), '°C', { max: 300 }, { x: 8, y: 0, w: 4, h: 4 }),
+
+      w(4, 'chart', 'Temperatura por zona', zone(1), '°C',
+        lineChart([zone(1), zone(2), zone(3)], { color: 'orange', yMin: 190, yMax: 240 }), { x: 0, y: 4, w: 8, h: 4 }),
+      w(5, 'status', 'Quemador 1', 'quemador_1', null, { color: 'yellow' }, { x: 8, y: 4, w: 2, h: 2 }),
+      w(6, 'status', 'Quemador 2', 'quemador_2', null, { color: 'yellow' }, { x: 10, y: 4, w: 2, h: 2 }),
+      w(7, 'status', 'Quemador 3', 'quemador_3', null, { color: 'yellow' }, { x: 8, y: 6, w: 2, h: 2 }),
+      w(8, 'status', m.run.label, m.run.id, null, { color: 'green' }, { x: 10, y: 6, w: 2, h: 2 }),
+
+      // Dos horas, minuto a minuto: cómo sigue la zona 2 a su setpoint
+      w(9, 'chart', 'Control zona 2', zone(2), '°C',
+        lineChart([zone(2), 'setpoint_zona_2'], { color: 'red', hours: 2, interval: 1, yMin: 210, yMax: 240 }), { x: 0, y: 8, w: 6, h: 4 }),
+      w(10, 'chart', 'Consumo de gas', 'consumo_gas', 'm³/h',
+        areaChart(m, { id: 'consumo_gas' }, { color: 'blue', yMin: 0, yMax: 30 }), { x: 6, y: 8, w: 6, h: 4 }),
+
+      w(11, 'gauge', 'Velocidad de banda', 'velocidad_banda', 'm/min', { max: 12 }, { x: 0, y: 12, w: 3, h: 4 }),
+      w(12, 'counter', 'Bandejas producidas', m.prod.id, m.prodUnit, { color: 'green' }, { x: 3, y: 12, w: 3, h: 2 }),
+      w(13, 'counter', 'Gas consumido', 'gas_consumido', 'm³', { color: 'blue' }, { x: 3, y: 14, w: 3, h: 2 }),
+      w(14, 'state_timeline', 'Quemadores', m.run.id, null,
+        stateTimelineOf(m, [m.run.id, 'quemador_1', 'quemador_2', 'quemador_3']), { x: 6, y: 12, w: 6, h: 4 }),
+    ];
+  },
+};
+
 function dashboardOf(m) {
   const did = `d0${m.id.slice(2)}`;
   const wid = (n) => `${did.slice(0, -2)}${String(n).padStart(2, '0')}`.replace(/^d0/, 'e0');
@@ -523,47 +787,7 @@ function dashboardOf(m) {
     id: wid(n), widgetKey: `${m.key}-${n}`, type, label, metricId, unit: unit ?? null, dataType: null,
     configJson, layoutJson, sortOrder: order++, isVisible: true,
   });
-  const theoretical = Math.round(m.nominal * 1.08);
-  const widgets = [
-    // Arriba: los contadores del día y las luces de estado
-    w(1, 'counter', 'Producido hoy', m.prod.id, m.prodUnit, { color: 'green' }, { x: 0, y: 0, w: 2, h: 2 }),
-    w(2, 'counter', 'Rechazos hoy', m.rej.id, m.prodUnit, { color: 'red' }, { x: 2, y: 0, w: 2, h: 2 }),
-    w(3, 'counter', 'Energía hoy', m.energy.id, 'kWh', { color: 'blue' }, { x: 4, y: 0, w: 2, h: 2 }),
-    w(4, 'status', m.run.label, m.run.id, null, { color: 'green' }, { x: 6, y: 0, w: 2, h: 2 }),
-    w(5, 'status', m.starved.label, m.starved.id, null, { color: 'yellow' }, { x: 8, y: 0, w: 2, h: 2 }),
-    w(6, 'status', m.fault.label, m.fault.id, null, { color: 'red' }, { x: 10, y: 0, w: 2, h: 2 }),
-
-    // Las áreas de las últimas 8 horas
-    w(7, 'chart', m.speed.label, m.speed.id, m.speedUnit,
-      areaChart(m, m.speed, { color: 'cyan', yMin: 0, yMax: m.speedMax }), { x: 0, y: 2, w: 4, h: 4 }),
-    w(8, 'chart', m.temp.label, m.temp.id, m.temp.unit,
-      areaChart(m, m.temp, { color: 'orange', yMin: m.temp.min, yMax: m.temp.max }), { x: 4, y: 2, w: 4, h: 4 }),
-    w(9, 'chart', m.power.label, m.power.id, m.power.unit,
-      areaChart(m, m.power, { color: 'purple', yMin: m.power.min, yMax: m.power.max }), { x: 8, y: 2, w: 4, h: 4 }),
-    w(10, 'chart', m.pres.label, m.pres.id, m.pres.unit,
-      areaChart(m, m.pres, { color: 'blue', yMin: m.pres.min, yMax: m.pres.max }), { x: 0, y: 6, w: 6, h: 4 }),
-
-    // Los indicadores
-    w(11, 'gauge', m.speed.label, m.speed.id, m.speedUnit, { max: m.speedMax }, { x: 6, y: 6, w: 3, h: 4 }),
-    w(12, 'gauge', 'Rendimiento de línea', m.speed.id, '%', {
-      efficiency: { enabled: true, theoreticalProduction: theoretical },
-      userEditable: { theoreticalProduction: true },
-    }, { x: 9, y: 6, w: 3, h: 4 }),
-
-    // La producción por hora de la jornada y la línea de estado
-    w(13, 'chart', 'Producción por hora', m.prod.id, m.prodUnit, {
-      metrics: [{ metricId: m.prod.id }],
-      seriesQuery: { resolutionMode: 'fixed', intervalMinutes: 60, timeRange: { type: 'operationalDay', date: null } },
-      timeRange: { type: 'operationalDay', relative: { value: 24, unit: 'hours' }, absolute: { from: '', to: '' }, date: null, shiftIndex: 1 },
-      chartStyle: 'bar', color: 'green', horizontal: false, xAxisName: '', yAxisName: '', yAxisMin: 0, yAxisMax: null,
-      showBarLabels: false, showGridLines: true, showTooltip: true, userEditable: { timeRange: false },
-    }, { x: 0, y: 10, w: 6, h: 4 }),
-    w(14, 'state_timeline', 'Estados de la máquina', m.run.id, null, {
-      signals: [m.run, m.starved, m.fault].map((s) => ({ plcId: m.id, metricId: s.id })),
-      timeRange: lastRange(8, 'hours'),
-      userEditable: { timeRange: true },
-    }, { x: 6, y: 10, w: 6, h: 4 }),
-  ];
+  const widgets = (DASHBOARDS[m.key] || DASHBOARDS.env1)(m, w);
   return {
     tenant: { ...TENANT },
     plant: { id: PLANT.id, plantId: PLANT.plantId, name: PLANT.name, province: PLANT.province, timezone: TZ, operationalDayStartMinutes: DAY_START_MIN },
@@ -641,17 +865,19 @@ function seriesData(body, now) {
       const bEnd = Math.min(b + step, end);
       let value;
       if (metric.valueType === 'counter') {
-        value = countedBetween(m, metric.kind, Math.max(b, from), bEnd, now);
+        value = metric.kind === 'extra'
+          ? Math.round(countedBetween(m, metric.of, Math.max(b, from), bEnd, now) * metric.share)
+          : countedBetween(m, metric.kind, Math.max(b, from), bEnd, now);
       } else {
         const agg = item.pointAggregate || 'avg';
         const n = Math.max(2, Math.min(12, Math.round((bEnd - b) / MIN)));
         const samples = [];
-        for (let k = 0; k < n; k++) samples.push(sample(m, metric.kind, b + ((k + 0.5) * (bEnd - b)) / n, now));
+        for (let k = 0; k < n; k++) samples.push(sample(m, metric, b + ((k + 0.5) * (bEnd - b)) / n, now));
         if (agg === 'min') value = Math.min(...samples);
         else if (agg === 'max') value = Math.max(...samples);
         else if (agg === 'last') value = samples[samples.length - 1];
         else value = samples.reduce((a, c) => a + c, 0) / n;
-        value = round(value, metric.kind === 'pres' && m.pres.unit !== 'mbar' ? 2 : 1);
+        value = round(value, metric.kind === 'extra' ? metric.decimals : metric.kind === 'pres' && m.pres.unit !== 'mbar' ? 2 : 1);
       }
       points.push({ ts: iso(b), value });
     }
@@ -679,7 +905,9 @@ function seriesData(body, now) {
     series,
   };
 }
-function sample(m, kind, t, now) {
+function sample(m, metric, t, now) {
+  const kind = metric.kind;
+  if (kind === 'extra') return metric.at(m, t, now);
   if (kind === 'speed') return speedAt(m, t, now);
   if (kind === 'temp') return tempAt(m, t, now);
   if (kind === 'pres') return presAt(m, t, now);
@@ -694,7 +922,7 @@ function stateTimeline(body, now) {
     const m = machineBy(ref.plcId);
     const metric = metricOf(m, ref.metricId);
     const kind = metric?.kind || 'run';
-    const isTrue = (stop) => (kind === 'run' ? !stop : !!stop && stop.reason.kind === kind);
+    const isTrue = (stop) => (kind === 'extra' ? metric.on(stop) : kind === 'run' ? !stop : !!stop && stop.reason.kind === kind);
     // Los cortes: cada inicio y fin de parada dentro del período
     const cuts = [from];
     for (const s of stopsBetween(m, from, to, now)) {
@@ -791,9 +1019,14 @@ const ALARM_IDS = { temp: 'c4d2e6f8-0a1b-4c3d-9e5f-000000000001', aire: 'c4d2e6f
 function alarmEdits() {
   return globalThis.__plantaDemoAlarmEdits || (globalThis.__plantaDemoAlarmEdits = new Map());
 }
+/** Los motivos de parada cargados en esta sesión: id de la parada → { reasonCode, comment, at }. */
+function stopEdits() {
+  return globalThis.__plantaDemoStopEdits || (globalThis.__plantaDemoStopEdits = new Map());
+}
 
 export function resetDemoState() {
   alarmEdits().clear();
+  stopEdits().clear();
 }
 
 /** Las alarmas sin resolver, con lo que se haya hecho en la sesión. */
@@ -1020,8 +1253,23 @@ function stopDay(m, now) {
     const dur = end - start;
     stoppedMs += dur;
     if (s.micro) { micro++; microMs += dur; continue; }
-    if (s.hasReason) withReason++;
     const h = hash(Math.floor(s.start / SEC) + m.seed * 3);
+    // El motivo que se le puso (o se le cambió) en esta sesión pisa al de origen
+    const edit = stopEdits().get(s.id);
+    if (edit) {
+      const reason = edit.reasonCode ? m.reasons.find((r) => r.code === edit.reasonCode) : null;
+      if (reason) withReason++;
+      views.push({
+        id: s.id, source: 'detected', startTs: iso(s.start), endTs: s.ongoing ? null : iso(s.end),
+        status: s.ongoing ? 'ongoing' : 'ended', lastDataTs: null, durationMs: dur, startedBefore: s.start < from,
+        reason: reason ? { code: reason.code, label: reason.label } : null,
+        comment: edit.comment,
+        reasonSetBy: reason ? actor() : null,
+        reasonSetAt: reason ? iso(edit.at) : null,
+      });
+      continue;
+    }
+    if (s.hasReason) withReason++;
     views.push({
       id: s.id, source: 'detected', startTs: iso(s.start), endTs: s.ongoing ? null : iso(s.end),
       status: s.ongoing ? 'ongoing' : 'ended', lastDataTs: null, durationMs: dur, startedBefore: s.start < from,
@@ -1613,7 +1861,7 @@ export function wsMessages(now = Date.now(), sinceMs = now - WS_TICK_MS) {
   const out = [];
   for (const m of MACHINES) {
     const values = {};
-    for (const metric of metricsOf(m)) values[metric.id] = { value: valueAt(m, metric.kind, now, now), quality: true, ts: now };
+    for (const metric of metricsOf(m)) values[metric.id] = { value: metricValueAt(m, metric, now, now), quality: true, ts: now };
     out.push({ type: 'telemetry', tenantId: TENANT.id, plantId: PLANT.id, plcId: m.id, plcThingName: m.thing, gatewayId: 'gw-pilar-01', ts: now, values });
     // El contador de producción también avisa su corrida (la sección Producción del Hub)
     if (values[m.prod.id].value > 0 && !stopAt(m, now, now)) {
@@ -1706,7 +1954,11 @@ export default {
     const day = stopDay(machineBy(url.pathname.split('/')[4]), nowOf());
     return { mode: day.mode, window: day.window, summary: day.summary };
   },
-  'PUT /api/actions/stops/*/reason': (_url, _req, body) => ({ ok: true, reasonCode: body?.reasonCode ?? null, comment: body?.comment ?? null }),
+  'PUT /api/actions/stops/*/reason': (url, _req, body) => {
+    const edit = { reasonCode: body?.reasonCode ?? null, comment: body?.comment ?? null, at: nowOf() };
+    stopEdits().set(decodeURIComponent(url.pathname.split('/')[4]), edit);
+    return { ok: true, reasonCode: edit.reasonCode, comment: edit.comment };
+  },
   'GET /api/telemetry/runs': (url) => productionRuns(url, nowOf()),
   'GET /api/telemetry/counters/*/total': (url) => counterTotal(url, decodeURIComponent(url.pathname.split('/')[4]), nowOf()),
   'GET /api/telemetry/counters/*/events': { events: [], nextCursor: null },

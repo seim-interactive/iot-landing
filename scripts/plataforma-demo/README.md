@@ -19,6 +19,10 @@ El kit reemplaza tres cosas desde afuera, sin modificar ningún archivo de `iot/
 
 `handlers.mjs` tiene todos los datos: «Planta Demo», con Envasadora 1, Envasadora 2, Llenadora y Horno. Salen de un solo modelo de paradas, así que los números coinciden entre pantallas, y son relativos a la hora actual.
 
+Cada equipo tiene su propio tablero de Mediciones, con las variables de ese tipo de máquina (el Horno, temperatura por zona y gas; la Llenadora, presión de llenado y nivel de tanque). La sección «A tu medida» de la landing depende de que sean distintos.
+
+Lo que se hace en la sesión (reconocer o resolver una alarma, ponerle motivo a una parada) se guarda en memoria y se pierde al recargar. `window.__demoReset()` lo borra sin recargar; la pestaña Paradas recién lo refleja cuando vuelve a pedir los datos.
+
 ## Actualizar la demo cuando cambia la plataforma
 
 ```bash

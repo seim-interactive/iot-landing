@@ -128,10 +128,19 @@ export function createDriver({ frame, cursor, script, reset, camera = false, tou
 
     // La pantalla entera de la app, como rectángulo para la cámara
     const screen = () => ({ left: 0, top: 0, width: frame.offsetWidth, height: frame.offsetHeight })
+    // Vuelve a cargar la app desde su dirección original. No sirve location.reload():
+    // la app ya cambió su propia dirección a la de la ruta (/operations…), que en el
+    // origen de la landing es otra página.
+    async function reload() {
+      frame.src = frame.getAttribute('src')
+      await wait(600)
+      await until(() => doc()?.querySelector('#app')?.firstElementChild && win().__demo, 20000)
+    }
+
     const fade = (opacity, duration = 0.5) => gsap.to(frame, { opacity, duration })
     const hideCursor = () => gsap.to(cursor, { opacity: 0, duration: 0.3 })
 
-    return { wait, find, until, moveTo, click, type, scroll, frameOn, screen, fade, hideCursor, doc, win, touch }
+    return { wait, find, until, moveTo, click, type, scroll, frameOn, screen, reload, fade, hideCursor, doc, win, touch }
   }
 
   async function loop() {

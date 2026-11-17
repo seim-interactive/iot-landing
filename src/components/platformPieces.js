@@ -200,13 +200,12 @@ export const PIECES = [
       await d.frameOn(summary(), { pad: AIR, duration: 1.4 })
       await d.wait(3000)
     },
-    // Borra el motivo cargado y vuelve a entrar a la pestaña.
+    // Recarga la app del cuadrado (ya está en caché): el motivo cargado vivía en
+    // memoria, así que vuelve a estar sin motivo. Borrarlo sin recargar no alcanza,
+    // porque la pestaña recién vuelve a pedir las paradas a los 30 s.
     async reset(d) {
-      d.win().__demoReset?.()
-      d.find('.tab-btn', 'Alarmas')?.click()
-      await d.wait(600)
-      d.find('.tab-btn', 'Paradas')?.click()
-      await d.until(() => d.find('.stops-row', 'Sin motivo'), 12000)
+      await d.reload()
+      await d.until(() => d.find('.tab-btn', 'Paradas'), 15000)
     },
   },
   {
