@@ -129,6 +129,7 @@
           <span>© 2026 Seim Interactive. Todos los derechos reservados.</span>
           <div class="footer-bottom-links">
             <a href="https://seiminteractive.io/" class="footer-bottom-link">Parte de Seim Interactive</a>
+            <a href="https://seiminteractive.io/es/privacidad/" class="footer-bottom-link">Privacidad</a>
             <a href="#top" class="footer-bottom-link">Volver arriba</a>
           </div>
         </div>
@@ -506,8 +507,9 @@ button:focus-visible {
 
 .footer-bottom-links {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 28px;
+  gap: 12px 28px;
 }
 
 .footer-bottom-link {
@@ -601,7 +603,7 @@ button:focus-visible {
   }
 
   .footer-bottom-links {
-    gap: 20px;
+    gap: 10px 20px;
   }
 }
 </style>
