@@ -1,12 +1,17 @@
 import { createServer } from 'node:http'
 import { readFile } from 'node:fs/promises'
-import { writeFile } from 'node:fs/promises'
+import { mkdir, writeFile } from 'node:fs/promises'
 import { extname, join, resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import puppeteer from 'puppeteer'
+import { TEMAS } from '../src/content/temas.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const distDir = resolve(__dirname, '..', 'dist')
+
+// Las páginas que se prerenderizan: la landing y una por tema (src/content/temas.js). Cada
+// una queda en dist/<ruta>/index.html, con su title, su canonical y sus datos estructurados.
+const ROUTES = ['/', ...TEMAS.map((tema) => `/${tema.slug}/`)]
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -98,66 +103,81 @@ async function main() {
     else req.abort('blockedbyclient')
   })
 
-  await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'networkidle0', timeout: 30000 })
+  // Prerenderiza una ruta: espera a que Vue la dibuje y limpia lo que no tiene que quedar
+  async function render(route) {
+    await page.goto(`http://127.0.0.1:${port}${route}`, { waitUntil: 'networkidle0', timeout: 30000 })
 
-  // Wait until Vue has rendered actual content into #app
-  await page.waitForFunction(
-    () => {
-      const app = document.querySelector('#app')
-      return app && app.innerText && app.innerText.trim().length > 200
-    },
-    { timeout: 15000 }
-  )
+    // Wait until Vue has rendered actual content into #app
+    await page.waitForFunction(
+      () => {
+        const app = document.querySelector('#app')
+        return app && app.innerText && app.innerText.trim().length > 200
+      },
+      { timeout: 15000 }
+    )
 
-  // Snapshot the full document
-  const html = await page.evaluate((templateHtml) => {
-    // Strip any GSAP-injected inline styles defensively
-    document.querySelectorAll('[style]').forEach((el) => {
-      const s = el.getAttribute('style') || ''
-      if (/opacity\s*:\s*0|visibility\s*:\s*hidden|transform\s*:\s*translate/i.test(s)) {
-        el.removeAttribute('style')
+    // Snapshot the full document
+    return page.evaluate((templateHtml) => {
+      // Strip any GSAP-injected inline styles defensively
+      document.querySelectorAll('[style]').forEach((el) => {
+        const s = el.getAttribute('style') || ''
+        if (/opacity\s*:\s*0|visibility\s*:\s*hidden|transform\s*:\s*translate/i.test(s)) {
+          el.removeAttribute('style')
+        }
+      })
+
+      // Fuera lo que no está en el index.html original: scripts que agregó alguien en tiempo
+      // de ejecución, iframes y recursos de otros dominios. Se quedan los CSS y modulepreload
+      // propios que suma Vite al cargar la landing (sin ellos, el HTML se vería sin estilos).
+      const original = new DOMParser().parseFromString(templateHtml, 'text/html')
+      const scriptKey = (el) => (el.getAttribute('src') ? 'src:' + el.getAttribute('src') : 'inline:' + el.textContent.trim())
+      const keepScripts = new Set([...original.querySelectorAll('script')].map(scriptKey))
+      const keepLinks = new Set([...original.querySelectorAll('link[href]')].map((el) => el.getAttribute('href')))
+      const ours = (url) => {
+        try { return new URL(url, location.href).origin === location.origin } catch { return false }
       }
-    })
 
-    // Fuera lo que no está en el index.html original: scripts que agregó alguien en tiempo
-    // de ejecución, iframes y recursos de otros dominios. Se quedan los CSS y modulepreload
-    // propios que suma Vite al cargar la landing (sin ellos, el HTML se vería sin estilos).
-    const original = new DOMParser().parseFromString(templateHtml, 'text/html')
-    const scriptKey = (el) => (el.getAttribute('src') ? 'src:' + el.getAttribute('src') : 'inline:' + el.textContent.trim())
-    const keepScripts = new Set([...original.querySelectorAll('script')].map(scriptKey))
-    const keepLinks = new Set([...original.querySelectorAll('link[href]')].map((el) => el.getAttribute('href')))
-    const ours = (url) => {
-      try { return new URL(url, location.href).origin === location.origin } catch { return false }
-    }
+      // Los datos estructurados de cada página por tema los pone ella misma (usePageMeta)
+      const own = (el) => el.type === 'application/ld+json' && el.dataset.page
+      document.querySelectorAll('script').forEach((el) => {
+        if (!keepScripts.has(scriptKey(el)) && !own(el)) el.remove()
+      })
+      document.querySelectorAll('iframe').forEach((el) => el.remove())
+      document.querySelectorAll('link[href]').forEach((el) => {
+        const href = el.getAttribute('href')
+        // El canonical de cada página por tema apunta al dominio real y no está en la plantilla
+        if (!keepLinks.has(href) && !ours(href) && el.rel !== 'canonical') el.remove()
+      })
+      document.querySelectorAll('img[src], video[src], source[src], embed[src], object[data]').forEach((el) => {
+        if (!ours(el.getAttribute('src') || el.getAttribute('data'))) el.remove()
+      })
 
-    document.querySelectorAll('script').forEach((el) => {
-      if (!keepScripts.has(scriptKey(el))) el.remove()
-    })
-    document.querySelectorAll('iframe').forEach((el) => el.remove())
-    document.querySelectorAll('link[href]').forEach((el) => {
-      const href = el.getAttribute('href')
-      if (!keepLinks.has(href) && !ours(href)) el.remove()
-    })
-    document.querySelectorAll('img[src], video[src], source[src], embed[src], object[data]').forEach((el) => {
-      if (!ours(el.getAttribute('src') || el.getAttribute('data'))) el.remove()
-    })
+      return '<!DOCTYPE html>\n' + document.documentElement.outerHTML
+    }, template)
+  }
 
-    return '<!DOCTYPE html>\n' + document.documentElement.outerHTML
-  }, template)
+  const pages = []
+  for (const route of ROUTES) pages.push({ route, html: await render(route) })
 
   await browser.close()
   server.close()
 
   // Si algo se coló, que falle el build y no se publique.
-  const problems = [
-    ...ONCE.filter((needle) => count(html, needle) !== 1).map((needle) => `«${needle}» aparece ${count(html, needle)} veces (tiene que ser 1)`),
-    ...NEVER.filter((needle) => html.includes(needle)).map((needle) => `quedó grabado «${needle}»`),
-  ]
+  const problems = pages.flatMap(({ route, html }) => [
+    ...ONCE.filter((needle) => count(html, needle) !== 1).map((needle) => `${route}: «${needle}» aparece ${count(html, needle)} veces (tiene que ser 1)`),
+    ...NEVER.filter((needle) => html.includes(needle)).map((needle) => `${route}: quedó grabado «${needle}»`),
+    ...(count(html, 'application/ld+json') < 1 ? [`${route}: sin datos estructurados`] : []),
+  ])
   if (problems.length) throw new Error('el HTML prerenderizado no está limpio:\n  ' + problems.join('\n  '))
 
-  const outFile = join(distDir, 'index.html')
-  await writeFile(outFile, html, 'utf8')
-  console.log(`[prerender] wrote ${outFile} (${(html.length / 1024).toFixed(1)} KB)`)
+  // Se escriben al final: hasta acá, el index.html de dist es la plantilla de Vite
+  for (const { route, html } of pages) {
+    const outDir = join(distDir, route)
+    await mkdir(outDir, { recursive: true })
+    const outFile = join(outDir, 'index.html')
+    await writeFile(outFile, html, 'utf8')
+    console.log(`[prerender] wrote ${outFile} (${(html.length / 1024).toFixed(1)} KB)`)
+  }
 }
 
 main().catch((err) => {

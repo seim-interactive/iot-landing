@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Una sola URL: la landing. Las secciones (#preguntas, #contact…) son partes de esta página,
-     no páginas aparte. Actualizá lastmod cuando cambie el contenido. -->
+<!-- La landing y una página por tema (src/content/temas.js). Las secciones (#preguntas,
+     #contact…) son partes de su página, no páginas aparte. Actualizá lastmod cuando cambie el
+     contenido. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
@@ -9,5 +10,21 @@
     <xhtml:link rel="alternate" hreflang="es-AR" href="https://iot.seiminteractive.io/"/>
     <xhtml:link rel="alternate" hreflang="es" href="https://iot.seiminteractive.io/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://iot.seiminteractive.io/"/>
+  </url>
+  <url>
+    <loc>https://iot.seiminteractive.io/monitoreo-de-produccion/</loc>
+    <lastmod>2026-11-17</lastmod>
+  </url>
+  <url>
+    <loc>https://iot.seiminteractive.io/paradas-y-alarmas/</loc>
+    <lastmod>2026-11-17</lastmod>
+  </url>
+  <url>
+    <loc>https://iot.seiminteractive.io/argus/</loc>
+    <lastmod>2026-11-17</lastmod>
+  </url>
+  <url>
+    <loc>https://iot.seiminteractive.io/conectar-plc/</loc>
+    <lastmod>2026-11-17</lastmod>
   </url>
 </urlset>
