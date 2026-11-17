@@ -116,10 +116,14 @@ export function createDriver({ frame, cursor, script, reset, camera = false, tou
       const w = stage.clientWidth
       const h = stage.clientHeight
       const scale = Math.min(max, (w - pad * 2) / rect.width, (h - pad * 2) / rect.height)
-      const x = (w - rect.width * scale) / 2 - rect.left * scale
+      let x = (w - rect.width * scale) / 2 - rect.left * scale
       let y = align === 'top' ? pad - rect.top * scale : (h - rect.height * scale) / 2 - rect.top * scale
       if (within) {
         const box = within.getBoundingClientRect ? within.getBoundingClientRect() : within
+        // Lo mismo a lo ancho: ni a la izquierda ni a la derecha del contenido
+        const leftmost = w - pad - (box.left + box.width) * scale
+        const rightmost = pad - box.left * scale
+        if (leftmost <= rightmost) x = Math.min(rightmost, Math.max(leftmost, x))
         const lowest = h - pad - (box.top + box.height) * scale
         const highest = pad - box.top * scale
         // Si el contenido es más bajo que el cuadro, manda el borde de arriba: lo

@@ -43,7 +43,8 @@ const piece = {
     for (const name of [...MACHINES.slice(1), MACHINES[0]]) {
       const trigger = await d.until(() => d.find('[data-test="plc-switcher-trigger"]'))
       const r = trigger.getBoundingClientRect()
-      await d.frameOn({ left: r.right - 640, top: 0, width: 660, height: 380 }, { pad: 0, max: 2, duration: 1.3 })
+      // Nunca más allá de los bordes de la plataforma: si no, asoma el fondo del marco
+      await d.frameOn({ left: r.right - 640, top: 0, width: 660, height: 380 }, { pad: 0, max: 2, duration: 1.3, within: whole() })
       await d.click(trigger)
       await d.wait(500)
       await d.click(await d.until(() => d.find('.plc-switcher-option', name)))
