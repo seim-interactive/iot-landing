@@ -70,14 +70,17 @@ export const HOW_PIECES = {
       const card = (...titles) => titles.map((t) => d.find('.widget-card', t)).find(Boolean)
       await d.until(() => card('Temperatura De Mordazas')?.querySelector('canvas'), 14000)
       const indicators = [card('Producido'), card('Rechazos'), card('Energía'), card('Produciendo', 'En producción')].filter(Boolean)
-      const charts = [card('Velocidad De Línea'), card('Temperatura De Mordazas')].filter(Boolean)
+      // En el celular de la landing: los cuatro indicadores en 2 × 2 y un solo gráfico,
+      // así lo que se ve se lee (sigue siendo el diseño de escritorio de la plataforma)
+      const small = mobile()
+      const charts = (small ? [card('Temperatura De Mordazas')] : [card('Velocidad De Línea'), card('Temperatura De Mordazas')]).filter(Boolean)
       const kept = [...indicators, ...charts]
       const grid = kept[0].parentElement
       // Cuatro indicadores en una fila y los dos gráficos debajo, a todo el ancho
       indicators.forEach((el, i) => el.setAttribute('data-how', `i${i}`))
       charts.forEach((el, i) => el.setAttribute('data-how', `c${i}`))
       injectCss(d, `
-        .widgets-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; grid-template-rows: none !important; grid-auto-rows: auto !important; grid-auto-flow: row !important; }
+        .widgets-grid { grid-template-columns: repeat(${small ? 2 : 4}, minmax(0, 1fr)) !important; grid-template-rows: none !important; grid-auto-rows: auto !important; grid-auto-flow: row !important;${small ? ' width: 620px !important; max-width: 620px !important;' : ''} }
         .widgets-grid > :not([data-how]) { display: none !important; }
         .widgets-grid > .widget-card[data-how^='i'] { grid-area: auto !important; grid-column: span 1 !important; grid-row: auto !important; min-height: 0 !important; }
         .widgets-grid > .widget-card[data-how^='c'] { grid-area: auto !important; grid-column: 1 / -1 !important; grid-row: auto !important; height: 300px !important; }
