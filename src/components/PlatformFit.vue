@@ -1,17 +1,18 @@
 <!--
-  «A tu medida»: la misma plataforma con un tablero distinto para cada equipo. El
-  guion cambia de equipo con el selector real y el tablero pasa a ser el de esa
-  máquina. Arriba el título, en el medio la plataforma grande a todo el ancho y
-  abajo, en una fila, las cuatro diferencias con una plataforma enlatada.
+  «A tu medida»: la misma plataforma con un tablero distinto para cada equipo. En el
+  video (grabado con el guion de platformFit.js) se cambia de equipo con el selector
+  real y el tablero pasa a ser el de esa máquina. Arriba el título, en el medio la
+  plataforma grande a todo el ancho y abajo, en una fila, las cuatro diferencias con
+  una plataforma enlatada.
 -->
 <script setup>
 import { ref } from 'vue'
-import PlatformPiece from './PlatformPiece.vue'
+import PlatformVideo from './PlatformVideo.vue'
+import { MACHINES } from './platformFit'
 
-const MACHINES = ['Envasadora 1', 'Horno', 'Llenadora', 'Envasadora 2']
+// El equipo de la pestaña: lo marca el video, en el mismo instante en que el
+// selector de la plataforma cambia (las marcas se guardan al grabar)
 const active = ref(MACHINES[0])
-// La app ya se ve: la foto del primer cuadro se apaga (ver .fit-piece)
-const live = ref(false)
 
 const differences = [
   { canned: 'Tu operación se acomoda al software', ours: 'El software se adapta a tu operación' },
@@ -19,80 +20,6 @@ const differences = [
   { canned: 'Límites de equipos, usuarios o plantas', ours: 'Escala sin límite: equipos, líneas y plantas' },
   { canned: 'Entornos compartidos con otras empresas', ours: 'Un entorno privado, solo para tu empresa' },
 ]
-
-// En el celular: el diseño de escritorio de la plataforma a 1100 px de ancho, donde
-// el tablero entero mide 1100 × 1400. La caja tiene esa proporción, así la vista
-// entera lo muestra completo, sin bandas vacías. En escritorio, una pantalla real de
-// 1680 × 945 (16:9): la interfaz se ve a escala de escritorio, no ampliada.
-const small = window.innerWidth < 720
-const ratio = small ? '1100 / 1400' : '16 / 9'
-
-const piece = {
-  key: 'medida',
-  // PlatformPiece lo vuelve a false cuando descarga la app: ahí vuelve la foto
-  get started() {
-    return live.value
-  },
-  set started(value) {
-    live.value = value
-  },
-  route: '/dashboard',
-  width: small ? 1100 : 1680,
-  // El alto sale de la proporción de la caja (PlatformPiece)
-  height: 'fit',
-  cut: false,
-  async script(d) {
-    await d.until(() => d.find('.widget-card canvas'), 14000)
-    // La pestaña de arriba muestra el equipo que tiene el selector real: cuando la
-    // app se vuelve a cargar, arranca de nuevo en el primero.
-    const current = d.find('[data-test="plc-switcher-trigger"]')?.textContent || ''
-    active.value = MACHINES.find((name) => current.includes(name)) || MACHINES[0]
-    // El menú lateral contraído: el tablero gana ancho y se ve entero.
-    const collapse = d.find('[data-test="sidebar-collapse"][aria-expanded="true"]')
-    if (collapse) {
-      collapse.click()
-      await d.wait(500)
-    }
-    // La pantalla entera, y para elegir el equipo la cámara se acerca al selector.
-    // Se ve nítido porque el iframe no lleva will-change (ver PlatformPiece): el
-    // navegador lo vuelve a dibujar al tamaño acercado en vez de estirar una imagen.
-    const whole = () => d.screen()
-    await d.frameOn(whole(), { pad: 0, max: 1, duration: this.started ? 1.4 : 0 })
-    this.started = true
-    d.fade(1)
-    await d.wait(3000)
-
-    for (const name of [...MACHINES.slice(1), MACHINES[0]]) {
-      const trigger = await d.until(() => d.find('[data-test="plc-switcher-trigger"]'))
-      const r = trigger.getBoundingClientRect()
-      // Nunca más allá de los bordes de la plataforma: si no, asoma el fondo del marco.
-      // En el celular, un recorte con la proporción de la caja (entra la lista abierta).
-      // En escritorio, un recorte de 16:9 que deja ver la lista abierta (×1,35 aprox.)
-      const selector = small
-        ? { left: r.right - 520, top: 0, width: 540, height: 687 }
-        : { left: r.right - 740, top: 0, width: 760, height: 428 }
-      await d.frameOn(selector, { pad: 0, max: 2, duration: 1.3, within: whole() })
-      await d.click(trigger)
-      await d.wait(500)
-      await d.click(await d.until(() => d.find('.plc-switcher-option', name)))
-      active.value = name
-      d.hideCursor()
-      // Se queda en el selector mientras carga el tablero nuevo: se aleja recién
-      // cuando los gráficos tienen sus datos y las agujas llegaron a su valor.
-      await d.until(() => !d.find('[data-test="dashboard-skeleton"]') && d.find('.widget-card canvas'), 14000)
-      await d.wait(1600)
-      // En el celular, antes de la vista entera, de cerca: el nombre del equipo, sus
-      // indicadores y los primeros gráficos, que así se leen
-      if (small) {
-        await d.frameOn({ left: 110, top: 0, width: 680, height: 865 }, { pad: 0, max: 2, duration: 1.4, within: whole() })
-        await d.wait(2600)
-      }
-      await d.frameOn(whole(), { pad: 0, max: 1, duration: 1.5 })
-      await d.wait(small ? 2200 : 3200)
-    }
-  },
-  async reset() {},
-}
 </script>
 
 <template>
@@ -104,9 +31,7 @@ const piece = {
       <ul class="fit-machines" aria-hidden="true">
         <li v-for="name in MACHINES" :key="name" :class="{ 'is-active': name === active }">{{ name }}</li>
       </ul>
-      <!-- De fondo, una foto del primer cuadro: mientras la app arranca la caja nunca
-           está vacía, y cuando entra no se nota el cambio -->
-      <PlatformPiece class="fit-piece" :class="{ 'is-live': live }" :piece="piece" :ratio="ratio" :fade="false" />
+      <PlatformVideo class="fit-video" name="medida" @mark="active = $event" />
     </div>
 
     <ul class="fit-list">
@@ -173,21 +98,11 @@ const piece = {
   background: rgba(255, 255, 255, 0.09);
 }
 
-/* La foto del primer cuadro, por debajo de la app (que no tiene fondo): una captura
-   de esta misma caja con la app andando, en escritorio y en el celular. Se apaga
-   mientras entra la app, así no se superponen. Si la plataforma cambia mucho,
-   conviene volver a sacarla. */
-.fit-piece::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: url('/media/medida-poster-d.jpg') center / cover no-repeat;
-  pointer-events: none;
-  transition: opacity 0.5s ease;
-}
-
-.fit-piece.is-live::before {
-  opacity: 0;
+/* En escritorio, una pantalla real de 1680 × 945 (16:9): la interfaz se ve a escala
+   de escritorio, no ampliada. En el celular, el diseño de escritorio a 1100 px de
+   ancho, donde el tablero entero mide 1100 × 1400: se ve completo, sin bandas. */
+.fit-video {
+  aspect-ratio: 16 / 9;
 }
 
 /* Las cuatro diferencias en una fila, sin cajas: una línea fina arriba de cada una */
@@ -262,8 +177,8 @@ const piece = {
     border-radius: 16px;
   }
 
-  .fit-piece::before {
-    background-image: url('/media/medida-poster-m.jpg');
+  .fit-video {
+    aspect-ratio: 1100 / 1400;
   }
 
   /* Las cuatro pestañas entran siempre, en partes iguales */

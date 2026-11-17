@@ -1,6 +1,8 @@
-<!-- Partes clave de la plataforma: una grilla de segmentos reales, cada uno en loop. -->
+<!-- Partes clave de la plataforma: una grilla de segmentos reales, cada uno en loop.
+     Cada cuadrado es un video grabado de la plataforma (PlatformVideo); los guiones con
+     que se graban están en platformPieces.js. -->
 <script setup>
-import PlatformPiece from './PlatformPiece.vue'
+import PlatformVideo from './PlatformVideo.vue'
 import { PIECES } from './platformPieces'
 </script>
 
@@ -12,7 +14,8 @@ import { PIECES } from './platformPieces'
 
     <ul class="pieces-grid">
       <li v-for="piece in PIECES" :key="piece.key" class="piece">
-        <PlatformPiece :piece="piece" />
+        <!-- El fundido de los bordes ya viene en el video (se graba con él) -->
+        <PlatformVideo class="piece-video" :name="piece.key" />
         <div class="piece-copy">
           <h3 class="piece-title">{{ piece.title }}</h3>
           <p class="piece-text">{{ piece.text }}</p>
@@ -62,6 +65,11 @@ import { PIECES } from './platformPieces'
 
 .piece:nth-child(n + 4) {
   border-top: 1px solid var(--rule);
+}
+
+/* La proporción de cada cuadrado: la misma con la que se grabó (grabar.mjs, GRILLA) */
+.piece-video {
+  aspect-ratio: 1 / 0.92;
 }
 
 .piece-copy {

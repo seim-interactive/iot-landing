@@ -46,6 +46,17 @@ jobs:
       - name: Build (vite + prerender)
         run: npm run build
 
+      # Los videos de la plataforma (public/media/plataforma, ~150 MB) no van en la
+      # imagen: se suben aparte con rsync, que manda solo los que cambiaron, y el
+      # contenedor los monta. Así cada deploy sube lo mismo que antes.
+      # public/plataforma es la app de demo con la que se graban esos videos: la
+      # landing ya no la carga, así que no se publica.
+      - name: Separar los videos y la demo del dist
+        run: |
+          set -euo pipefail
+          rm -rf dist/plataforma /tmp/seim-media
+          mv dist/media/plataforma /tmp/seim-media
+
       - name: Definir tag de imagen
         run: echo "IMAGE_TAG=${IMAGE}:$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
 
@@ -81,6 +92,15 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
 
+      # --checksum: el checkout pone la fecha de hoy a todos los archivos, así que se
+      # compara por contenido. --delete saca los videos que ya no están en el repo.
+      - name: Subir los videos que cambiaron
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/deploy_key "${VPS_USER}@${VPS_HOST}" "mkdir -p '${REMOTE_DIR}/media-plataforma'"
+          rsync -az --checksum --delete -e "ssh -i ~/.ssh/deploy_key" \
+            /tmp/seim-media/ "${VPS_USER}@${VPS_HOST}:${REMOTE_DIR}/media-plataforma/"
+
       - name: Copiar imagen a la VPS
         run: |
           scp -i ~/.ssh/deploy_key /tmp/seim-build/image.tar \
@@ -104,6 +124,7 @@ jobs:
             --name "$CONTAINER" \
             --restart unless-stopped \
             -p "$HOST_PORT" \
+            -v "$REMOTE_DIR/media-plataforma:/usr/share/nginx/html/media/plataforma:ro" \
             "$IMAGE_TAG"
           sleep 2
           echo "Healthcheck:"

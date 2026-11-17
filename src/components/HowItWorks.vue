@@ -1,8 +1,8 @@
 <!--
   «Cómo funciona», en tres pasos contados como beneficio: conectamos las máquinas,
-  lo ves en vivo, te avisa y te dice qué hacer. Cada paso tiene su visual: el render
-  3D real de los equipos y, después, los componentes reales de la plataforma
-  flotando (howPieces.js).
+  lo ves en vivo, te avisa y te dice qué hacer. Cada paso tiene su visual, en video
+  (PlatformVideo): el render 3D de los equipos (Blender) y, después, los componentes
+  reales de la plataforma flotando (grabados con los guiones de howPieces.js).
 
   Una sola grilla para los tres: texto 5 y visual 6, con el mismo gap, alternando
   lados. El visual llena su columna, así su borde de afuera cae exacto en el margen
@@ -10,8 +10,7 @@
   el de su contenido, sin aire de más.
 -->
 <script setup>
-import PlatformPiece from './PlatformPiece.vue'
-import { HOW_PIECES } from './howPieces'
+import PlatformVideo from './PlatformVideo.vue'
 
 const STEPS = [
   {
@@ -50,28 +49,16 @@ const STEPS = [
 
         <!-- Cada caja mide lo que su contenido, sin vacíos arriba ni abajo -->
         <div class="how-visual" :class="`how-visual--${step.key}`" data-reveal aria-hidden="true">
-          <video
-            v-if="step.key === 'conectar'"
-            class="how-video"
-            autoplay
-            muted
-            loop
-            playsinline
-            preload="none"
-            poster="/media/conectar-poster.jpg"
-          >
-            <source src="/media/conectar.webm" type="video/webm" />
-            <source src="/media/conectar.mp4" type="video/mp4" />
-          </video>
+          <PlatformVideo v-if="step.key === 'conectar'" class="how-media" name="conectar" />
 
-          <PlatformPiece v-else-if="step.key === 'ver'" :piece="HOW_PIECES.widget" ratio="4 / 3" :fade="false" />
+          <PlatformVideo v-else-if="step.key === 'ver'" class="how-media" name="widget" />
 
           <!-- Argus: dos piezas del mismo ancho, alineadas y separadas. Arriba el campo
-               del chat, grande; abajo el reporte en su propia tarjeta, del alto justo
-               de un hallazgo con su gráfico (--report-k, ver howPieces.js) -->
+               del chat, grande; abajo el reporte en su propia tarjeta (viene en el
+               video), del alto justo de un hallazgo con su gráfico (--report-k) -->
           <div v-else class="how-pair">
-            <PlatformPiece class="how-ask" :piece="HOW_PIECES.ask" ratio="25 / 4" :fade="false" />
-            <PlatformPiece class="how-report" :piece="HOW_PIECES.report" ratio="1 / 1" :fade="false" />
+            <PlatformVideo class="how-ask" name="ask" />
+            <PlatformVideo class="how-report" name="report" />
           </div>
         </div>
       </li>
@@ -153,12 +140,12 @@ const STEPS = [
   color: rgba(255, 255, 255, 0.42);
 }
 
-/* El render 3D es 4:3 sobre negro: el contenido ocupa la franja del medio y va de
-   borde a borde. Los demás visuales tienen la proporción de su contenido. */
+/* Cada visual tiene la proporción de su contenido. El render 3D es 16:9, con su piso
+   y su negro dentro del cuadro: se funde con la página, sin bordes. */
 .how-visual {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 9;
 }
 
 /* El fragmento del tablero: 964 × 781 en la app, a todo el ancho de la columna */
@@ -171,19 +158,9 @@ const STEPS = [
   aspect-ratio: auto;
 }
 
-/* contain sobre negro: el video entra entero, sea del tamaño que sea */
-.how-video {
-  display: block;
-  width: 100%;
+/* El video llena la caja */
+.how-media {
   height: 100%;
-  object-fit: contain;
-  background: #000;
-}
-
-/* La pieza del paso 2 llena la caja, sea cual sea su proporción */
-.how-visual > :deep(.piece-stage) {
-  height: 100%;
-  aspect-ratio: auto !important;
 }
 
 .how-step-title span {
@@ -199,19 +176,21 @@ const STEPS = [
   width: 100%;
 }
 
-/* El reporte, en una tarjeta como las de la plataforma. Adentro, un hallazgo a todo
-   el ancho con --report-pad de margen: el alto es el del hallazgo más alto a esa
-   escala (--report-k = alto / ancho del hallazgo en la app; el guion lo actualiza).
-   Así la caja nunca tiene aire de más y la página no salta cuando carga. */
+/* El campo del chat, ancho y bajo */
+.how-pair > .how-ask {
+  aspect-ratio: 25 / 4;
+}
+
+/* El reporte, en una tarjeta como las de la plataforma (el borde y el fondo vienen en
+   el video). Adentro, un hallazgo a todo el ancho con --report-pad de margen: el alto
+   es el del hallazgo más alto a esa escala (--report-k = alto / ancho del hallazgo en
+   la app, medido al grabar). Así la caja nunca tiene aire de más y la página no salta
+   cuando carga. */
 .how-pair > .how-report {
   --report-pad: 24px;
   --report-k: 0.7294;
   flex: none;
   height: calc((100cqw - 2 * var(--report-pad)) * var(--report-k) + 2 * var(--report-pad));
-  aspect-ratio: auto !important;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.05));
 }
 
 /* El celular de la app (390 px de ancho, ver howPieces.js) */
@@ -242,24 +221,13 @@ const STEPS = [
     font-size: 16px;
   }
 
-  /* El render 3D: el contenido ocupa la franja del medio del video (4:3). En 16:9
-     entra entero, sin el negro de arriba y de abajo */
-  .how-visual--conectar {
-    aspect-ratio: 16 / 9;
-  }
-
-  .how-visual--conectar .how-video {
-    object-fit: cover;
-    object-position: 50% 53%;
-  }
-
   .how-pair {
     width: 100%;
     gap: 22px;
   }
 
   .how-pair > .how-ask {
-    aspect-ratio: 342 / 72 !important;
+    aspect-ratio: 342 / 72;
   }
 }
 </style>
