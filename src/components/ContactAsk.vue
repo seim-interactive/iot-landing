@@ -219,9 +219,12 @@ function useExample(example) {
   outline-offset: 3px;
 }
 
+/* En el mismo eje que el título y la caja, en dos renglones parejos */
 .ask-after {
-  max-width: 640px;
-  margin-top: clamp(40px, 5vw, 64px);
+  max-width: 34em;
+  margin: clamp(40px, 5vw, 64px) auto 0;
+  text-align: center;
+  text-wrap: balance;
   font-size: 17px;
   line-height: 1.55;
   color: rgba(255, 255, 255, 0.62);
@@ -240,6 +243,10 @@ function useExample(example) {
   margin: clamp(40px, 5vw, 64px) 0 0;
   padding-top: 22px;
   border-top: 1px solid var(--rule);
+}
+
+.ask-meta > div {
+  text-align: center;
 }
 
 .ask-meta dt {

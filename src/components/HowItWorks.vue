@@ -61,8 +61,10 @@ const STEPS = [
           <PlatformPiece v-else-if="step.key === 'ver'" :piece="HOW_PIECES.widget" ratio="4 / 3" :fade="false" />
 
           <div v-else class="how-pair">
-            <PlatformPiece :piece="HOW_PIECES.alarma" ratio="100 / 31" :fade="false" />
-            <PlatformPiece :piece="HOW_PIECES.argus" ratio="100 / 41" :fade="false" />
+            <!-- Una sola pieza: los dos paneles del mismo ancho, alineados, con una
+                 separación chica (ver pin() en howPieces.js). Las proporciones suman 4:3. -->
+            <PlatformPiece :piece="HOW_PIECES.alarma" ratio="740 / 190" :fade="false" />
+            <PlatformPiece :piece="HOW_PIECES.argus" ratio="740 / 365" :fade="false" />
           </div>
         </div>
       </li>
@@ -94,14 +96,14 @@ const STEPS = [
 
 .how-step {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 600px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 740px);
   align-items: center;
-  gap: clamp(40px, 6vw, 112px);
+  gap: clamp(40px, 5vw, 96px);
 }
 
 /* El visual se alterna de lado: el orden lo da la secuencia, sin numeritos */
 .how-step.is-flipped {
-  grid-template-columns: minmax(0, 600px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 740px) minmax(0, 1fr);
 }
 
 .how-step.is-flipped .how-copy {
@@ -145,19 +147,25 @@ const STEPS = [
   aspect-ratio: 4 / 3;
 }
 
+/* contain sobre negro: el video entra entero, sea del tamaño que sea */
 .how-video {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  background: #000;
+}
+
+/* La pieza del paso 2 llena la caja, sea cual sea su proporción */
+.how-visual > :deep(.piece-stage) {
+  height: 100%;
+  aspect-ratio: auto !important;
 }
 
 .how-pair {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   height: 100%;
-  gap: 4%;
 }
 
 @media (max-width: 900px) {
@@ -175,43 +183,19 @@ const STEPS = [
     font-size: 16px;
   }
 
-  /* En celular las tres cajas son 3:4, iguales entre sí */
+  /* En celular las tres cajas son 2:3, iguales entre sí: entran la alarma y el
+     hallazgo apilados, del mismo ancho, como en escritorio */
   .how-visual {
-    aspect-ratio: 3 / 4;
+    aspect-ratio: 2 / 3;
   }
 
-  .how-video {
-    object-fit: contain;
+  .how-pair :deep(.piece-stage:first-child) {
+    aspect-ratio: 342 / 129 !important;
   }
 
-  /* Apilados no se leerían: la alarma y el hallazgo se turnan en la caja */
-  .how-pair {
-    position: relative;
-    display: block;
-  }
-
-  .how-pair :deep(.piece-stage) {
-    position: absolute;
-    inset: 0;
-    height: 100%;
+  .how-pair :deep(.piece-stage:last-child) {
+    flex: 1;
     aspect-ratio: auto !important;
-    animation: how-turn 18s ease-in-out infinite;
-  }
-
-  .how-pair :deep(.piece-stage:last-child) {
-    animation-delay: -9s;
-  }
-}
-
-@keyframes how-turn {
-  0%, 46% { opacity: 1; }
-  50%, 96% { opacity: 0; }
-  100% { opacity: 1; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .how-pair :deep(.piece-stage:last-child) {
-    display: none;
   }
 }
 </style>
