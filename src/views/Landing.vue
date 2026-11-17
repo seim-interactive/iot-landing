@@ -13,11 +13,10 @@
           de la Industria Inteligente
         </p>
 
-        <a href="#plataforma" class="announcement-button">
-          <span class="dot"></span>
-          Conocé nuestra Solución IoT
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <a href="#plataforma" class="hero-cta">
+          Conocé la plataforma
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M8 3v10M4 9l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </a>
       </div>
@@ -31,13 +30,6 @@
     <!-- ==================== SOLUCIÓN ==================== -->
     <section id="solution" class="section solution">
       <div class="container">
-        <header class="section-head section-head--center" data-reveal>
-          <h2 class="section-title">Una plataforma propia, única en el mercado</h2>
-          <p class="section-lead">
-            Desarrollamos nuestra propia plataforma de control industrial. Por eso escala sin límite junto a tu operación y se adapta a cómo trabaja tu planta, y no al revés.
-          </p>
-        </header>
-
         <!-- Diferencial frente a las plataformas enlatadas: con el scroll, cada fila
              tacha la idea enlatada y enfoca la nuestra (ver contrastScrub) -->
         <div class="contrast">
@@ -727,59 +719,42 @@ button:focus-visible {
   background-clip: text;
 }
 
-.announcement-button {
+.hero-cta {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 12px 24px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 0.08em;
-  cursor: pointer;
-  transition: background-color 0.25s ease, border-color 0.3s ease, color 0.3s ease;
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 999px;
+  background: #fff;
+  color: #0a0a0a;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
   text-decoration: none;
-  position: relative;
-  overflow: hidden;
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.14), 0 10px 40px -12px rgba(255, 255, 255, 0.35);
+  transition: transform 0.45s var(--ease-out), box-shadow 0.45s var(--ease-out);
 }
 
-.announcement-button svg {
-  transition: transform 0.25s ease;
-  opacity: 0.6;
+.hero-cta svg {
+  transition: transform 0.45s var(--ease-out);
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .announcement-button:hover {
-    background: rgba(255, 255, 255, 0.08);
+  .hero-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.14), 0 16px 48px -12px rgba(255, 255, 255, 0.45);
   }
 
-  .announcement-button:hover svg {
-    transform: translateX(4px);
+  .hero-cta:hover svg {
+    transform: translateY(3px);
   }
 }
 
-.dot {
-  width: 6px;
-  height: 6px;
-  background: #06f62e;
-  border-radius: 50%;
-  animation: pulse 2s ease-in-out infinite;
-  flex-shrink: 0;
+.hero-cta:active {
+  transform: scale(0.97);
 }
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.2);
-  }
-}
 
 
 
@@ -879,8 +854,9 @@ button:focus-visible {
 
 
 /* Diferencial: enlatadas vs propia */
+/* Es lo primero de la sección: el aire de arriba lo da la sección misma */
 .contrast {
-  margin-top: var(--section-pad);
+  margin-top: 0;
 }
 
 .contrast-title {
@@ -1628,9 +1604,9 @@ button:focus-visible {
     line-height: 1.15;
   }
 
-  .announcement-button {
-    font-size: 10px;
-    padding: 12px 20px;
+  .hero-cta {
+    height: 46px;
+    padding: 0 22px;
   }
 
 

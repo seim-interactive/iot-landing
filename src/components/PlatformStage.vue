@@ -20,6 +20,7 @@ const SCREENS = {
   mobile: { w: 390, h: 780 },
 }
 
+const root = ref(null)
 const viewport = ref(null)
 const frame = ref(null)
 const cursor = ref(null)
@@ -35,6 +36,26 @@ let resizeObserver = null
 let tour = null
 let ratio = 0
 let loading = false
+let raf = 0
+let glint = 0
+
+// El reflejo del marco sigue al scroll: mientras la plataforma sube por la pantalla,
+// el brillo recorre el borde de arriba y baja por el costado. Va con un poco de
+// inercia para que se sienta como luz sobre vidrio y no como una barra de progreso.
+function trackLight() {
+  const el = root.value
+  if (!el) return
+  const rect = el.getBoundingClientRect()
+  const vh = window.innerHeight
+  const target = Math.min(1, Math.max(0, (vh * 0.7 - rect.top) / (vh * 0.7 + rect.height * 0.5)))
+  glint += (target - glint) * 0.09
+  el.style.setProperty('--glint', glint.toFixed(4))
+  raf = Math.abs(target - glint) > 0.0005 && rect.bottom > 0 && rect.top < vh ? requestAnimationFrame(trackLight) : 0
+}
+
+function onScroll() {
+  if (!raf) raf = requestAnimationFrame(trackLight)
+}
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 function fit() {
@@ -74,6 +95,11 @@ onMounted(() => {
   resizeObserver = new ResizeObserver(fit)
   resizeObserver.observe(viewport.value)
 
+  if (!reduceMotion) {
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+  }
+
   // La app se carga recién cuando el marco está por entrar en pantalla, y el
   // recorrido corre solo mientras se ve.
   observer = new IntersectionObserver(
@@ -91,11 +117,13 @@ onUnmounted(() => {
   observer?.disconnect()
   resizeObserver?.disconnect()
   tour?.destroy()
+  window.removeEventListener('scroll', onScroll)
+  cancelAnimationFrame(raf)
 })
 </script>
 
 <template>
-  <div class="stage" :class="[`stage--${mode}`, { 'is-ready': ready }]" role="img" :aria-label="props.label">
+  <div ref="root" class="stage" :class="[`stage--${mode}`, { 'is-ready': ready }]" role="img" :aria-label="props.label">
     <div class="stage-light" aria-hidden="true"></div>
     <div class="stage-shell">
       <div ref="viewport" class="stage-viewport" :style="{ aspectRatio: `${screen.w} / ${screen.h}` }">
@@ -112,6 +140,7 @@ onUnmounted(() => {
           loading="lazy"
           @load="onLoad"
         ></iframe>
+        <div class="stage-sheen" aria-hidden="true"></div>
         <div ref="cursor" class="stage-cursor" aria-hidden="true">
           <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
             <path d="M4 2.5 17.5 11l-6 1.4-2.9 5.6L4 2.5Z" fill="#fff" stroke="#0b0c10" stroke-width="1.2" stroke-linejoin="round" />
@@ -124,6 +153,9 @@ onUnmounted(() => {
 
 <style scoped>
 .stage {
+  /* 0 → 1 mientras el marco sube por la pantalla (ver trackLight) */
+  --glint: 0;
+  --glint-x: calc(26% + var(--glint) * 56%);
   position: relative;
   width: 100%;
   max-width: 1240px;
@@ -134,8 +166,10 @@ onUnmounted(() => {
   max-width: 400px;
 }
 
-/* La luz: blanca, apoyada sobre el borde de arriba del marco. Una línea fina que
-   se pierde hacia los costados y, detrás, una claridad suave que sube. */
+/* ---------- La luz ---------- */
+/* Blanca. Un halo ancho que nace detrás del borde de arriba y entra en el
+   contenedor (el fondo de la plataforma es translúcido), más una línea fina
+   apoyada sobre el borde. */
 .stage-light {
   position: absolute;
   inset: 0;
@@ -146,44 +180,84 @@ onUnmounted(() => {
   content: '';
   position: absolute;
   left: 50%;
-  bottom: calc(100% - 60px);
-  width: 86%;
-  height: 300px;
-  transform: translateX(-50%);
-  background: radial-gradient(ellipse 50% 100% at 50% 100%, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.07) 45%, transparent 72%);
+  top: -260px;
+  width: 118%;
+  height: 620px;
+  transform: translateX(calc(-50% + (var(--glint) - 0.5) * 60px));
+  background:
+    radial-gradient(ellipse 34% 30% at 50% 42%, rgba(255, 255, 255, 0.34), transparent 70%),
+    radial-gradient(ellipse 50% 50% at 50% 42%, rgba(255, 255, 255, 0.13), transparent 72%);
 }
 
 .stage-light::after {
   content: '';
   position: absolute;
-  left: 8%;
-  right: 8%;
+  left: 4%;
+  right: 4%;
   top: 0;
   height: 1px;
   z-index: 3;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55) 22%, #fff 50%, rgba(255, 255, 255, 0.55) 78%, transparent);
-  box-shadow: 0 0 18px 1px rgba(255, 255, 255, 0.35);
+  background: radial-gradient(ellipse 34% 100% at var(--glint-x) 50%, #fff, rgba(255, 255, 255, 0.5) 45%, transparent);
+  box-shadow: 0 0 22px 2px rgba(255, 255, 255, 0.3);
 }
 
-/* El marco: un borde translúcido alrededor de la pantalla, con un filo de luz arriba. */
+/* ---------- El marco ---------- */
 .stage-shell {
   position: relative;
   padding: 8px;
-  border-radius: 22px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.025) 30%, rgba(255, 255, 255, 0.015));
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.09),
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    0 60px 140px -40px rgba(0, 0, 0, 0.95);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03) 22%, rgba(255, 255, 255, 0.012) 60%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 70px 160px -50px rgba(0, 0, 0, 0.95);
+}
+
+/* El borde es un degradé: fuerte arriba, casi nada abajo. Encima, el reflejo que
+   viaja con el scroll: por el borde de arriba y, al final, bajando por la derecha. */
+.stage-shell::before,
+.stage-viewport::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  padding: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+}
+
+.stage-shell::before {
+  background:
+    radial-gradient(ellipse 30% 26% at var(--glint-x) 0%, rgba(255, 255, 255, 0.95), transparent 72%),
+    radial-gradient(ellipse 22% 34% at 100% calc(var(--glint) * 80% - 22%), rgba(255, 255, 255, 0.7), transparent 72%),
+    radial-gradient(ellipse 22% 30% at 0% calc(118% - var(--glint) * 70%), rgba(255, 255, 255, 0.32), transparent 72%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.08) 26%, rgba(255, 255, 255, 0.035) 70%);
 }
 
 .stage-viewport {
   position: relative;
   width: 100%;
   overflow: hidden;
-  border-radius: 15px;
-  background: rgba(8, 9, 12, 0.72);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  /* Arriba deja pasar la luz; hacia abajo se cierra para que los datos se lean bien */
+  background: linear-gradient(180deg, rgba(14, 16, 20, 0.5), rgba(7, 8, 11, 0.8) 34%, rgba(5, 6, 8, 0.9));
+}
+
+.stage-viewport::before {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05) 30%, rgba(255, 255, 255, 0.03));
+}
+
+/* Un velo de luz muy tenue sobre el vidrio, que se corre con el scroll */
+.stage-sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(112deg, transparent 30%, rgba(255, 255, 255, 0.045) 46%, rgba(255, 255, 255, 0.015) 54%, transparent 68%);
+  background-size: 220% 100%;
+  background-position: calc(100% - var(--glint) * 100%) 0;
 }
 
 .stage-frame {
@@ -208,7 +282,7 @@ onUnmounted(() => {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 2;
+  z-index: 4;
   opacity: 0;
   pointer-events: none;
   will-change: transform;
@@ -217,14 +291,20 @@ onUnmounted(() => {
 
 .stage--mobile .stage-shell {
   padding: 6px;
-  border-radius: 30px;
+  border-radius: 32px;
 }
 
 .stage--mobile .stage-viewport {
-  border-radius: 25px;
+  border-radius: 26px;
 }
 
 .stage--mobile .stage-cursor {
   display: none;
+}
+
+.stage--mobile .stage-light::before {
+  top: -180px;
+  width: 150%;
+  height: 440px;
 }
 </style>

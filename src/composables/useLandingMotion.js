@@ -64,7 +64,7 @@ function heroIntro(q) {
       { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.9, ease: 'power2.out' },
       0.15
     )
-    .fromTo(q('.announcement-button'), { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 0.35)
+    .fromTo(q('.hero-cta'), { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 0.35)
     // La plataforma sube desde abajo y se apoya: es lo que sigue a la primera pantalla.
     .fromTo(q('.hero-stage'), { opacity: 0, y: 70 }, { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out' }, 0.45)
 
@@ -77,7 +77,6 @@ function heroParallax(q) {
 
   gsap.to(q('.hero-content'), {
     y: 40,
-    opacity: 0.5,
     ease: 'none',
     scrollTrigger: { trigger: hero, start: 'top top', end: '+=420', scrub: 0.2 },
   })

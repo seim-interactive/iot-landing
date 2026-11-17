@@ -1,6 +1,12 @@
 /* Lo único que cambia respecto de la plataforma real: el fondo general es
-   transparente, para que se vea la luz de la landing detrás. Los componentes
-   (header, barra lateral, tarjetas, gráficos) quedan como son. */
+   transparente, para que la luz de la landing entre por detrás. Los componentes
+   (header, barra lateral, tarjetas, gráficos) quedan como son. El login no usa
+   este fondo: tiene el suyo. */
+:root,
+:root[data-theme='dark'] {
+  --bg-root: transparent !important;
+}
+
 html,
 body,
 #app {

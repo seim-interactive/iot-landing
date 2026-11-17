@@ -173,9 +173,10 @@ onUnmounted(() => {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.62);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  /* Sin saturar: si no, los colores de la plataforma que pasa por detrás tiñen el header */
+  background: rgba(0, 0, 0, 0.74);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   opacity: 0;
   transition: opacity 0.45s var(--ease-out, ease);
@@ -235,28 +236,37 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 38px;
-  padding: 0 16px;
-  border-radius: 8px;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
   background: #fff;
-  color: #000;
-  font-size: 13px;
-  font-weight: 400;
+  color: #0a0a0a;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
   text-decoration: none;
   white-space: nowrap;
-  transition: background-color 0.3s ease;
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+  transition: transform 0.45s var(--ease-out, ease);
 }
 
 .cta-button svg {
-  transition: transform 0.35s var(--ease-out, ease);
+  transition: transform 0.45s var(--ease-out, ease);
 }
 
-.cta-button:hover {
-  background: var(--accent, #afe3e8);
+/* Sin cambio de color: el botón se levanta apenas y la flecha avanza */
+@media (hover: hover) and (pointer: fine) {
+  .cta-button:hover {
+    transform: translateY(-1px);
+  }
+
+  .cta-button:hover svg {
+    transform: translateX(3px);
+  }
 }
 
-.cta-button:hover svg {
-  transform: translateX(3px);
+.cta-button:active {
+  transform: scale(0.97);
 }
 
 .nav-link:focus-visible,
