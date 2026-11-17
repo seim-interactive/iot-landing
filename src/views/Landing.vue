@@ -48,6 +48,13 @@
       </div>
     </section>
 
+    <!-- ==================== PARTNER ==================== -->
+    <section class="partner-section">
+      <div class="container">
+        <PartnerBand />
+      </div>
+    </section>
+
     <!-- ==================== CONTACTO ==================== -->
     <section id="contact" class="section contact-section">
       <div class="container">
@@ -130,6 +137,7 @@ import PlatformPieces from '@/components/PlatformPieces.vue'
 import PlatformFit from '@/components/PlatformFit.vue'
 import HowItWorks from '@/components/HowItWorks.vue'
 import ContactAsk from '@/components/ContactAsk.vue'
+import PartnerBand from '@/components/PartnerBand.vue'
 import { useLandingMotion } from '@/composables/useLandingMotion'
 
 const rootEl = ref(null)
