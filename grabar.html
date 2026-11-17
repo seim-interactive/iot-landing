@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Grabar pieza de la plataforma</title>
+    <!--
+      Solo para el grabador de videos (scripts/grabar-plataforma): una pieza de la
+      plataforma sola, al tamaño exacto de su caja, sobre negro. No entra al build
+      de la landing (vite build solo compila index.html).
+    -->
+    <style>
+      html, body { margin: 0; background: #000; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <div id="grabar"></div>
+    <script type="module" src="/src/grabar.js"></script>
+  </body>
+</html>

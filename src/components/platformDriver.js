@@ -163,7 +163,12 @@ export function createDriver({ frame, cursor, script, reset, camera = false, tou
     const d = make(id)
     try {
       await d.until(() => doc()?.querySelector('#app')?.firstElementChild && win().__demo, 20000)
+      let lap = 0
       while (alive && id === run) {
+        // Para el grabador de videos (scripts/grabar-plataforma): avisa cuándo
+        // empieza cada vuelta del guion, así graba exactamente una y el video
+        // vuelve a empezar sin salto. En la landing no hay nadie escuchando.
+        window.__loopMark?.(++lap)
         await script(d)
         d.hideCursor()
         if (cut) await d.fade(0)
