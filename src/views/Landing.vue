@@ -4,12 +4,6 @@
 
     <!-- ==================== HERO ==================== -->
     <main id="top" class="hero">
-      <!-- Contenedor de luz con conic gradients - SOLO EN HERO -->
-      <div class="light-container">
-        <div class="conic-light conic-light-top"></div>
-        <div class="conic-light conic-light-bottom"></div>
-      </div>
-
       <div class="hero-content">
         <h1 class="hero-kicker">
           Plataforma IoT para la Industria 4.0
@@ -19,7 +13,7 @@
           de la Industria Inteligente
         </p>
 
-        <a href="#solution" class="announcement-button">
+        <a href="#plataforma" class="announcement-button">
           <span class="dot"></span>
           Conocé nuestra Solución IoT
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -28,18 +22,14 @@
         </a>
       </div>
 
-      <!-- Scroll indicator -->
-      <a class="scroll-indicator" href="#solution" aria-label="Ir a la solución">
-        <svg viewBox="0 0 24 24" fill="none">
-          <path d="M12 5V19M12 19L5 12M12 19L19 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
+      <!-- La plataforma asoma desde la primera pantalla: es lo que sigue al scrollear -->
+      <div id="plataforma" class="hero-stage">
+        <PlatformStage />
+      </div>
     </main>
 
     <!-- ==================== SOLUCIÓN ==================== -->
     <section id="solution" class="section solution">
-      <div class="solution-glow" aria-hidden="true"></div>
-
       <div class="container">
         <header class="section-head section-head--center" data-reveal>
           <h2 class="section-title">Una plataforma propia, única en el mercado</h2>
@@ -47,13 +37,6 @@
             Desarrollamos nuestra propia plataforma de control industrial. Por eso escala sin límite junto a tu operación y se adapta a cómo trabaja tu planta, y no al revés.
           </p>
         </header>
-
-        <div class="solution-showcase">
-          <figure class="device">
-            <PlatformTour />
-          </figure>
-          <p class="device-caption">Vista unificada de métricas, estados y variables críticas de la operación industrial.</p>
-        </div>
 
         <!-- Diferencial frente a las plataformas enlatadas: con el scroll, cada fila
              tacha la idea enlatada y enfoca la nuestra (ver contrastScrub) -->
@@ -315,7 +298,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import Navbar from '@/components/Navbar.vue'
 import FlowSchematic from '@/components/FlowSchematic.vue'
-import PlatformTour from '@/components/PlatformTour.vue'
+import PlatformStage from '@/components/PlatformStage.vue'
 import { useLandingMotion } from '@/composables/useLandingMotion'
 import { useFlowScroll } from '@/composables/useFlowScroll'
 import {
@@ -694,100 +677,32 @@ button:focus-visible {
   background: rgba(255, 255, 255, 0.07);
 }
 
-/* ==================== HERO (original) ==================== */
-/* Contenedor de luz - Extendido para cubrir hero y parte de services */
-.light-container {
-  position: absolute;
-  top: -20%;
-  right: -2rem;
-  width: 90vw;
-  height: 140vh;
-  display: flex;
-  flex-direction: column;
-  pointer-events: none;
-  z-index: 1;
-  filter: blur(20px);
-  mask-image: radial-gradient(
-    ellipse 120% 120% at 100% 40%,
-    rgb(255, 255, 255) 0%,
-    rgba(255, 255, 255, 0.95) 10%,
-    rgba(255, 255, 255, 0.9) 20%,
-    rgba(255, 255, 255, 0.8) 30%,
-    rgba(255, 255, 255, 0.65) 40%,
-    rgba(255, 255, 255, 0.5) 50%,
-    rgba(255, 255, 255, 0.35) 60%,
-    rgba(255, 255, 255, 0.2) 70%,
-    rgba(255, 255, 255, 0.1) 80%,
-    rgba(255, 255, 255, 0.03) 90%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  -webkit-mask-image: radial-gradient(
-    ellipse 120% 120% at 100% 40%,
-    rgb(255, 255, 255) 0%,
-    rgba(255, 255, 255, 0.95) 10%,
-    rgba(255, 255, 255, 0.9) 20%,
-    rgba(255, 255, 255, 0.8) 30%,
-    rgba(255, 255, 255, 0.65) 40%,
-    rgba(255, 255, 255, 0.5) 50%,
-    rgba(255, 255, 255, 0.35) 60%,
-    rgba(255, 255, 255, 0.2) 70%,
-    rgba(255, 255, 255, 0.1) 80%,
-    rgba(255, 255, 255, 0.03) 90%,
-    rgba(255, 255, 255, 0) 100%
-  );
-}
+/* ==================== HERO ==================== */
 
-.conic-light {
-  flex: 1;
-  width: 100%;
-}
 
-.conic-light-top {
-  background: conic-gradient(
-    from 180deg at 99.78% 35%,
-    rgb(255, 255, 255) 0deg,
-    rgb(255, 255, 255) 15deg,
-    rgb(175, 227, 232) 25deg,
-    rgb(160, 212, 222) 40deg,
-    rgba(145, 195, 205, 0.5) 60deg,
-    rgba(17, 17, 17, 0) 90deg,
-    rgba(17, 17, 17, 0) 342deg,
-    rgb(255, 255, 255) 360deg
-  );
-}
 
-.conic-light-bottom {
-  background: conic-gradient(
-    from 0deg at 99.78% 65%,
-    rgb(255, 255, 255) 0deg,
-    rgb(255, 255, 255) 10deg,
-    rgba(17, 17, 17, 0) 20deg,
-    rgba(17, 17, 17, 0) 270deg,
-    rgb(160, 212, 222) 315deg,
-    rgb(175, 227, 232) 330deg,
-    rgb(255, 255, 255) 342deg,
-    rgb(255, 255, 255) 360deg
-  );
-}
 
 .hero {
   position: relative;
   width: 100%;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
   z-index: 10;
-  padding-top: 80px;
+  padding: calc(var(--header-h) + clamp(48px, 10vh, 112px)) var(--gutter) 0;
   background: #000;
 }
 
 .hero-content {
   position: relative;
   z-index: 10;
-  text-align: left;
-  max-width: 1200px;
-  padding: 0 60px;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* La plataforma arranca dentro de la primera pantalla y sigue hacia abajo */
+.hero-stage {
+  position: relative;
+  margin-top: clamp(48px, 8vh, 84px);
+  scroll-margin-top: calc(var(--header-h) + 24px);
 }
 
 .hero-kicker {
@@ -797,33 +712,16 @@ button:focus-visible {
   text-transform: uppercase;
   margin: 0 0 24px 0;
   line-height: 1.4;
-  max-width: 640px;
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0.3) 0%,
-    rgba(255, 255, 255, 0.45) 30%,
-    rgba(255, 255, 255, 0.7) 60%,
-    rgba(255, 255, 255, 0.9) 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: transparent;
+  color: var(--text-3);
 }
 
 .hero-title {
-  font-size: clamp(40px, 6vw, 72px);
+  font-size: clamp(38px, 5vw, 66px);
   font-weight: 400;
-  line-height: 1.1;
-  margin-bottom: 40px;
-  letter-spacing: -0.02em;
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0.5) 0%,
-    rgba(255, 255, 255, 0.7) 30%,
-    rgba(255, 255, 255, 0.95) 60%,
-    rgba(255, 255, 255, 1) 100%
-  );
+  line-height: 1.08;
+  margin-bottom: 36px;
+  letter-spacing: -0.03em;
+  background: linear-gradient(180deg, #fff 35%, rgba(255, 255, 255, 0.66) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -883,28 +781,8 @@ button:focus-visible {
   }
 }
 
-.scroll-indicator {
-  position: absolute;
-  bottom: 40px;
-  left: 60px;
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.4);
-  cursor: pointer;
-  padding: 6px;
-  transition: color 0.3s ease, transform 0.3s ease;
-  animation: bounce 2s ease-in-out infinite;
-}
 
-.scroll-indicator:hover {
-  color: rgba(255, 255, 255, 0.7);
-  transform: translateY(4px);
-}
 
-.scroll-indicator svg {
-  width: 20px;
-  height: 20px;
-}
 
 @keyframes bounce {
   0%, 100% {
@@ -995,49 +873,10 @@ button:focus-visible {
   }
 }
 
-/* ==================== SOLUCIÓN ==================== */
-.solution-glow {
-  position: absolute;
-  left: 50%;
-  top: 34%;
-  width: min(1200px, 120vw);
-  height: 720px;
-  transform: translateX(-50%);
-  background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(175, 227, 232, 0.13), transparent 70%);
-  pointer-events: none;
-  z-index: 1;
-}
 
-.solution-showcase {
-  perspective: 1800px;
-  max-width: 1120px;
-  margin: 0 auto;
-}
 
-.device {
-  position: relative;
-  border: 1px solid var(--line-strong);
-  border-radius: 14px;
-  background: #050607;
-  overflow: hidden;
-  box-shadow:
-    0 50px 120px -30px rgba(0, 0, 0, 0.9),
-    0 30px 120px -50px rgba(175, 227, 232, 0.35);
-  will-change: transform;
-}
 
-.device-image {
-  display: block;
-  width: 100%;
-  height: auto;
-}
 
-.device-caption {
-  margin-top: 24px;
-  text-align: center;
-  font-size: 14px;
-  color: var(--text-3);
-}
 
 /* Diferencial: enlatadas vs propia */
 .contrast {
@@ -1768,20 +1607,13 @@ button:focus-visible {
     --section-pad: 128px;
   }
 
-  /* Hero (original) */
+  /* Hero */
   .hero {
-    padding-top: 100px;
-    min-height: var(--app-height, 100svh);
-    align-items: flex-start;
-    padding-bottom: 100px;
+    padding-top: calc(var(--header-h) + 48px);
   }
 
-  .hero-content {
-    padding: 0 24px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-height: calc(var(--app-height, 100svh) - 200px);
+  .hero-stage {
+    margin-top: 44px;
   }
 
   .hero-kicker {
@@ -1799,37 +1631,11 @@ button:focus-visible {
   .announcement-button {
     font-size: 10px;
     padding: 12px 20px;
-    align-self: flex-start;
   }
 
-  .scroll-indicator {
-    bottom: 24px;
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    width: 32px;
-    height: 32px;
-    animation-name: bounce-centered;
-  }
 
-  .scroll-indicator:hover {
-    transform: translateX(-50%) translateY(4px);
-  }
 
-  .scroll-indicator svg {
-    width: 24px;
-    height: 24px;
-  }
 
-  .light-container {
-    width: 100vw;
-    right: -20%;
-    height: calc(var(--app-height, 100svh) * 1.4);
-  }
 
   /* Secciones */
   .section {
@@ -1857,18 +1663,8 @@ button:focus-visible {
     display: flex;
   }
 
-  .solution-showcase {
-    margin: 0 -12px;
-  }
 
-  .device {
-    border-radius: 10px;
-  }
 
-  .device-caption {
-    margin-top: 18px;
-    font-size: 13px;
-  }
 
   .solution-grid {
     gap: 56px;

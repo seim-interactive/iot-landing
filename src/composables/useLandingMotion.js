@@ -64,21 +64,11 @@ function heroIntro(q) {
       { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.9, ease: 'power2.out' },
       0.15
     )
-    .fromTo(q('.announcement-button'), { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.7, ease: 'power2.out' }, 0.35)
-    .fromTo(q('.scroll-indicator'), { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, ease: 'back.out(1.5)' }, 0.5)
+    .fromTo(q('.announcement-button'), { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 0.35)
+    // La plataforma sube desde abajo y se apoya: es lo que sigue a la primera pantalla.
+    .fromTo(q('.hero-stage'), { opacity: 0, y: 70 }, { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out' }, 0.45)
 
   return tl
-}
-
-function heroIndicatorGlow(q) {
-  gsap.to(q('.scroll-indicator svg'), {
-    filter: 'drop-shadow(0 0 12px rgba(175, 227, 232, 0.5))',
-    duration: 1,
-    delay: 1.1,
-    yoyo: true,
-    repeat: -1,
-    ease: 'sine.inOut',
-  })
 }
 
 function heroParallax(q) {
@@ -86,16 +76,10 @@ function heroParallax(q) {
   if (!hero) return
 
   gsap.to(q('.hero-content'), {
-    y: 80,
-    opacity: 0.82,
+    y: 40,
+    opacity: 0.5,
     ease: 'none',
-    scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.2 },
-  })
-
-  gsap.to(q('.light-container'), {
-    opacity: 0.12,
-    ease: 'none',
-    scrollTrigger: { trigger: hero, start: 'top top', end: 'center top', scrub: 0.2 },
+    scrollTrigger: { trigger: hero, start: 'top top', end: '+=420', scrub: 0.2 },
   })
 }
 
@@ -169,24 +153,6 @@ function capabilityScrub(q) {
   })
 }
 
-// La captura de la plataforma "se apoya" sobre la página mientras entra.
-function deviceTilt(q) {
-  const device = q('.device')[0]
-  if (!device) return
-
-  gsap.fromTo(
-    device,
-    { rotateX: 16, y: 60, scale: 0.94, transformOrigin: '50% 0%' },
-    {
-      rotateX: 0,
-      y: 0,
-      scale: 1,
-      ease: 'none',
-      scrollTrigger: { trigger: device, start: 'top 98%', end: 'top 30%', scrub: 0.3 },
-    }
-  )
-}
-
 // Luz que sigue al puntero sobre las cards de casos de uso.
 function spotlight(q) {
   const grid = q('.use-cases-grid')[0]
@@ -232,11 +198,9 @@ export function useLandingMotion(rootRef) {
 
       mm.add(`${MEDIA.desktop} and ${MEDIA.motionOk}`, () => {
         heroParallax(q)
-        deviceTilt(q)
       })
 
       mm.add(MEDIA.finePointer, () => {
-        heroIndicatorGlow(q)
         return spotlight(q)
       })
     })

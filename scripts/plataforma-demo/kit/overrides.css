@@ -1,0 +1,8 @@
+/* Lo único que cambia respecto de la plataforma real: el fondo general es
+   transparente, para que se vea la luz de la landing detrás. Los componentes
+   (header, barra lateral, tarjetas, gráficos) quedan como son. */
+html,
+body,
+#app {
+  background: transparent !important;
+}
