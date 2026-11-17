@@ -4,7 +4,7 @@
 //   node scripts/grabar-plataforma/grabar.mjs --pieza mediciones
 //   node scripts/grabar-plataforma/grabar.mjs --todas
 //   opciones: --version escritorio|celular|ambas (ambas)  --url http://localhost:4813
-//             --datos quietos|vivos (quietos)  --sin-codificar  --cuadros <carpeta>
+//             --datos vivos|quietos (vivos)  --sin-codificar  --cuadros <carpeta>
 //             --reusar (codifica los cuadros que ya están en --cuadros, sin grabar)
 //
 // Nada se graba en tiempo real. Cada pieza se abre sola en grabar.html, al tamaño
@@ -19,9 +19,11 @@
 //
 // Salida en public/media/plataforma/: <pieza>[-celular].av1.mp4 (AV1 10 bits:
 // Chrome, Firefox, Edge), .hevc.mp4 (HEVC Main10, hvc1: Safari), .h264.mp4 (último
-// respaldo) y -poster.jpg. Ver README.md de esta carpeta.
+// respaldo) y -poster.webp. La landing lee src/components/platformVideos.json (tamaño,
+// duración y marcas de cada video). Ver README.md de esta carpeta.
 import { chromium } from 'playwright-core'
 import { execFileSync, spawnSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
@@ -29,32 +31,52 @@ import { fileURLToPath } from 'node:url'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const OUT = path.join(ROOT, 'public/media/plataforma')
+// El detalle de cada grabación (calidad medida, cuadros, marcas). Va al repo pero no se
+// publica: por eso no está en public/
+const REPORT = path.join(ROOT, 'scripts/grabar-plataforma/grabacion.json')
 const FPS = 60
 
-// Tamaño de cada caja en la landing, en px de CSS: en escritorio (pantalla de
-// 1440) y en el celular (390). Si cambia el diseño de una sección, se cambia acá.
+// Tamaño de cada caja en la landing, en px de CSS. En escritorio, el más grande que
+// alcanza la caja (las cajas crecen con la pantalla: así el video nunca se estira);
+// en el celular, el de una pantalla de 390 (a DPR 3 cubre también las de 430). Si
+// cambia el diseño de una sección, se cambia acá.
+const GRILLA = { escritorio: [465, 428], celular: [340, 313] }
 const PIEZAS = {
-  argus: { escritorio: [438, 403], celular: [340, 313] },
-  alarmas: { escritorio: [438, 403], celular: [340, 313] },
-  mediciones: { escritorio: [438, 403], celular: [340, 313] },
-  activos: { escritorio: [438, 403], celular: [340, 313] },
-  paradas: { escritorio: [438, 403], celular: [340, 313] },
-  reporte: { escritorio: [438, 403], celular: [340, 313] },
+  // «Todo lo que pasa en tu planta» (PlatformPieces.vue)
+  argus: GRILLA,
+  alarmas: GRILLA,
+  mediciones: GRILLA,
+  activos: GRILLA,
+  paradas: GRILLA,
+  reporte: GRILLA,
+  // «Cómo funciona» (HowItWorks.vue): el fragmento del tablero, el campo de Argus y
+  // el reporte en su tarjeta
+  widget: { escritorio: [708, 574], celular: [342, 340] },
+  ask: { escritorio: [708, 113], celular: [342, 72] },
+  report: { escritorio: [708, 529], celular: [342, 485] },
+  // «A tu medida» (PlatformFit.vue). En escritorio la caja crece con el alto de la
+  // pantalla (hasta 1398 × 786): 1120 × 630 cubre a DPR 2 las notebooks comunes
+  medida: { escritorio: [1120, 630], celular: [340, 433] },
+  // El hero (PlatformStage.vue): la pantalla dentro del marco, sin el marco
+  hero: { escritorio: [1224, 765], celular: [330, 660] },
 }
 // Piezas que no salen de la plataforma: una secuencia de cuadros ya renderizada,
 // que se compone sobre negro (#000, el fondo de la landing) y se arma en loop:
 // el movimiento, una pausa sobre el último cuadro y corte seco al primero.
 const CONTENIDO = process.env.SEIM_CONTENIDO_REPO || path.resolve(ROOT, '../seim-global-landing')
 const SECUENCIAS = {
-  // Paso 1 de «Cómo funciona»: las fichas que se enchufan (Blender, plc.py →
-  // renders/hub-web). Se renderizó a 30 fps; en el video de 60 cada cuadro va dos veces.
+  // Paso 1 de «Cómo funciona»: las fichas que se enchufan (Blender, plc.py --shot hub
+  // --web --fps 60, ver su README). Un loop de 4,2 s a 60 fps, 16:9, con su piso y su
+  // negro dentro del cuadro: la cámara frena suave y vuelve a la toma abierta.
   conectar: {
-    frames: path.join(CONTENIDO, 'promo/iot-idioma-blender/renders/hub-web/f_%04d.png'),
-    size: [2160, 1920],
-    fps: 30,
-    // El encuadre del video anterior: a 1600 de ancho, 1600 × 1200 desde y = 44
-    vf: 'scale=1600:-1:flags=lanczos,crop=1600:1200:0:44',
-    hold: 1.2,
+    frames: path.join(CONTENIDO, 'promo/iot-idioma-blender/renders/conectar-web/f_%04d.png'),
+    size: [1920, 1080],
+    fps: 60,
+    // La caja mide hasta 708 de ancho en escritorio (DPR 2) y 382 en el celular (DPR 3)
+    versiones: {
+      escritorio: 'scale=1440:810:flags=lanczos',
+      celular: 'scale=1152:648:flags=lanczos',
+    },
   },
 }
 
@@ -76,7 +98,7 @@ function args() {
     piezas: a.includes('--todas') ? [...Object.keys(PIEZAS), ...Object.keys(SECUENCIAS)] : [get('pieza', 'mediciones')],
     version: get('version', 'ambas'),
     url: get('url', 'http://localhost:4813'),
-    datos: get('datos', 'quietos'),
+    datos: get('datos', 'vivos'),
     codificar: !a.includes('--sin-codificar'),
     cuadros: get('cuadros', null),
     reusar: a.includes('--reusar'),
@@ -160,7 +182,7 @@ async function record({ key, version, url, datos, framesDir }) {
     }
     lap2 = seen.find((m) => m.lap === 2)
     if (lap2) break
-    if (Date.now() - warmStart > 180000) throw new Error(`«${key}» no llegó a la segunda vuelta del guion`)
+    if (Date.now() - warmStart > 420000) throw new Error(`«${key}» no llegó a la segunda vuelta del guion`)
     await sleep(6)
   }
 
@@ -191,8 +213,36 @@ async function record({ key, version, url, datos, framesDir }) {
     k++
   }
   const clockCheck = await Promise.all(page.frames().map((f) => f.evaluate(() => Date.now()).catch(() => null)))
+  // Lo que la pieza avisó durante la vuelta (en «A tu medida», el equipo de la
+  // pestaña), en segundos desde el primer cuadro; arranca con lo que estaba antes.
+  const events = await page.evaluate(() => window.__events || [])
+  const before = events.filter((e) => e.t <= t2).at(-1)
+  const lapMarks = [
+    ...(before ? [{ t: 0, name: before.name }] : []),
+    ...events.filter((e) => e.t > t2 && e.t < t2 + frames.lapLength).map((e) => ({ t: +((e.t - t2) / 1000).toFixed(3), name: e.name })),
+  ]
   await browser.close()
-  return { frames, w, h, dpr, errors, recordMs: Date.now() - t0, warmMs: t0 - warmStart, clockCheck }
+  return { frames, w, h, dpr, errors, marks: lapMarks, recordMs: Date.now() - t0, warmMs: t0 - warmStart, clockCheck }
+}
+
+// El póster (el primer cuadro) en WebP: lo codifica Chrome, que ya está, así no hace
+// falta otra herramienta.
+async function posterWebp(png, out) {
+  const browser = await chromium.launch({ channel: 'chrome' })
+  const page = await browser.newPage()
+  const data = (await readFile(png)).toString('base64')
+  const webp = await page.evaluate(async (src) => {
+    const img = new Image()
+    img.src = src
+    await img.decode()
+    const canvas = document.createElement('canvas')
+    canvas.width = img.naturalWidth
+    canvas.height = img.naturalHeight
+    canvas.getContext('2d').drawImage(img, 0, 0)
+    return canvas.toDataURL('image/webp', 0.9).split(',')[1]
+  }, `data:image/png;base64,${data}`)
+  await browser.close()
+  await writeFile(out, Buffer.from(webp, 'base64'))
 }
 
 const sizeOf = async (f) => ((await stat(f)).size / 1024).toFixed(0) + ' KB'
@@ -212,7 +262,7 @@ function encode(framesDir, base) {
     av1: `${base}.av1.mp4`,
     hevc: `${base}.hevc.mp4`,
     h264: `${base}.h264.mp4`,
-    poster: `${base}-poster.jpg`,
+    poster: `${base}-poster.webp`,
   }
   // AV1 10 bits: los degradés oscuros sin bandas
   ff([...input, '-vf', toYuv('yuv420p10le'), '-c:v', 'libsvtav1', '-preset', '3', '-crf', '18',
@@ -223,7 +273,6 @@ function encode(framesDir, base) {
   // H.264 de 8 bits: solo si el navegador no tiene ninguno de los anteriores
   ff([...input, '-vf', toYuv('yuv420p'), '-c:v', 'libx264', '-preset', 'slow', '-crf', '14', '-profile:v', 'high',
     '-x264-params', 'aq-mode=3', ...gop, ...COLOR, '-an', '-movflags', '+faststart', outs.h264])
-  ff(['-i', path.join(framesDir, '00001.png'), '-q:v', '2', outs.poster])
   return outs
 }
 
@@ -243,16 +292,14 @@ function quality(framesPattern, video, fmt) {
   }
 }
 
-async function buildSequence(key, framesDir) {
+async function buildSequence(key, version, framesDir) {
   const seq = SECUENCIAS[key]
   await rm(framesDir, { recursive: true, force: true })
   await mkdir(framesDir, { recursive: true })
   const [w, h] = seq.size
   ff([
     '-framerate', String(seq.fps), '-i', seq.frames,
-    '-filter_complex',
-    `color=black:s=${w}x${h}:r=${seq.fps}[bg];[bg][0:v]overlay=format=auto:shortest=1,${seq.vf},` +
-      `tpad=stop_mode=clone:stop_duration=${seq.hold},fps=${FPS}`,
+    '-filter_complex', `color=black:s=${w}x${h}:r=${seq.fps}[bg];[bg][0:v]overlay=format=auto:shortest=1,${seq.versiones[version]},fps=${FPS}`,
     '-start_number', '1', path.join(framesDir, '%05d.png'),
   ])
   return (await readdir(framesDir)).filter((f) => f.endsWith('.png')).length
@@ -261,67 +308,103 @@ async function buildSequence(key, framesDir) {
 const opts = args()
 await mkdir(OUT, { recursive: true })
 const report = []
-for (const key of opts.piezas) {
-  if (SECUENCIAS[key]) {
-    const framesDir = path.join(opts.cuadros || path.join(os.tmpdir(), 'grabar-plataforma'), key)
-    const n = opts.reusar ? (await readdir(framesDir)).filter((f) => f.endsWith('.png')).length : await buildSequence(key, framesDir)
-    console.log(`▸ ${key}: ${n} cuadros (${(n / FPS).toFixed(2)} s de loop)`)
-    const entry = { key, frames: n, framesDir }
-    if (opts.codificar) {
-      const outs = encode(framesDir, path.join(OUT, key))
-      for (const [fmt, file] of Object.entries(outs)) {
-        if (fmt === 'poster') {
-          entry.poster = { file, size: await sizeOf(file) }
-          continue
-        }
-        const q = quality(path.join(framesDir, '%05d.png'), file, fmt === 'h264' ? 'yuv420p' : 'yuv420p10le')
-        entry[fmt] = { file, size: await sizeOf(file), ...q }
-        console.log(`  ${fmt.padEnd(5)} ${entry[fmt].size.padStart(8)}  SSIM ${q.ssim}  PSNR ${q.psnr} dB  VMAF ${q.vmaf ?? '—'}`)
-      }
-      console.log(`  portada ${entry.poster.size}`)
-    }
-    report.push(entry)
-    continue
+
+// --manifiesto: rehace src/components/platformVideos.json desde grabacion.json, sin grabar
+// ni codificar (por ejemplo, si cambia lo que guarda el manifiesto)
+if (process.argv.includes('--manifiesto')) {
+  const all = JSON.parse(await readFile(REPORT, 'utf8'))
+  await save(all.filter((e) => e.av1 && e.version).map((e) => ({ ...e, dur: e.dur ?? +(e.frames / FPS).toFixed(3) })))
+  console.log(`manifiesto: ${all.length} videos`)
+  process.exit(0)
+}
+
+// Codifica los cuadros, mide la calidad de cada formato y saca el póster
+async function finish(entry, framesDir, base) {
+  const outs = encode(framesDir, base)
+  for (const [fmt, file] of Object.entries(outs)) {
+    if (fmt === 'poster') continue
+    const q = quality(path.join(framesDir, '%05d.png'), file, fmt === 'h264' ? 'yuv420p' : 'yuv420p10le')
+    entry[fmt] = { file: path.relative(ROOT, file), size: await sizeOf(file), ...q }
+    console.log(`  ${fmt.padEnd(5)} ${entry[fmt].size.padStart(8)}  SSIM ${q.ssim}  PSNR ${q.psnr} dB  VMAF ${q.vmaf ?? '—'}`)
   }
-  if (!PIEZAS[key]) throw new Error(`No hay tamaño de caja para «${key}» en PIEZAS`)
+  await posterWebp(path.join(framesDir, '00001.png'), outs.poster)
+  entry.poster = { file: path.relative(ROOT, outs.poster), size: await sizeOf(outs.poster) }
+  console.log(`  póster ${entry.poster.size}`)
+}
+
+const framesRoot = opts.cuadros || path.join(os.tmpdir(), 'grabar-plataforma')
+const countFrames = async (dir) => (await readdir(dir)).filter((f) => f.endsWith('.png')).length
+
+for (const key of opts.piezas) {
+  if (!PIEZAS[key] && !SECUENCIAS[key]) throw new Error(`No hay tamaño de caja para «${key}» en PIEZAS`)
   const versions = opts.version === 'ambas' ? Object.keys(VERSIONES) : [opts.version]
   for (const version of versions) {
-    const framesDir = opts.cuadros ? path.join(opts.cuadros, `${key}-${version}`) : path.join(os.tmpdir(), 'grabar-plataforma', `${key}-${version}`)
-    let n
-    const [cw, ch] = PIEZAS[key][version]
-    if (opts.reusar) {
-      n = (await readdir(framesDir)).filter((f) => f.endsWith('.png')).length
-      console.log(`▸ ${key} (${version}): ${n} cuadros ya grabados en ${framesDir}`)
+    const framesDir = path.join(framesRoot, `${key}-${version}`)
+    const entry = { key, version, framesDir }
+    if (SECUENCIAS[key]) {
+      entry.frames = opts.reusar ? await countFrames(framesDir) : await buildSequence(key, version, framesDir)
+      const [w, h] = SECUENCIAS[key].versiones[version].match(/scale=(\d+):(\d+)/).slice(1).map(Number)
+      Object.assign(entry, { w, h })
+      console.log(`▸ ${key} (${version}): ${entry.frames} cuadros (${(entry.frames / FPS).toFixed(2)} s de loop)`)
     } else {
-      console.log(`▸ ${key} (${version}): grabando…`)
-      const rec = await record({ key, version, url: opts.url, datos: opts.datos, framesDir })
-      n = rec.frames.length
-      console.log(`  ${n} cuadros (${(n / FPS).toFixed(2)} s de video, vuelta de ${(rec.frames.lapLength / 1000).toFixed(3)} s) en ${(rec.recordMs / 1000).toFixed(0)} s; arranque ${(rec.warmMs / 1000).toFixed(0)} s`)
-      console.log(`  relojes (página, iframe): ${rec.clockCheck.join(', ')}`)
-      if (rec.errors.length) console.log('  avisos de la página:', [...new Set(rec.errors)].join(' | '))
-    }
-    const dpr = VERSIONES[version].dpr
-    const entry = { key, version, frames: n, w: cw * dpr, h: ch * dpr, framesDir }
-    if (opts.codificar) {
-      const base = path.join(OUT, key + VERSIONES[version].sufijo)
-      const outs = encode(framesDir, base)
-      for (const [fmt, file] of Object.entries(outs)) {
-        if (fmt === 'poster') {
-          entry.poster = { file, size: await sizeOf(file) }
-          continue
-        }
-        const q = quality(path.join(framesDir, '%05d.png'), file, fmt === 'h264' ? 'yuv420p' : 'yuv420p10le')
-        entry[fmt] = { file, size: await sizeOf(file), ...q }
-        console.log(`  ${fmt.padEnd(5)} ${entry[fmt].size.padStart(8)}  SSIM ${q.ssim}  PSNR ${q.psnr} dB  VMAF ${q.vmaf ?? '—'}`)
+      const [cw, ch] = PIEZAS[key][version]
+      const dpr = VERSIONES[version].dpr
+      Object.assign(entry, { w: cw * dpr, h: ch * dpr, css: [cw, ch] })
+      if (opts.reusar) {
+        entry.frames = await countFrames(framesDir)
+        console.log(`▸ ${key} (${version}): ${entry.frames} cuadros ya grabados en ${framesDir}`)
+      } else {
+        console.log(`▸ ${key} (${version}): grabando…`)
+        const rec = await record({ key, version, url: opts.url, datos: opts.datos, framesDir })
+        entry.frames = rec.frames.length
+        entry.marks = rec.marks
+        console.log(`  ${entry.frames} cuadros (${(entry.frames / FPS).toFixed(2)} s de video, vuelta de ${(rec.frames.lapLength / 1000).toFixed(3)} s) en ${(rec.recordMs / 1000).toFixed(0)} s; arranque ${(rec.warmMs / 1000).toFixed(0)} s`)
+        console.log(`  relojes (página, iframe): ${rec.clockCheck.join(', ')}`)
+        if (rec.marks.length) console.log(`  marcas: ${rec.marks.map((m) => `${m.t}s ${m.name}`).join(' · ')}`)
+        if (rec.errors.length) console.log('  avisos de la página:', [...new Set(rec.errors)].join(' | '))
       }
-      console.log(`  portada ${entry.poster.size}`)
     }
+    entry.dur = +(entry.frames / FPS).toFixed(3)
+    if (opts.codificar) await finish(entry, framesDir, path.join(OUT, key + VERSIONES[version].sufijo))
     report.push(entry)
+    await save([entry])
   }
 }
-// grabacion.json acumula: cada corrida reemplaza solo las piezas que grabó
-const reportFile = path.join(OUT, 'grabacion.json')
-const previous = await readFile(reportFile, 'utf8').then(JSON.parse).catch(() => [])
-const id = (e) => `${e.key}/${e.version ?? ''}`
-const merged = [...previous.filter((e) => !report.some((r) => id(r) === id(e))), ...report]
-await writeFile(reportFile, JSON.stringify(merged, null, 2))
+
+// El parámetro `codecs` de cada archivo, para el atributo type de <source>: así el
+// navegador sabe de antemano si lo puede reproducir (perfil y nivel reales, de ffprobe).
+function codecsOf(file) {
+  const [codec, , level] = execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=codec_name,profile,level', '-of', 'csv=p=0', path.resolve(ROOT, file)], { encoding: 'utf8' }).trim().split(',')
+  const n = Number(level)
+  if (codec === 'av1') return `av01.0.${String(n).padStart(2, '0')}M.10`
+  if (codec === 'hevc') return `hvc1.2.4.L${n}.B0`
+  return `avc1.6400${n.toString(16).padStart(2, '0')}`
+}
+
+// grabacion.json (detalle y calidad) y src/components/platformVideos.json (lo que
+// lee la landing) acumulan: cada corrida reemplaza solo las piezas que grabó.
+async function save(entries) {
+  const previous = await readFile(REPORT, 'utf8').then(JSON.parse).catch(() => [])
+  const id = (e) => `${e.key}/${e.version ?? ''}`
+  // Sin rutas de esta máquina: los archivos, relativos al repo; la carpeta de cuadros, afuera
+  const clean = (e) => {
+    const { framesDir, ...rest } = e
+    for (const f of ['av1', 'hevc', 'h264', 'poster']) if (rest[f]?.file) rest[f] = { ...rest[f], file: path.relative(ROOT, path.resolve(ROOT, rest[f].file)) }
+    return rest
+  }
+  const merged = [...previous.filter((e) => e.version && !entries.some((r) => id(r) === id(e))), ...entries].map(clean)
+  await writeFile(REPORT, JSON.stringify(merged, null, 2) + '\n')
+
+  const manifestFile = path.join(ROOT, 'src/components/platformVideos.json')
+  const manifest = await readFile(manifestFile, 'utf8').then(JSON.parse).catch(() => ({}))
+  for (const e of entries) {
+    if (!e.av1) continue
+    const prev = manifest[e.key]?.[e.version]
+    manifest[e.key] = {
+      ...manifest[e.key],
+      // v: cambia con cada grabación; va en la URL (?v=), así el servidor puede dar caché de un año
+      [e.version]: { w: e.w, h: e.h, dur: e.dur ?? +(e.frames / FPS).toFixed(3), v: createHash('sha1').update(await readFile(path.resolve(ROOT, e.av1.file))).digest('hex').slice(0, 10), codecs: { av1: codecsOf(e.av1.file), hevc: codecsOf(e.hevc.file), h264: codecsOf(e.h264.file) }, ...(e.marks?.length ? { marks: e.marks } : prev?.marks && (opts.reusar || process.argv.includes('--manifiesto')) ? { marks: prev.marks } : {}) },
+    }
+  }
+  await writeFile(manifestFile, JSON.stringify(manifest, null, 2) + '\n')
+}

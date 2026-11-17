@@ -5,7 +5,9 @@ import { createDriver } from './platformDriver'
 const EMAIL = 'operaciones@plantademo.com'
 const QUESTION = '¿Por qué está detenida la Llenadora?'
 
-export function createPlatformTour({ frame, cursor, mode }) {
+// `cut`: false = la vuelta siguiente empalma sin fundido (el grabador de videos:
+// del final de Argus al login, con corte seco)
+export function createPlatformTour({ frame, cursor, mode, cut = true }) {
   const mobile = () => mode() === 'mobile'
 
   async function goTo(d, label) {
@@ -77,5 +79,5 @@ export function createPlatformTour({ frame, cursor, mode }) {
     await d.until(() => d.find('#login-email'))
   }
 
-  return createDriver({ frame, cursor, script, reset, touch: mobile })
+  return createDriver({ frame, cursor, script, reset, touch: mobile, cut })
 }
