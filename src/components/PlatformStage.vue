@@ -9,6 +9,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { createPlatformTour } from './platformTour'
+import { createStageLight } from './stageLight'
 
 const props = defineProps({
   label: { type: String, default: 'La plataforma de Seim Interactive en uso: ingreso, activos, mediciones, acciones e inteligencia artificial' },
@@ -24,6 +25,8 @@ const root = ref(null)
 const viewport = ref(null)
 const frame = ref(null)
 const cursor = ref(null)
+const lightCanvas = ref(null)
+const shaderLight = ref(false)
 const mode = ref('desktop')
 const scale = ref(1)
 const ready = ref(false)
@@ -38,6 +41,13 @@ let ratio = 0
 let loading = false
 let raf = 0
 let glint = 0
+let light = null
+
+// El lienzo de la luz sobresale por arriba y a los costados del marco, y entra
+// LIGHT_BELOW px por debajo del filo para que el vidrio del marco la difumine.
+const LIGHT_ABOVE = 380
+const LIGHT_BELOW = 56
+const LIGHT_SIDE = 0.16
 
 // El reflejo del marco sigue al scroll: mientras la plataforma sube por la pantalla,
 // el brillo recorre el borde de arriba y baja por el costado. Va con un poco de
@@ -50,6 +60,7 @@ function trackLight() {
   const target = Math.min(1, Math.max(0, (vh * 0.7 - rect.top) / (vh * 0.7 + rect.height * 0.5)))
   glint += (target - glint) * 0.09
   el.style.setProperty('--glint', glint.toFixed(4))
+  light?.setGlint(glint)
   raf = Math.abs(target - glint) > 0.0005 && rect.bottom > 0 && rect.top < vh ? requestAnimationFrame(trackLight) : 0
 }
 
@@ -62,6 +73,8 @@ function fit() {
   if (!viewport.value) return
   mode.value = window.matchMedia('(max-width: 720px)').matches ? 'mobile' : 'desktop'
   scale.value = viewport.value.clientWidth / screen.value.w
+  const width = root.value.clientWidth
+  light?.resize(width * (1 + LIGHT_SIDE * 2), LIGHT_ABOVE + LIGHT_BELOW, LIGHT_BELOW, width)
 }
 
 function onLoad() {
@@ -91,6 +104,8 @@ function sync() {
 }
 
 onMounted(() => {
+  light = createStageLight(lightCanvas.value, { reduceMotion })
+  shaderLight.value = !!light
   fit()
   resizeObserver = new ResizeObserver(fit)
   resizeObserver.observe(viewport.value)
@@ -106,6 +121,7 @@ onMounted(() => {
     ([entry]) => {
       if (entry.isIntersecting) load()
       ratio = entry.intersectionRatio
+      light?.setVisible(entry.isIntersecting)
       sync()
     },
     { threshold: [0, 0.25, 0.4, 0.55, 0.7] }
@@ -117,13 +133,20 @@ onUnmounted(() => {
   observer?.disconnect()
   resizeObserver?.disconnect()
   tour?.destroy()
+  light?.destroy()
   window.removeEventListener('scroll', onScroll)
   cancelAnimationFrame(raf)
 })
 </script>
 
 <template>
-  <div ref="root" class="stage" :class="[`stage--${mode}`, { 'is-ready': ready }]" role="img" :aria-label="props.label">
+  <div ref="root" class="stage" :class="[`stage--${mode}`, { 'is-ready': ready, 'has-shader': shaderLight }]" role="img" :aria-label="props.label">
+    <canvas
+      ref="lightCanvas"
+      class="stage-glow"
+      :style="{ height: `${LIGHT_ABOVE + LIGHT_BELOW}px`, bottom: `calc(100% - ${LIGHT_BELOW}px)`, left: `${-LIGHT_SIDE * 100}%`, width: `${(1 + LIGHT_SIDE * 2) * 100}%` }"
+      aria-hidden="true"
+    ></canvas>
     <div class="stage-light" aria-hidden="true"></div>
     <div class="stage-shell">
       <div ref="viewport" class="stage-viewport" :style="{ aspectRatio: `${screen.w} / ${screen.h}` }">
@@ -140,7 +163,6 @@ onUnmounted(() => {
           loading="lazy"
           @load="onLoad"
         ></iframe>
-        <div class="stage-sheen" aria-hidden="true"></div>
         <div ref="cursor" class="stage-cursor" aria-hidden="true">
           <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
             <path d="M4 2.5 17.5 11l-6 1.4-2.9 5.6L4 2.5Z" fill="#fff" stroke="#0b0c10" stroke-width="1.2" stroke-linejoin="round" />
@@ -167,38 +189,51 @@ onUnmounted(() => {
 }
 
 /* ---------- La luz ---------- */
-/* Blanca. Un halo ancho que nace detrás del borde de arriba y entra en el
-   contenedor (el fondo de la plataforma es translúcido), más una línea fina
-   apoyada sobre el borde. */
+/* El resplandor lo dibuja un shader (stageLight.js) en este lienzo. Sale del filo
+   de arriba del marco y nunca pasa por encima de la pantalla. */
+.stage-glow {
+  position: absolute;
+  pointer-events: none;
+}
+
+/* Encima del resplandor, la línea nítida del filo. Si el navegador no tiene WebGL,
+   ::before hace de resplandor con un degradé. */
 .stage-light {
+  --light: 226, 236, 255;
   position: absolute;
   inset: 0;
   pointer-events: none;
+}
+
+/* Solo sin WebGL */
+.has-shader .stage-light::before {
+  display: none;
 }
 
 .stage-light::before {
   content: '';
   position: absolute;
   left: 50%;
-  top: -260px;
-  width: 118%;
-  height: 620px;
-  transform: translateX(calc(-50% + (var(--glint) - 0.5) * 60px));
+  bottom: 100%;
+  width: 92%;
+  height: 170px;
+  transform: translateX(calc(-50% + (var(--glint) - 0.5) * 80px));
+  /* Cada capa cae en curva, no en línea recta: así no se ve dónde termina */
   background:
-    radial-gradient(ellipse 34% 30% at 50% 42%, rgba(255, 255, 255, 0.34), transparent 70%),
-    radial-gradient(ellipse 50% 50% at 50% 42%, rgba(255, 255, 255, 0.13), transparent 72%);
+    radial-gradient(ellipse 20% 30% at 50% 100%, rgba(var(--light), 0.300) 0%, rgba(var(--light), 0.168) 22%, rgba(var(--light), 0.078) 45%, rgba(var(--light), 0.027) 68%, rgba(var(--light), 0.006) 86%, transparent 100%),
+    radial-gradient(ellipse 50% 100% at 50% 100%, rgba(var(--light), 0.130) 0%, rgba(var(--light), 0.073) 22%, rgba(var(--light), 0.034) 45%, rgba(var(--light), 0.012) 68%, rgba(var(--light), 0.003) 86%, transparent 100%);
 }
 
 .stage-light::after {
   content: '';
   position: absolute;
-  left: 4%;
-  right: 4%;
+  left: 3%;
+  right: 3%;
   top: 0;
   height: 1px;
   z-index: 3;
-  background: radial-gradient(ellipse 34% 100% at var(--glint-x) 50%, #fff, rgba(255, 255, 255, 0.5) 45%, transparent);
-  box-shadow: 0 0 22px 2px rgba(255, 255, 255, 0.3);
+  background: radial-gradient(ellipse 40% 100% at var(--glint-x) 50%, #fff, rgba(var(--light), 0.55) 40%, transparent);
+  box-shadow: 0 0 10px 0 rgba(var(--light), 0.5), 0 -1px 28px 1px rgba(var(--light), 0.22);
 }
 
 /* ---------- El marco ---------- */
@@ -206,7 +241,7 @@ onUnmounted(() => {
   position: relative;
   padding: 8px;
   border-radius: 24px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03) 22%, rgba(255, 255, 255, 0.012) 60%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025) 18%, rgba(255, 255, 255, 0.012) 60%);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   box-shadow: 0 70px 160px -50px rgba(0, 0, 0, 0.95);
@@ -241,23 +276,11 @@ onUnmounted(() => {
   width: 100%;
   overflow: hidden;
   border-radius: 16px;
-  /* Arriba deja pasar la luz; hacia abajo se cierra para que los datos se lean bien */
-  background: linear-gradient(180deg, rgba(14, 16, 20, 0.5), rgba(7, 8, 11, 0.8) 34%, rgba(5, 6, 8, 0.9));
+  background: rgba(7, 8, 11, 0.82);
 }
 
 .stage-viewport::before {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05) 30%, rgba(255, 255, 255, 0.03));
-}
-
-/* Un velo de luz muy tenue sobre el vidrio, que se corre con el scroll */
-.stage-sheen {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  background: linear-gradient(112deg, transparent 30%, rgba(255, 255, 255, 0.045) 46%, rgba(255, 255, 255, 0.015) 54%, transparent 68%);
-  background-size: 220% 100%;
-  background-position: calc(100% - var(--glint) * 100%) 0;
 }
 
 .stage-frame {
@@ -303,8 +326,6 @@ onUnmounted(() => {
 }
 
 .stage--mobile .stage-light::before {
-  top: -180px;
-  width: 150%;
-  height: 440px;
+  height: 110px;
 }
 </style>

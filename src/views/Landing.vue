@@ -732,8 +732,8 @@ button:focus-visible {
   font-weight: 500;
   letter-spacing: -0.01em;
   text-decoration: none;
-  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.14), 0 10px 40px -12px rgba(255, 255, 255, 0.35);
-  transition: transform 0.45s var(--ease-out), box-shadow 0.45s var(--ease-out);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.14);
+  transition: transform 0.45s var(--ease-out);
 }
 
 .hero-cta svg {
@@ -743,7 +743,6 @@ button:focus-visible {
 @media (hover: hover) and (pointer: fine) {
   .hero-cta:hover {
     transform: translateY(-2px);
-    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.14), 0 16px 48px -12px rgba(255, 255, 255, 0.45);
   }
 
   .hero-cta:hover svg {
