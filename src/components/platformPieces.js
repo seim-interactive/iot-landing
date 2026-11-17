@@ -168,6 +168,48 @@ export const PIECES = [
     async reset() {},
   },
   {
+    key: 'paradas',
+    title: 'Cada parada, con su motivo',
+    text: 'La plataforma detecta las paradas sola. Con un toque se marca el motivo, y aparece dónde se va el tiempo.',
+    route: '/operations',
+    width: 430,
+    height: 2400,
+    async script(d) {
+      const tab = await d.until(() => d.find('.tab-btn', 'Paradas'), 12000)
+      if (!d.find('.stops-section')) tab.click()
+      const pending = () => d.find('.stops-row', 'Sin motivo')
+      const row = await d.until(pending, 12000)
+      const summary = () => part(d.find('.stops-kpis'), { height: 172 })
+      // El resumen del día: cuántas paradas quedaron sin motivo.
+      await d.frameOn(summary(), { pad: AIR, duration: 0 })
+      d.fade(1)
+      await d.wait(2400)
+      // Baja a la parada sin motivo, se lo pone y lo guarda.
+      await d.frameOn(row, { pad: AIR, max: 1.1, duration: 1.4 })
+      await d.click(await d.until(() => button(row, 'Poner motivo')))
+      await d.wait(500)
+      await d.frameOn(row, { pad: AIR, max: 1.1, duration: 0.8 })
+      await d.click(await d.until(() => row.querySelector('.base-select-trigger')))
+      await d.wait(450)
+      await d.click(await d.until(() => d.find('.base-select-option', 'bobina') || d.find('.base-select-option')))
+      await d.wait(500)
+      await d.click(await d.until(() => button(row, 'Guardar')))
+      d.hideCursor()
+      await d.wait(1500)
+      // Vuelve al resumen: ya no queda ninguna sin motivo.
+      await d.frameOn(summary(), { pad: AIR, duration: 1.4 })
+      await d.wait(3000)
+    },
+    // Borra el motivo cargado y vuelve a entrar a la pestaña.
+    async reset(d) {
+      d.win().__demoReset?.()
+      d.find('.tab-btn', 'Alarmas')?.click()
+      await d.wait(600)
+      d.find('.tab-btn', 'Paradas')?.click()
+      await d.until(() => d.find('.stops-row', 'Sin motivo'), 12000)
+    },
+  },
+  {
     key: 'reporte',
     title: 'El resumen de tu planta, ya analizado',
     text: 'Argus revisa los datos y te marca qué requiere atención, con la evidencia y el próximo paso.',
