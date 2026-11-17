@@ -85,7 +85,7 @@ gsap.registerPlugin(ScrollTrigger)
 
 const menuItems = [
   { id: 'solution', label: 'Solución' },
-  { id: 'use-cases', label: 'Casos de uso' },
+  { id: 'partes', label: 'Funciones' },
   { id: 'technology', label: 'Cómo funciona' },
   { id: 'services', label: 'Servicios' },
   { id: 'contact', label: 'Contacto' },

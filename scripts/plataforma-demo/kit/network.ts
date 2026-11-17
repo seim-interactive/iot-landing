@@ -1,7 +1,7 @@
 // La API y el WebSocket de la demo: responden con los datos de ejemplo de
 // handlers.mjs, sin salir a la red. Se instala antes de que cargue la app.
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
-import handlers, { responseDelayMs, wsMessages, WS_AUTHENTICATED, WS_TICK_MS } from './handlers.mjs';
+import handlers, { resetDemoState, responseDelayMs, wsMessages, WS_AUTHENTICATED, WS_TICK_MS } from './handlers.mjs';
 
 type Handler = unknown | ((_url: URL, _req: { method: string; headers: Record<string, string> }, _body: unknown) => unknown);
 type Stream = { __stream: { contentType: string; chunks: { delayMs: number; data: string }[] } };
@@ -111,8 +111,9 @@ class DemoSocket extends EventTarget {
   }
 
   private tick() {
-    // Con la pestaña oculta no hay nada que actualizar.
-    if (document.hidden) return;
+    // Con la pestaña oculta, o con el marco fuera de pantalla (la landing pone
+    // __demoPaused), no hay nada que actualizar.
+    if (document.hidden || (window as { __demoPaused?: boolean }).__demoPaused) return;
     const now = Date.now();
     for (const message of wsMessages(now, this.last)) this.deliver(message);
     this.last = now;
@@ -134,3 +135,6 @@ class DemoSocket extends EventTarget {
   }
 }
 window.WebSocket = DemoSocket as unknown as typeof WebSocket;
+
+// La landing borra lo hecho en la sesión (alarmas reconocidas…) entre una vuelta y otra.
+(window as { __demoReset?: () => void }).__demoReset = resetDemoState;

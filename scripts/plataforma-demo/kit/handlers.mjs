@@ -784,8 +784,27 @@ function alarmOf(m, a) {
 
 const ALARM_IDS = { temp: 'c4d2e6f8-0a1b-4c3d-9e5f-000000000001', aire: 'c4d2e6f8-0a1b-4c3d-9e5f-000000000002', llenado: 'c4d2e6f8-0a1b-4c3d-9e5f-000000000003' };
 
-/** Las tres alarmas sin resolver: dos de la Envasadora 1 y una de la Llenadora. */
+/**
+ * Lo que se hizo con las alarmas en esta sesión (reconocer, resolver). Vive en
+ * memoria: `resetDemoState()` lo borra y todo vuelve a como estaba.
+ */
+function alarmEdits() {
+  return globalThis.__plantaDemoAlarmEdits || (globalThis.__plantaDemoAlarmEdits = new Map());
+}
+
+export function resetDemoState() {
+  alarmEdits().clear();
+}
+
+/** Las alarmas sin resolver, con lo que se haya hecho en la sesión. */
 function activeAlarms(now) {
+  return baseActiveAlarms(now)
+    .map((a) => ({ ...a, ...(alarmEdits().get(a.id) || {}) }))
+    .filter((a) => a.status !== 'resolved');
+}
+
+/** Las tres alarmas sin resolver: dos de la Envasadora 1 y una de la Llenadora. */
+function baseActiveAlarms(now) {
   const boot = bootTime(now);
   const env1 = machineBy('env1');
   const llen = machineBy('llen');
@@ -1657,13 +1676,19 @@ export default {
   'GET /api/alarms/rules': (url) => alarmRules().filter((r) => !url.searchParams.get('plcId') || r.plcId === url.searchParams.get('plcId')),
   'POST /api/alarms/*/acknowledge': (url) => {
     const now = nowOf();
-    const a = [...activeAlarms(now), ...historyAlarms(now)].find((x) => x.id === url.pathname.split('/')[3]);
-    return { ...(a || {}), status: 'acknowledged', acknowledgedAt: iso(now), acknowledgedBy: actor() };
+    const id = url.pathname.split('/')[3];
+    const a = [...activeAlarms(now), ...historyAlarms(now)].find((x) => x.id === id);
+    const edit = { status: 'acknowledged', acknowledgedAt: iso(now), acknowledgedBy: actor() };
+    alarmEdits().set(id, { ...(alarmEdits().get(id) || {}), ...edit });
+    return { ...(a || {}), ...edit };
   },
   'POST /api/alarms/*/resolve': (url, _req, body) => {
     const now = nowOf();
-    const a = [...activeAlarms(now), ...historyAlarms(now)].find((x) => x.id === url.pathname.split('/')[3]);
-    return { ...(a || {}), status: 'resolved', resolvedAt: iso(now), resolvedBy: actor(), notes: body?.notes ?? null };
+    const id = url.pathname.split('/')[3];
+    const a = [...activeAlarms(now), ...historyAlarms(now)].find((x) => x.id === id);
+    const edit = { status: 'resolved', resolvedAt: iso(now), resolvedBy: actor(), notes: body?.notes ?? null };
+    alarmEdits().set(id, { ...(alarmEdits().get(id) || {}), ...edit });
+    return { ...(a || {}), ...edit };
   },
   'GET /api/incidents': (url) => incidentList(url, nowOf()),
   'GET /api/incidents/open-count': (url) => ({

@@ -27,6 +27,13 @@
       </div>
     </main>
 
+    <!-- ==================== PARTES CLAVE ==================== -->
+    <section id="partes" class="section pieces-section">
+      <div class="container">
+        <PlatformPieces />
+      </div>
+    </section>
+
     <!-- ==================== SOLUCIÓN ==================== -->
     <section id="solution" class="section solution">
       <div class="container">
@@ -46,45 +53,6 @@
             </li>
           </ul>
         </div>
-      </div>
-    </section>
-
-    <!-- ==================== CASOS DE USO ==================== -->
-    <section id="use-cases" class="section use-cases">
-      <div class="container">
-        <header class="section-head section-head--split" data-reveal>
-          <h2 class="section-title">Casos de Uso de IoT en la Industria</h2>
-          <p class="section-lead">
-            Soluciones IoT para monitoreo de producción, mantenimiento predictivo y eficiencia operativa en plantas industriales.
-          </p>
-        </header>
-
-        <!-- Desktop: cuadrícula con divisiones internas y bordes exteriores abiertos -->
-        <div class="use-cases-grid desktop-use-cases">
-          <article v-for="useCase in useCases" :key="useCase.title" class="use-case-card" data-reveal>
-            <svg class="card-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" v-html="useCase.icon"></svg>
-            <h3 class="card-title">{{ useCase.title }}</h3>
-            <p class="card-description">{{ useCase.summary }}</p>
-          </article>
-        </div>
-
-        <!-- Mobile: acordeón -->
-        <Accordion type="single" collapsible class="mobile-use-cases-accordion" default-value="item-0" data-reveal>
-          <AccordionItem
-            v-for="(useCase, index) in useCases"
-            :key="useCase.title"
-            :value="`item-${index}`"
-            class="accordion-item"
-          >
-            <AccordionTrigger class="accordion-header">
-              <span class="accordion-title">{{ useCase.title }}</span>
-              <span class="accordion-toggle" aria-hidden="true"></span>
-            </AccordionTrigger>
-            <AccordionContent class="accordion-content">
-              <p class="accordion-description">{{ useCase.description }}</p>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
       </div>
     </section>
 
@@ -246,7 +214,7 @@
             <h4 class="footer-title">Secciones</h4>
             <ul class="footer-links">
               <li><a href="#solution">Solución</a></li>
-              <li><a href="#use-cases">Casos de Uso</a></li>
+              <li><a href="#partes">Funciones</a></li>
               <li><a href="#technology">Cómo funciona</a></li>
               <li><a href="#contact">Contacto</a></li>
             </ul>
@@ -291,14 +259,9 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import Navbar from '@/components/Navbar.vue'
 import FlowSchematic from '@/components/FlowSchematic.vue'
 import PlatformStage from '@/components/PlatformStage.vue'
+import PlatformPieces from '@/components/PlatformPieces.vue'
 import { useLandingMotion } from '@/composables/useLandingMotion'
 import { useFlowScroll } from '@/composables/useFlowScroll'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion'
 
 const rootEl = ref(null)
 const flowTrack = ref(null)
@@ -356,46 +319,6 @@ const capabilities = [
   'Seguridad industrial y de datos',
   'Inteligencia artificial aplicada',
   'Soporte y operación continua',
-]
-
-// summary: texto de la card en desktop. description: texto del acordeón en mobile.
-const useCases = [
-  {
-    title: 'Monitoreo de Producción',
-    summary: 'Visibilidad en tiempo real del estado de líneas y procesos.',
-    description: 'Visibilidad en tiempo real del estado de líneas y procesos productivos. Seguimiento continuo de métricas clave para tomar decisiones informadas.',
-    icon: '<path d="M3 12h4l3-9 4 18 3-9h4"/>',
-  },
-  {
-    title: 'Eficiencia Operativa y OEE',
-    summary: 'Indicadores clave (OEE, KPIs) para optimizar el desempeño industrial.',
-    description: 'Indicadores clave (OEE, KPIs) para optimizar el desempeño industrial. Identificación de cuellos de botella y oportunidades de mejora continua.',
-    icon: '<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>',
-  },
-  {
-    title: 'Continuidad Operativa y Alertas en Tiempo Real',
-    summary: 'Supervisión 24/7 con alertas tempranas para asegurar estabilidad y previsibilidad.',
-    description: 'Supervisión 24/7 con alertas tempranas para asegurar estabilidad y previsibilidad de variables críticas.',
-    icon: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
-  },
-  {
-    title: 'Mantenimiento Predictivo con IA',
-    summary: 'Anticipación de fallas basada en datos operativos y modelos de IA predictivos.',
-    description: 'Anticipación de fallas basada en datos operativos y modelos de IA predictivos. Reducción de paradas no planificadas y optimización de recursos de mantenimiento.',
-    icon: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
-  },
-  {
-    title: 'Gestión Multi-Planta',
-    summary: 'Control centralizado de múltiples plantas o líneas.',
-    description: 'Control centralizado de múltiples plantas o líneas. Comparativas de rendimiento y estandarización de procesos entre ubicaciones.',
-    icon: '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
-  },
-  {
-    title: 'Inteligencia Artificial Aplicada a la Industria',
-    summary: 'Insights automáticos, análisis predictivo y detección de patrones para decisiones estratégicas.',
-    description: 'Insights automáticos, análisis predictivo y detección de patrones en grandes volúmenes de datos para decisiones estratégicas.',
-    icon: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>',
-  },
 ]
 
 const flowSteps = [
@@ -1027,159 +950,30 @@ button:focus-visible {
 /* ==================== CASOS DE USO ==================== */
 /* Sin caja exterior: solo las líneas entre casos. Cada card dibuja su borde derecho
    e inferior, y se quitan en la última columna y en la última fila. */
-.use-cases-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-}
 
-.use-case-card {
-  border-right: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-}
 
-.use-case-card:nth-child(3n) {
-  border-right: 0;
-}
 
-.use-case-card:nth-last-child(-n + 3) {
-  border-bottom: 0;
-}
 
-.use-case-card {
-  --mx: 50%;
-  --my: -30%;
-  position: relative;
-  min-height: 280px;
-  padding: 40px 36px;
-  display: flex;
-  flex-direction: column;
-  background: #000;
-  overflow: hidden;
-  isolation: isolate;
-}
 
-.use-case-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: radial-gradient(380px circle at var(--mx) var(--my), rgba(175, 227, 232, 0.11), transparent 65%);
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
 
-.use-case-card:hover::before {
-  opacity: 1;
-}
 
-.card-icon {
-  color: var(--text-3);
-  transition: color 0.4s ease;
-}
 
-.use-case-card:hover .card-icon {
-  color: var(--accent);
-}
 
-.card-title {
-  margin-top: auto;
-  padding-top: 56px;
-  font-size: 21px;
-  font-weight: 400;
-  line-height: 1.25;
-  letter-spacing: -0.015em;
-  text-wrap: balance;
-}
 
-.card-description {
-  margin-top: 12px;
-  font-size: 15px;
-  line-height: 1.6;
-  color: var(--text-3);
-  transition: color 0.4s ease;
-}
 
-.use-case-card:hover .card-description {
-  color: var(--text-2);
-}
 
-/* Acordeón mobile */
-.mobile-use-cases-accordion {
-  display: none;
-  flex-direction: column;
-  border-top: 1px solid var(--line);
-}
 
-.accordion-item {
-  border-bottom: 1px solid var(--line);
-}
 
-.accordion-header {
-  width: 100%;
-  padding: 22px 0 !important;
-  color: inherit;
-  font-family: var(--font);
-}
 
-.accordion-title {
-  font-size: 17px;
-  font-weight: 300;
-  color: var(--text-2);
-  text-align: left;
-  transition: color 0.3s ease;
-}
 
-.accordion-item[data-state='open'] .accordion-title {
-  color: var(--text);
-  font-weight: 400;
-}
 
-/* Ícono +/− dibujado con CSS */
-.accordion-toggle {
-  position: relative;
-  flex-shrink: 0;
-  width: 16px;
-  height: 16px;
-  margin-left: 16px;
-}
 
-.accordion-toggle::before,
-.accordion-toggle::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 14px;
-  height: 1px;
-  margin: -0.5px 0 0 -7px;
-  background: var(--text-2);
-  transition: transform 0.4s var(--ease-out), background-color 0.3s ease;
-}
 
-.accordion-toggle::after {
-  transform: rotate(90deg);
-}
 
-.accordion-item[data-state='open'] .accordion-toggle::before,
-.accordion-item[data-state='open'] .accordion-toggle::after {
-  background: var(--accent);
-}
 
-.accordion-item[data-state='open'] .accordion-toggle::after {
-  transform: rotate(0deg);
-}
 
-.accordion-content {
-  overflow: hidden;
-}
 
-.accordion-content[data-state='open'] {
-  animation: accordion-down 0.45s var(--ease-out);
-}
 
-.accordion-content[data-state='closed'] {
-  animation: accordion-up 0.3s ease;
-}
 
 @keyframes accordion-down {
   from { height: 0; opacity: 0; }
@@ -1191,12 +985,6 @@ button:focus-visible {
   to { height: 0; opacity: 0; }
 }
 
-.accordion-description {
-  padding-bottom: 24px;
-  font-size: 15px;
-  line-height: 1.7;
-  color: var(--text-2);
-}
 
 /* ==================== CÓMO FUNCIONA ==================== */
 .flow {
@@ -1524,22 +1312,9 @@ button:focus-visible {
 
 /* ==================== RESPONSIVE ==================== */
 @media (max-width: 1100px) {
-  .use-cases-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
 
-  .use-case-card:nth-child(n) {
-    border-right: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-  }
 
-  .use-case-card:nth-child(2n) {
-    border-right: 0;
-  }
 
-  .use-case-card:nth-last-child(-n + 2) {
-    border-bottom: 0;
-  }
 }
 
 @media (max-width: 960px) {
@@ -1630,13 +1405,7 @@ button:focus-visible {
     font-size: 15.5px;
   }
 
-  .desktop-use-cases {
-    display: none;
-  }
 
-  .mobile-use-cases-accordion {
-    display: flex;
-  }
 
 
 
@@ -1806,9 +1575,5 @@ button:focus-visible {
     transform: none;
   }
 
-  .accordion-content[data-state='open'],
-  .accordion-content[data-state='closed'] {
-    animation: none;
-  }
 }
 </style>

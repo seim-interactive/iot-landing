@@ -152,22 +152,6 @@ function capabilityScrub(q) {
   })
 }
 
-// Luz que sigue al puntero sobre las cards de casos de uso.
-function spotlight(q) {
-  const grid = q('.use-cases-grid')[0]
-  if (!grid) return () => {}
-
-  const onMove = (event) => {
-    const card = event.target.closest('.use-case-card')
-    if (!card) return
-    const rect = card.getBoundingClientRect()
-    card.style.setProperty('--mx', `${event.clientX - rect.left}px`)
-    card.style.setProperty('--my', `${event.clientY - rect.top}px`)
-  }
-
-  grid.addEventListener('pointermove', onMove, { passive: true })
-  return () => grid.removeEventListener('pointermove', onMove)
-}
 
 export function useLandingMotion(rootRef) {
   let mm
@@ -200,7 +184,6 @@ export function useLandingMotion(rootRef) {
       })
 
       mm.add(MEDIA.finePointer, () => {
-        return spotlight(q)
       })
     })
   })
