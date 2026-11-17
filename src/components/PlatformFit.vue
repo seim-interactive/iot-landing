@@ -31,20 +31,28 @@ const piece = {
       collapse.click()
       await d.wait(500)
     }
-    // Siempre la pantalla entera, nunca más grande que su tamaño real: así no se
-    // pixela. El cursor hace el cambio de equipo sin que la cámara se acerque.
-    await d.frameOn(d.screen(), { pad: 0, max: 1, duration: 0 })
+    // La pantalla entera, y para elegir el equipo la cámara se acerca al selector.
+    // Se ve nítido porque el iframe no lleva will-change (ver PlatformPiece): el
+    // navegador lo vuelve a dibujar al tamaño acercado en vez de estirar una imagen.
+    const whole = () => d.screen()
+    await d.frameOn(whole(), { pad: 0, max: 1, duration: this.started ? 1.4 : 0 })
+    this.started = true
     d.fade(1)
     await d.wait(3000)
 
     for (const name of [...MACHINES.slice(1), MACHINES[0]]) {
-      await d.click(await d.until(() => d.find('[data-test="plc-switcher-trigger"]')))
+      const trigger = await d.until(() => d.find('[data-test="plc-switcher-trigger"]'))
+      const r = trigger.getBoundingClientRect()
+      await d.frameOn({ left: r.right - 640, top: 0, width: 660, height: 380 }, { pad: 0, max: 2, duration: 1.3 })
+      await d.click(trigger)
       await d.wait(500)
       await d.click(await d.until(() => d.find('.plc-switcher-option', name)))
       active.value = name
       d.hideCursor()
+      await d.wait(450)
+      await d.frameOn(whole(), { pad: 0, max: 1, duration: 1.5 })
       await d.until(() => !d.find('[data-test="dashboard-skeleton"]') && d.find('.widget-card canvas'), 14000)
-      await d.wait(3600)
+      await d.wait(3400)
     }
   },
   async reset() {},
