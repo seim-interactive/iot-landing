@@ -44,6 +44,14 @@ async function findPiece(name) {
     const { createFitPiece } = await import('./components/platformFit')
     return { piece: createFitPiece({ small: screenWidth < 720, onMachine: event }), fade: false }
   }
+  // Las de las páginas por tema (t-*): la app de escritorio o la de celular según la
+  // pantalla. Son recortes de la interfaz, con los bordes fundidos como la grilla;
+  // t-equipos es la pantalla entera del celular, sin fundido.
+  if (name.startsWith('t-')) {
+    const { TEMA_PIECES } = await import('./components/temaPieces')
+    const piece = TEMA_PIECES[screenWidth < 720 ? 'celular' : 'escritorio'][name]
+    if (piece) return { piece, fade: name !== 't-equipos' }
+  }
   // Las de «Cómo funciona» se cargan solo si hacen falta
   const { HOW_PIECES } = await import('./components/howPieces')
   if (HOW_PIECES?.[name]) return { piece: HOW_PIECES[name], fade: false, style: name === 'report' ? CARD : undefined }
