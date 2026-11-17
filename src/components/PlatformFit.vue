@@ -49,10 +49,12 @@ const piece = {
       await d.click(await d.until(() => d.find('.plc-switcher-option', name)))
       active.value = name
       d.hideCursor()
-      await d.wait(450)
-      await d.frameOn(whole(), { pad: 0, max: 1, duration: 1.5 })
+      // Se queda en el selector mientras carga el tablero nuevo: se aleja recién
+      // cuando los gráficos tienen sus datos y las agujas llegaron a su valor.
       await d.until(() => !d.find('[data-test="dashboard-skeleton"]') && d.find('.widget-card canvas'), 14000)
-      await d.wait(3400)
+      await d.wait(1600)
+      await d.frameOn(whole(), { pad: 0, max: 1, duration: 1.5 })
+      await d.wait(3200)
     }
   },
   async reset() {},
