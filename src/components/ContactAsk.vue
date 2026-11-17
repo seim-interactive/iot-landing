@@ -8,7 +8,7 @@
   30 cuadros en equipos modestos y quieta con movimiento reducido.
 -->
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { createStageLight } from './stageLight'
 
 const WHATSAPP = '5493413551507'
@@ -17,6 +17,17 @@ const EXAMPLES = ['La temperatura de un horno', 'Las paradas de una línea', 'El
 
 const text = ref('')
 const send = ref(null)
+const input = ref(null)
+
+// El campo crece con lo que se escribe (hasta un tope; recién ahí se desplaza): si no,
+// en el celular el texto largo quedaba cortado arriba, debajo de la luz del borde
+function grow() {
+  const el = input.value
+  if (!el) return
+  el.style.height = 'auto'
+  el.style.height = `${Math.min(el.scrollHeight, 320)}px`
+}
+watch(text, () => nextTick(grow))
 
 const message = computed(() => {
   const what = text.value.trim()
@@ -117,6 +128,7 @@ onUnmounted(() => {
         <label class="visually-hidden" for="ask-input">Qué querés medir en tu planta</label>
         <textarea
           id="ask-input"
+          ref="input"
           v-model="text"
           class="ask-input"
           rows="3"
@@ -393,6 +405,8 @@ onUnmounted(() => {
 }
 
 /* ---------- Celular: alineado a la izquierda, un solo eje ---------- */
+/* Los ejemplos en una fila que se desliza de costado (se pierde en el borde derecho) y,
+   abajo, el botón a todo el ancho, cómodo para el pulgar */
 @media (max-width: 760px) {
   .ask-title {
     font-size: 30px;
@@ -415,21 +429,40 @@ onUnmounted(() => {
     font-size: 17px;
   }
 
-  /* El botón a la derecha, a su medida: fino y proporcionado a la caja */
   .ask-bar {
-    justify-content: flex-end;
-    padding: 8px 10px 10px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 4px 10px 10px;
   }
 
   .ask-examples {
+    flex-wrap: nowrap;
+    margin: 0 -10px;
+    padding: 0 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent);
+    mask-image: linear-gradient(90deg, #000 85%, transparent);
+  }
+
+  .ask-examples::-webkit-scrollbar {
     display: none;
   }
 
+  .ask-example {
+    flex: none;
+    height: 36px;
+    padding: 0 14px;
+    white-space: nowrap;
+  }
+
   .ask-send {
-    height: 40px;
+    justify-content: center;
+    height: 48px;
     gap: 8px;
-    padding: 0 16px;
-    font-size: 14px;
+    font-size: 15px;
   }
 
   .ask-after {
