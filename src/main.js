@@ -4,6 +4,7 @@ import router from './router'
 import PrimeVue from 'primevue/config'
 import 'primeicons/primeicons.css'
 import '@/assets/console.css'
+import '@/assets/fonts/inter.css'
 
 const app = createApp(App)
 app.use(router)
