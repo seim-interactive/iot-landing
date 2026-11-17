@@ -67,10 +67,12 @@ onMounted(() => {
       if (entry.isIntersecting) load()
       driver?.setVisible(seen)
     },
-    { rootMargin: '300px 0px', threshold: [0, 0.3, 0.6] }
+    // La app tarda unos segundos en arrancar: se pide una pantalla antes de que el
+    // cuadrado entre, así ya está andando cuando llega.
+    { rootMargin: '100% 0px', threshold: [0, 0.3, 0.6] }
   )
   observer.observe(stage.value)
-  farObserver = new IntersectionObserver(([entry]) => !entry.isIntersecting && unload(), { rootMargin: '150% 0px' })
+  farObserver = new IntersectionObserver(([entry]) => !entry.isIntersecting && unload(), { rootMargin: '200% 0px' })
   farObserver.observe(stage.value)
 })
 

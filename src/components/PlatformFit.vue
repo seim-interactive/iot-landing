@@ -25,6 +25,10 @@ const piece = {
   cut: false,
   async script(d) {
     await d.until(() => d.find('.widget-card canvas'), 14000)
+    // La pestaña de arriba muestra el equipo que tiene el selector real: cuando la
+    // app se vuelve a cargar, arranca de nuevo en el primero.
+    const current = d.find('[data-test="plc-switcher-trigger"]')?.textContent || ''
+    active.value = MACHINES.find((name) => current.includes(name)) || MACHINES[0]
     // El menú lateral contraído: el tablero gana ancho y se ve entero.
     const collapse = d.find('[data-test="sidebar-collapse"][aria-expanded="true"]')
     if (collapse) {
