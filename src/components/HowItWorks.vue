@@ -23,9 +23,9 @@ const STEPS = [
   },
   {
     key: 'avisar',
-    title: 'Argus, nuestra IA, analiza tu fábrica.',
+    title: 'Argus analiza tu fábrica.',
     subtitle: 'Y te dice cómo mejorarla.',
-    text: 'Revisa todos los datos de la planta, encuentra lo que se sale de lo normal, te explica por qué pasa y te propone qué hacer. Y si tenés una duda, se la preguntás.',
+    text: 'Argus es nuestra IA: revisa todos los datos de la planta, encuentra lo que se sale de lo normal, te explica por qué pasa y te propone qué hacer. Y si tenés una duda, se la preguntás.',
     service: 'Definimos con vos qué es un desvío y le damos a Argus el contexto de tu planta.',
   },
 ]
@@ -43,8 +43,9 @@ const STEPS = [
           <p class="how-service"><span>Lo que hacemos</span>{{ step.service }}</p>
         </div>
 
-        <!-- Los tres visuales en la misma caja -->
-        <div class="how-visual" data-reveal aria-hidden="true">
+        <!-- En escritorio, los dos primeros visuales en la misma caja; en el celular,
+             cada caja mide lo que su contenido, sin vacíos arriba ni abajo -->
+        <div class="how-visual" :class="`how-visual--${step.key}`" data-reveal aria-hidden="true">
           <video
             v-if="step.key === 'conectar'"
             class="how-video"
@@ -62,7 +63,8 @@ const STEPS = [
           <PlatformPiece v-else-if="step.key === 'ver'" :piece="HOW_PIECES.widget" ratio="4 / 3" :fade="false" />
 
           <!-- Argus: dos piezas del mismo ancho, alineadas y separadas. Arriba el campo
-               del chat, grande; abajo el reporte, más chico, en su propia tarjeta -->
+               del chat, grande; abajo el reporte en su propia tarjeta, del alto justo
+               de un hallazgo con su gráfico (--report-k, ver howPieces.js) -->
           <div v-else class="how-pair">
             <PlatformPiece class="how-ask" :piece="HOW_PIECES.ask" ratio="25 / 4" :fade="false" />
             <PlatformPiece class="how-report" :piece="HOW_PIECES.report" ratio="1 / 1" :fade="false" />
@@ -146,11 +148,16 @@ const STEPS = [
   color: rgba(255, 255, 255, 0.42);
 }
 
-/* La caja de los visuales: la misma en los tres pasos */
+/* La caja de los visuales: la misma en los dos primeros pasos */
 .how-visual {
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
+}
+
+/* Argus: la caja mide lo que las dos piezas */
+.how-visual--avisar {
+  aspect-ratio: auto;
 }
 
 /* contain sobre negro: el video entra entero, sea del tamaño que sea */
@@ -173,21 +180,36 @@ const STEPS = [
 }
 
 .how-pair {
+  /* El alto de la tarjeta se calcula con su ancho (cqw) */
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   gap: 28px;
   width: 82%;
-  height: 100%;
   margin: 0 auto;
 }
 
-/* El reporte, en una tarjeta como las de la plataforma */
+/* El reporte, en una tarjeta como las de la plataforma. Adentro, un hallazgo a todo
+   el ancho con --report-pad de margen: el alto es el del hallazgo más alto a esa
+   escala (--report-k = alto / ancho del hallazgo en la app; el guion lo actualiza).
+   Así la caja nunca tiene aire de más y la página no salta cuando carga. */
 .how-pair > .how-report {
-  flex: 1;
+  --report-pad: 24px;
+  --report-k: 0.7294;
+  flex: none;
+  height: calc((100cqw - 2 * var(--report-pad)) * var(--report-k) + 2 * var(--report-pad));
   aspect-ratio: auto !important;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.05));
+}
+
+/* El celular de la app (390 px de ancho, ver howPieces.js) */
+@media (max-width: 719px) {
+  .how-pair > .how-report {
+    --report-pad: 20px;
+    --report-k: 1.4719;
+  }
 }
 
 @media (max-width: 900px) {
@@ -205,10 +227,20 @@ const STEPS = [
     font-size: 16px;
   }
 
-  /* En celular las tres cajas son 2:3, iguales entre sí: entran la alarma y el
-     hallazgo apilados, del mismo ancho, como en escritorio */
-  .how-visual {
-    aspect-ratio: 2 / 3;
+  /* El render 3D: el contenido ocupa la franja del medio del video (4:3). En 16:9
+     entra entero, sin el negro de arriba y de abajo */
+  .how-visual--conectar {
+    aspect-ratio: 16 / 9;
+  }
+
+  .how-visual--conectar .how-video {
+    object-fit: cover;
+    object-position: 50% 53%;
+  }
+
+  /* El fragmento del tablero mide 620 × 616 en la app y llena el ancho */
+  .how-visual--ver {
+    aspect-ratio: 620 / 616;
   }
 
   .how-pair {

@@ -53,7 +53,8 @@ async function place(d, box, s, { top, duration = 0 } = {}) {
 // (la app angosta, agrandada), y abajo, separado, el reporte en una tarjeta más chica.
 // El ancho de las dos lo fija la tarjeta del reporte (HowItWorks.vue, --argus-w).
 const QUESTIONS = ['¿Por qué paró la Llenadora?', '¿Cómo viene la producción de hoy?', '¿Qué máquina consume más energía?']
-const CARD_PAD = 20
+/** El margen interno de la tarjeta del reporte: el mismo que --report-pad (HowItWorks.vue). */
+const cardPad = () => (mobile() ? 20 : 24)
 
 export const HOW_PIECES = {
   // «Lo ves en vivo»: un fragmento del tablero. Arriba los cuatro indicadores; abajo,
@@ -93,8 +94,10 @@ export const HOW_PIECES = {
       await d.wait(600)
       const { w, h } = stageOf(d)
       const box = union(kept)
-      // Con aire alrededor y siempre más chico que el tamaño real
-      const s = Math.min(0.92, (w * 0.86) / box.width, (h * 0.86) / box.height)
+      // En escritorio, con aire alrededor y siempre más chico que el tamaño real. En el
+      // celular la caja tiene la proporción del fragmento: lo llena, sin vacíos.
+      const fill = small ? 1 : 0.86
+      const s = Math.min(0.92, (w * fill) / box.width, (h * fill) / box.height)
       await d.frameOn(box, { pad: 0, max: s, duration: 0 })
       d.fade(1)
       await d.wait(14000)
@@ -143,7 +146,9 @@ export const HOW_PIECES = {
     async reset() {},
   },
 
-  // Abajo: una tarjeta que recorre el reporte de Argus, bloque por bloque
+  // Abajo: una tarjeta que recorre los hallazgos de Argus, cada uno con su gráfico.
+  // El hallazgo llena el ancho de la tarjeta, y la tarjeta mide el alto del más alto
+  // (--report-k): nunca queda aire de más ni bandas vacías.
   report: {
     key: 'report',
     route: '/ai',
@@ -157,25 +162,32 @@ export const HOW_PIECES = {
       }, 12000)
       const report = findings[0].closest('.argus-report') || findings[0].closest('.page-shell')
       const byTitle = (t) => findings.find((li) => li.textContent.includes(t))
-      // Cada hallazgo: qué pasó, por qué y la evidencia (en celular, sin el gráfico)
-      const extras = '.finding-why, .feedback, .finding-actions' + (mobile() ? ', .finding-evidence' : '')
-      for (const li of findings) for (const extra of li.querySelectorAll(extras)) extra.style.display = 'none'
+      // Cada hallazgo: qué pasó y el gráfico de la evidencia
+      for (const li of findings) for (const extra of li.querySelectorAll('.finding-why, .feedback, .finding-actions')) extra.style.display = 'none'
       // La tarjeta la pone la landing: los paneles de adentro, sin borde ni fondo propio
       injectCss(d, '.argus-panel, .argus-findings > li { border-color: transparent !important; background: none !important; box-shadow: none !important; }')
       float(report)
       await d.wait(300)
-      const blocks = [d.find('.headline'), byTitle('mordazas'), byTitle('Llenadora'), byTitle('aire')].filter(Boolean)
+      const blocks = [byTitle('Llenadora'), byTitle('mordazas'), byTitle('aire')].filter(Boolean)
       const all = [...report.querySelectorAll('.headline, .kpi-strip, .argus-findings > li, .topics, .argus-panel, .improvements, .argus-panel h2, .argus-panel h3, .argus-panel header')]
       const only = (shown) => {
         for (const el of all) el.style.visibility = shown.some((b) => b === el || b.contains(el) || el.contains(b)) ? '' : 'hidden'
       }
+      // El alto de la tarjeta: el del hallazgo más alto, a la escala que llena el ancho.
+      // El CSS ya trae el valor medido; si la plataforma cambió, se corrige acá.
+      const fw = rectOf(blocks[0]).width
+      const k = Math.max(...blocks.map((b) => rectOf(b).height)) / fw
+      d.win().frameElement.parentElement.style.setProperty('--report-k', k.toFixed(4))
+      const pad = cardPad()
       const { w } = stageOf(d)
-      const s = Math.min(0.85, (w - CARD_PAD * 2) / rectOf(findings[0]).width)
+      const s = (w - pad * 2) / fw
       let prev = null
       for (const block of [...blocks, blocks[0]]) {
-        // Mientras la cámara pasa de un bloque al otro se ven los dos; después, solo el nuevo
-        only(prev ? [prev, block] : [block])
-        await place(d, rectOf(block), s, { top: CARD_PAD, duration: prev ? 1.4 : 0 })
+        // Mientras la cámara se mueve se ven todos los hallazgos (al volver al primero
+        // pasa por encima de los del medio: ocultos, dejarían una banda vacía); al
+        // llegar, solo el nuevo, centrado en el alto (miden casi lo mismo)
+        only(prev ? blocks : [block])
+        await place(d, rectOf(block), s, { duration: prev ? 1.4 : 0 })
         if (!prev) d.fade(1)
         only([block])
         if (block !== prev && prev && block === blocks[0]) break
