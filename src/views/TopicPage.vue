@@ -20,6 +20,15 @@ import { usePageMeta } from '@/composables/usePageMeta'
 const props = defineProps({ slug: { type: String, required: true } })
 
 const tema = computed(() => temaPorSlug(props.slug))
+// Un bloque sin video no va solo (dejaría la columna del video vacía): se suma al de
+// arriba, debajo de su texto, como «Lo que hacemos» en los pasos de la home
+const steps = computed(() =>
+  tema.value.sections.reduce((list, section) => {
+    if (!section.video && list.length) list[list.length - 1].extras.push(section)
+    else list.push({ ...section, extras: [] })
+    return list
+  }, [])
+)
 const otros = computed(() => TEMAS.filter((t) => t.slug !== props.slug))
 const href = (slug) => `/${slug}/`
 
@@ -78,7 +87,7 @@ usePageMeta(tema.value)
       <div class="container">
         <ol class="topic-steps">
           <li
-            v-for="(section, index) in tema.sections"
+            v-for="(section, index) in steps"
             :key="section.title"
             class="topic-step"
             :class="{ 'is-flipped': index % 2 === 1, 'is-text': !section.video }"
@@ -87,8 +96,15 @@ usePageMeta(tema.value)
               <h2 class="topic-step-title">{{ section.title }}</h2>
               <p class="topic-step-text">{{ section.text }}</p>
               <a v-if="section.link" class="topic-more" :href="href(section.link)">
-                {{ temaPorSlug(section.link).nav }}
+                {{ temaPorSlug(section.link).nav }}<span aria-hidden="true"> →</span>
               </a>
+              <div v-for="extra in section.extras" :key="extra.title" class="topic-extra">
+                <h3 class="topic-extra-title">{{ extra.title }}</h3>
+                <p class="topic-extra-text">{{ extra.text }}</p>
+                <a v-if="extra.link" class="topic-more" :href="href(extra.link)">
+                  {{ temaPorSlug(extra.link).nav }}<span aria-hidden="true"> →</span>
+                </a>
+              </div>
             </div>
             <div v-if="section.video" class="topic-visual" :class="visualClass(section.video)" data-reveal>
               <PlatformVideo class="topic-video" :name="section.video.d" :mobile-name="section.video.m" :style="ratio(section.video)" />
@@ -308,6 +324,28 @@ usePageMeta(tema.value)
 .topic-step-text {
   margin-top: 20px;
   font-size: 17px;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+
+/* Un bloque sin video, debajo del texto del de arriba: una línea fina y su texto */
+.topic-extra {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.topic-extra-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+}
+
+.topic-extra-text {
+  margin: 8px 0 0;
+  font-size: 16px;
   line-height: 1.55;
   color: var(--text-2);
 }
