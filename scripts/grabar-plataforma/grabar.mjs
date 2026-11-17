@@ -59,6 +59,15 @@ const PIEZAS = {
   medida: { escritorio: [1120, 630], celular: [340, 433] },
   // El hero (PlatformStage.vue): la pantalla dentro del marco, sin el marco
   hero: { escritorio: [1224, 765], celular: [330, 660] },
+  // Las páginas por tema (TopicPage.vue, temaPieces.js): solo las versiones que faltan.
+  // En escritorio, la app de escritorio en una caja de 16:10 (la columna del video
+  // mide hasta 708); en el celular, la app de celular.
+  't-alarmas': { escritorio: [708, 443] },
+  't-activos': { escritorio: [708, 443] },
+  't-paradas': { escritorio: [708, 443] },
+  't-reporte': { escritorio: [708, 443] },
+  't-argus': { escritorio: [708, 443], celular: [340, 313] },
+  't-equipos': { celular: [340, 600] },
 }
 // Piezas que no salen de la plataforma: una secuencia de cuadros ya renderizada,
 // que se compone sobre negro (#000, el fondo de la landing) y se arma en loop:
@@ -337,7 +346,8 @@ const countFrames = async (dir) => (await readdir(dir)).filter((f) => f.endsWith
 
 for (const key of opts.piezas) {
   if (!PIEZAS[key] && !SECUENCIAS[key]) throw new Error(`No hay tamaño de caja para «${key}» en PIEZAS`)
-  const versions = opts.version === 'ambas' ? Object.keys(VERSIONES) : [opts.version]
+  // Solo las versiones que la pieza tiene (las de las páginas por tema, a veces una sola)
+  const versions = (opts.version === 'ambas' ? Object.keys(VERSIONES) : [opts.version]).filter((v) => SECUENCIAS[key] || PIEZAS[key][v])
   for (const version of versions) {
     const framesDir = path.join(framesRoot, `${key}-${version}`)
     const entry = { key, version, framesDir }

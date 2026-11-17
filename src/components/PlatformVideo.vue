@@ -20,6 +20,9 @@ import VIDEOS from './platformVideos.json'
 
 const props = defineProps({
   name: { type: String, required: true },
+  // Otro video para el celular (las páginas por tema: la app de celular en vez de la
+  // de escritorio). Si no se pasa, es el mismo nombre en su versión de celular.
+  mobileName: { type: String, default: '' },
   // Hasta dónde se usa la versión de celular
   mobileQuery: { type: String, default: '(max-width: 719px)' },
   // Los bordes se funden con el negro de la página (la grilla)
@@ -29,9 +32,11 @@ const props = defineProps({
 const emit = defineEmits(['mark'])
 
 const BASE = '/media/plataforma/'
-const file = (version) => BASE + props.name + (version === 'celular' ? '-celular' : '')
+const nameFor = (version) => (version === 'celular' && props.mobileName ? props.mobileName : props.name)
+const metaFor = (version) => VIDEOS[nameFor(version)]?.[version]
+const file = (version) => BASE + nameFor(version) + (version === 'celular' ? '-celular' : '')
 // ?v= cambia con cada grabación: el servidor les da caché de un año (nginx.conf)
-const stamp = (version) => (VIDEOS[props.name]?.[version]?.v ? `?v=${VIDEOS[props.name][version].v}` : '')
+const stamp = (version) => (metaFor(version)?.v ? `?v=${metaFor(version).v}` : '')
 const poster = (version) => `${file(version)}-poster.webp${stamp(version)}`
 
 const video = ref(null)
@@ -49,7 +54,7 @@ const versionNow = () => (mq?.matches ? 'celular' : 'escritorio')
 
 function load() {
   const version = versionNow()
-  const meta = VIDEOS[props.name]?.[version]
+  const meta = metaFor(version)
   // Sin datos del video (todavía no se grabó), queda la imagen
   if (!meta?.codecs) return
   const base = file(version)
@@ -77,7 +82,7 @@ function play() {
 
 // Qué marca corresponde a este instante del video
 function trackMarks() {
-  const marks = VIDEOS[props.name]?.[versionNow()]?.marks
+  const marks = metaFor(versionNow())?.marks
   const v = video.value
   if (!marks?.length || !v) return
   const step = (time) => {
@@ -105,7 +110,7 @@ function onPlaying() {
 
 function onVersionChange() {
   if (sources.value.length) load()
-  const marks = VIDEOS[props.name]?.[versionNow()]?.marks
+  const marks = metaFor(versionNow())?.marks
   if (marks?.length) {
     lastMark = marks[0].name
     emit('mark', lastMark)
@@ -115,7 +120,7 @@ function onVersionChange() {
 onMounted(() => {
   mq = window.matchMedia(props.mobileQuery)
   mq.addEventListener('change', onVersionChange)
-  const marks = VIDEOS[props.name]?.[versionNow()]?.marks
+  const marks = metaFor(versionNow())?.marks
   if (marks?.length) {
     lastMark = marks[0].name
     emit('mark', lastMark)

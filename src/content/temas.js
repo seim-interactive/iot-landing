@@ -6,7 +6,11 @@
 //
 // `title`: el título de la pestaña y del resultado de Google, con «| Seim Interactive» al
 // final. Google corta a unos 60 caracteres: cada uno entra entero.
-// `video`: la clave del video en platformVideos.json. `link`: otra página por tema.
+// `video`: { d, m }, el video de escritorio y el de celular (claves de platformVideos.json).
+// En escritorio se ve la app de escritorio y en el celular la de celular: las t-* son las
+// que se grabaron para estas páginas (temaPieces.js); las demás, de la grilla y de «Cómo
+// funciona», ya tienen ese diseño. Un bloque sin `video` va solo con su texto.
+// `link`: otra página por tema.
 
 export const TEMAS = [
   {
@@ -18,22 +22,21 @@ export const TEMAS = [
     eyebrow: 'Monitoreo de producción',
     h1: 'Tu producción, en vivo y desde donde estés.',
     lede: 'Velocidad, temperatura, consumo y producción de cada equipo, en un tablero armado para tu proceso. Lo abrís desde la compu de la planta, una tablet o tu celular.',
-    video: 'medida',
+    video: { d: 'medida', m: 't-equipos' },
     sections: [
       {
         title: 'Cada equipo, con su tablero.',
         text: 'No es un tablero genérico: lo armamos con tu equipo, uno para cada máquina y para cada rol. Cambiás de equipo y ves lo suyo.',
-        video: 'widget',
+        video: { d: 'widget', m: 'mediciones' },
       },
       {
         title: 'Lo que pasa ahora, y lo que pasó antes.',
         text: 'Cada variable queda guardada con su historia. Ves cómo viene hoy y cuándo empezó a cambiar algo.',
-        video: 'mediciones',
       },
       {
         title: 'Todos tus equipos, de un vistazo.',
         text: 'Qué está en marcha, qué está detenido y cuánto produjo cada uno hoy.',
-        video: 'activos',
+        video: { d: 't-activos', m: 'activos' },
         link: 'paradas-y-alarmas',
       },
     ],
@@ -65,22 +68,22 @@ export const TEMAS = [
     eyebrow: 'Paradas y alarmas',
     h1: 'Cada parada, con su motivo. Cada desvío, a tiempo.',
     lede: 'La plataforma detecta las paradas sola y te avisa cuando algo se sale de lo normal, con el equipo y su severidad. Así sabés dónde se va el tiempo y qué atender primero.',
-    video: 'paradas',
+    video: { d: 't-paradas', m: 'paradas' },
     sections: [
       {
         title: 'Las paradas se registran solas.',
         text: 'No hace falta anotarlas en una planilla: la plataforma detecta cuándo un equipo para. Con un toque se marca el motivo, y se ve cuáles se llevan más tiempo.',
-        video: 'activos',
+        video: { d: 't-activos', m: 'activos' },
       },
       {
         title: 'Alertas en tiempo real.',
         text: 'Cada desvío llega con su equipo y su severidad. Se reconoce y se resuelve desde el mismo lugar, así nada queda sin atender.',
-        video: 'alarmas',
+        video: { d: 't-alarmas', m: 'alarmas' },
       },
       {
         title: 'Y por qué pasó.',
         text: 'Argus, nuestra IA, revisa los datos, te marca qué requiere atención y te propone el próximo paso, con la evidencia.',
-        video: 'reporte',
+        video: { d: 't-reporte', m: 'reporte' },
         link: 'argus',
       },
     ],
@@ -112,22 +115,16 @@ export const TEMAS = [
     eyebrow: 'Argus, nuestra IA',
     h1: 'Argus analiza tu operación y te dice cómo mejorarla.',
     lede: 'Argus revisa todos los datos, encuentra lo que se sale de lo normal, te explica por qué pasa y te propone qué hacer. Y si tenés una duda, se la preguntás.',
-    video: 'argus',
+    video: { d: 't-reporte', m: 'reporte' },
     sections: [
       {
         title: 'Preguntale a tu planta.',
         text: 'Le escribís como a una persona y te responde con los datos reales de tus equipos: qué pasó, por qué y qué conviene hacer.',
-        video: 'ask',
-      },
-      {
-        title: 'El resumen, ya analizado.',
-        text: 'Argus te marca qué requiere atención, con la evidencia y el próximo paso. No hace falta revisar cada gráfico.',
-        video: 'report',
+        video: { d: 't-argus', m: 't-argus' },
       },
       {
         title: 'Con el contexto de tu operación.',
         text: 'Definimos con vos qué es un desvío y le damos a Argus el contexto de tu planta, así sus respuestas hablan de tu proceso.',
-        video: 'reporte',
         link: 'paradas-y-alarmas',
       },
     ],
@@ -155,12 +152,12 @@ export const TEMAS = [
     eyebrow: 'Conexión de equipos',
     h1: 'Tus PLC y tus máquinas, conectados a la nube.',
     lede: 'Siemens, Allen-Bradley, Schneider o la marca que sea, nuevo o con años: nos conectamos a lo que ya tenés y los datos empiezan a salir, cifrados, sin tocar cómo trabaja la línea.',
-    video: 'conectar',
+    video: { d: 'conectar', m: 'conectar' },
     sections: [
       {
         title: 'Distintos equipos, un solo idioma.',
         text: 'Cada máquina habla su protocolo: PROFINET, EtherNet/IP, Modbus. Los unimos en una sola plataforma, así ves todo junto.',
-        video: 'activos',
+        video: { d: 't-activos', m: 'activos' },
       },
       {
         title: 'Sin frenar la producción.',
@@ -169,7 +166,7 @@ export const TEMAS = [
       {
         title: 'Y después, todo en un solo lugar.',
         text: 'Cada equipo aparece en la plataforma con sus datos en vivo, su historia y sus alarmas.',
-        video: 'mediciones',
+        video: { d: 'widget', m: 'mediciones' },
         link: 'monitoreo-de-produccion',
       },
     ],

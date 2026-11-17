@@ -22,26 +22,33 @@ const tema = computed(() => temaPorSlug(props.slug))
 const otros = computed(() => TEMAS.filter((t) => t.slug !== props.slug))
 const href = (slug) => `/${slug}/`
 
-// La proporción de cada video, en escritorio y en el celular: la de su caja al grabarse
-// (scripts/grabar-plataforma/grabar.mjs, PIEZAS)
-const GRILLA = ['465 / 428', '340 / 313']
-const RATIOS = {
-  argus: GRILLA,
-  alarmas: GRILLA,
-  mediciones: GRILLA,
-  activos: GRILLA,
-  paradas: GRILLA,
-  reporte: GRILLA,
-  widget: ['708 / 574', '342 / 340'],
-  ask: ['708 / 113', '342 / 72'],
-  report: ['708 / 529', '342 / 485'],
-  medida: ['16 / 9', '340 / 433'],
-  hero: ['1224 / 765', '330 / 660'],
-  conectar: ['16 / 9', '16 / 9'],
+// Cada visual: un video para escritorio (d) y otro para el celular (m), ver temas.js.
+// La proporción de cada uno es la de su caja al grabarse (grabar.mjs, PIEZAS).
+const RATIO_D = {
+  widget: '708 / 574',
+  medida: '16 / 9',
+  conectar: '16 / 9',
+  't-alarmas': '708 / 443',
+  't-activos': '708 / 443',
+  't-paradas': '708 / 443',
+  't-reporte': '708 / 443',
+  't-argus': '708 / 443',
 }
-const ratio = (key) => ({ '--r-d': RATIOS[key][0], '--r-m': RATIOS[key][1] })
-// Las pantallas enteras van en un marco; los fragmentos flotan sobre el negro
-const FRAMED = new Set(['medida', 'hero'])
+const RATIO_M = {
+  alarmas: '340 / 313',
+  activos: '340 / 313',
+  paradas: '340 / 313',
+  reporte: '340 / 313',
+  mediciones: '340 / 313',
+  conectar: '16 / 9',
+  't-argus': '340 / 313',
+  't-equipos': '340 / 600',
+}
+// Las pantallas enteras van en un marco; los recortes de la interfaz flotan sobre el negro
+const FRAMED_D = new Set(['medida'])
+const FRAMED_M = new Set(['t-equipos'])
+const visualClass = (v) => ({ 'is-framed-d': FRAMED_D.has(v.d), 'is-framed-m': FRAMED_M.has(v.m) })
+const ratio = (v) => ({ '--r-d': RATIO_D[v.d], '--r-m': RATIO_M[v.m] })
 
 const rootEl = ref(null)
 useLandingMotion(rootEl)
@@ -59,8 +66,8 @@ usePageMeta(tema.value)
         <p class="topic-lede">{{ tema.lede }}</p>
         <a href="#contact" class="topic-cta">Hablemos</a>
       </div>
-      <div class="topic-visual" :class="{ 'is-framed': FRAMED.has(tema.video) }">
-        <PlatformVideo class="topic-video" :name="tema.video" :style="ratio(tema.video)" />
+      <div class="topic-visual" :class="visualClass(tema.video)">
+        <PlatformVideo class="topic-video" :name="tema.video.d" :mobile-name="tema.video.m" :style="ratio(tema.video)" />
       </div>
     </main>
 
@@ -80,8 +87,8 @@ usePageMeta(tema.value)
                 {{ temaPorSlug(section.link).nav }}
               </a>
             </div>
-            <div v-if="section.video" class="topic-visual" :class="{ 'is-framed': FRAMED.has(section.video) }" data-reveal>
-              <PlatformVideo class="topic-video" :name="section.video" :style="ratio(section.video)" />
+            <div v-if="section.video" class="topic-visual" :class="visualClass(section.video)" data-reveal>
+              <PlatformVideo class="topic-video" :name="section.video.d" :mobile-name="section.video.m" :style="ratio(section.video)" />
             </div>
           </li>
         </ol>
@@ -227,7 +234,7 @@ usePageMeta(tema.value)
 }
 
 /* Una pantalla entera de la plataforma: en su marco, como en «A tu medida» */
-.topic-visual.is-framed {
+.topic-visual.is-framed-d {
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 20px;
@@ -399,6 +406,20 @@ usePageMeta(tema.value)
 @media (max-width: 719px) {
   .topic-video {
     aspect-ratio: var(--r-m);
+  }
+
+  .topic-visual.is-framed-d {
+    border: 0;
+    border-radius: 0;
+  }
+
+  /* La pantalla del celular, entera: en su marco y no más ancha que un teléfono */
+  .topic-visual.is-framed-m {
+    overflow: hidden;
+    max-width: 340px;
+    margin: 0 auto;
+    border: 1px solid var(--line);
+    border-radius: 28px;
   }
 
   .topic-links {
