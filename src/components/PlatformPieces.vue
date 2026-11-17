@@ -49,6 +49,8 @@ import { PIECES } from './platformPieces'
 .pieces-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
   list-style: none;
 }
 

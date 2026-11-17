@@ -119,40 +119,6 @@ function reveals(q) {
   )
 }
 
-// Comparación enlatadas / nuestra plataforma: el scroll mueve --p de cada fila y el
-// CSS deriva de ahí el tachado, el conector y el enfoque. Al estar atado al scroll
-// se reproduce en los dos sentidos.
-function contrastScrub(q) {
-  q('.contrast-row').forEach((row) => {
-    gsap.fromTo(
-      row,
-      { '--p': 0 },
-      {
-        '--p': 1,
-        ease: 'none',
-        // Arranca con la fila ya bien dentro de la pantalla, para que el tachado se vea
-        scrollTrigger: { trigger: row, start: 'top 72%', end: 'top 34%', scrub: 0.8 },
-      }
-    )
-  })
-}
-
-// Capacidades: cada renglón pasa de apagado a encendido mientras cruza la pantalla.
-function capabilityScrub(q) {
-  q('.capability').forEach((item) => {
-    gsap.fromTo(
-      item,
-      { '--c': 0 },
-      {
-        '--c': 1,
-        ease: 'none',
-        scrollTrigger: { trigger: item, start: 'top 80%', end: 'top 55%', scrub: 0.6 },
-      }
-    )
-  })
-}
-
-
 export function useLandingMotion(rootRef) {
   let mm
   let stopWatching = () => {}
@@ -175,8 +141,6 @@ export function useLandingMotion(rootRef) {
       mm.add(MEDIA.motionOk, () => {
         heroIntro(q)
         reveals(q)
-        contrastScrub(q)
-        capabilityScrub(q)
       })
 
       mm.add(`${MEDIA.desktop} and ${MEDIA.motionOk}`, () => {

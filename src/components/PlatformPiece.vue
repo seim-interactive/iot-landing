@@ -7,7 +7,12 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import { createDriver } from './platformDriver'
 
-const props = defineProps({ piece: { type: Object, required: true } })
+const props = defineProps({
+  piece: { type: Object, required: true },
+  // Proporción del cuadro (ancho / alto) y si los bordes se funden
+  ratio: { type: String, default: '1 / 0.92' },
+  fade: { type: Boolean, default: true },
+})
 
 const DEMO_URL = import.meta.env.VITE_PLATFORM_DEMO_URL || '/plataforma/index.html'
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -57,7 +62,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="stage" class="piece-stage" aria-hidden="true">
+  <div ref="stage" class="piece-stage" :class="{ 'piece-stage--fade': fade }" :style="{ aspectRatio: ratio }" aria-hidden="true">
     <iframe
       ref="frame"
       class="piece-frame"
@@ -80,8 +85,10 @@ onUnmounted(() => {
 .piece-stage {
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 0.92;
   overflow: hidden;
+}
+
+.piece-stage--fade {
   /* El componente se pierde hacia los bordes: no hay marco que lo corte */
   -webkit-mask-image: linear-gradient(180deg, transparent, #000 12%, #000 86%, transparent), linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
   -webkit-mask-composite: source-in;

@@ -34,46 +34,10 @@
       </div>
     </section>
 
-    <!-- ==================== SOLUCIÓN ==================== -->
-    <section id="solution" class="section solution">
+    <!-- ==================== A TU MEDIDA ==================== -->
+    <section id="solution" class="section fit-section">
       <div class="container">
-        <!-- Diferencial frente a las plataformas enlatadas: con el scroll, cada fila
-             tacha la idea enlatada y enfoca la nuestra (ver contrastScrub) -->
-        <div class="contrast">
-          <h3 class="contrast-title" data-reveal>La plataforma se adapta a tu planta.<br><span>No tu planta a la plataforma.</span></h3>
-          <div class="contrast-legend" aria-hidden="true">
-            <span>Plataformas enlatadas</span>
-            <span>Nuestra plataforma</span>
-          </div>
-          <ul class="contrast-rows">
-            <li v-for="row in contrast" :key="row.seim" class="contrast-row">
-              <s class="contrast-old"><span class="visually-hidden">Plataformas enlatadas: </span>{{ row.canned }}</s>
-              <span aria-hidden="true"></span>
-              <p class="contrast-new"><span class="visually-hidden">Nuestra plataforma: </span><span class="contrast-ink">{{ row.seim }}</span></p>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==================== PLATAFORMA PROPIA ==================== -->
-    <section class="section own-platform">
-      <div class="container">
-        <div class="solution-grid">
-          <div class="solution-copy" data-reveal>
-            <p class="solution-eyebrow">Solución IoT Industrial a Medida</p>
-            <h2 class="solution-statement">La plataforma es nuestra.<br><span>La diseñamos, la desarrollamos y la operamos.</span></h2>
-            <p>Eso nos permite sumar equipos, líneas y plantas sin techo, y construir lo que tu proceso necesita en lugar de forzarlo a un producto genérico.</p>
-          </div>
-
-          <!-- Capacidades: cada renglón se ilumina al cruzar la pantalla (ver capabilityScrub) -->
-          <div class="capabilities">
-            <h3 class="visually-hidden">Capacidades de la Plataforma</h3>
-            <ul class="capability-list">
-              <li v-for="capability in capabilities" :key="capability" class="capability">{{ capability }}</li>
-            </ul>
-          </div>
-        </div>
+        <PlatformFit />
       </div>
     </section>
 
@@ -260,6 +224,7 @@ import Navbar from '@/components/Navbar.vue'
 import FlowSchematic from '@/components/FlowSchematic.vue'
 import PlatformStage from '@/components/PlatformStage.vue'
 import PlatformPieces from '@/components/PlatformPieces.vue'
+import PlatformFit from '@/components/PlatformFit.vue'
 import { useLandingMotion } from '@/composables/useLandingMotion'
 import { useFlowScroll } from '@/composables/useFlowScroll'
 
@@ -302,23 +267,6 @@ const services = [
     title: 'Consultoría Industria 4.0',
     summary: 'Una hoja de ruta para la madurez digital de tu planta.',
   },
-]
-
-const contrast = [
-  { canned: 'Tu operación se acomoda al software', seim: 'El software se adapta a tu operación' },
-  { canned: 'Funciones fijas: si no está, no se puede', seim: 'Desarrollamos lo que tu proceso necesita' },
-  { canned: 'Límites de equipos, usuarios o plantas', seim: 'Escala sin límite: equipos, líneas y plantas' },
-  { canned: 'Entornos compartidos con otras empresas', seim: 'Un entorno privado, solo para tu empresa' },
-]
-
-const capabilities = [
-  'Integración con PLCs y sistemas',
-  'Arquitectura cloud privada y escalable',
-  'Dashboards operativos a medida',
-  'Métricas en tiempo real',
-  'Seguridad industrial y de datos',
-  'Inteligencia artificial aplicada',
-  'Soporte y operación continua',
 ]
 
 const flowSteps = [
@@ -594,9 +542,6 @@ button:focus-visible {
 
 /* ==================== HERO ==================== */
 
-
-
-
 .hero {
   position: relative;
   width: 100%;
@@ -676,10 +621,6 @@ button:focus-visible {
 .hero-cta:active {
   transform: scale(0.97);
 }
-
-
-
-
 
 @keyframes bounce {
   0%, 100% {
@@ -770,110 +711,6 @@ button:focus-visible {
   }
 }
 
-
-
-
-
-
-/* Diferencial: enlatadas vs propia */
-/* Es lo primero de la sección: el aire de arriba lo da la sección misma */
-.contrast {
-  margin-top: 0;
-}
-
-.contrast-title {
-  max-width: 900px;
-  font-size: clamp(30px, 3.6vw, 52px);
-  font-weight: 400;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-}
-
-.contrast-title span {
-  color: var(--text-3);
-}
-
-.contrast-legend,
-.contrast-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(64px, 9vw, 140px) minmax(0, 1.15fr);
-  align-items: baseline;
-}
-
-.contrast-legend {
-  margin-top: clamp(48px, 6vw, 80px);
-  padding-bottom: 16px;
-  font-size: 13px;
-  color: var(--text-4);
-}
-
-.contrast-legend span:last-child {
-  grid-column: 3;
-  color: var(--accent);
-}
-
-.contrast-rows {
-  list-style: none;
-  border-bottom: 1px solid var(--line);
-}
-
-.contrast-row {
-  padding: clamp(22px, 2.4vw, 32px) 0;
-  border-top: 1px solid var(--line);
-}
-
-/* Todo el estado de la fila sale de --p (0 → 1), que el scroll mueve en
-   contrastScrub. Sin JS o con movimiento reducido queda en 1: estado final. */
-.contrast-row {
-  --p: 1;
-  --strike: min(1, calc(var(--p) * 1.7));
-  --focus: max(0, min(1, calc((var(--p) - 0.5) * 2)));
-}
-
-.contrast-old {
-  position: relative;
-  justify-self: start;
-  font-size: clamp(16px, 1.3vw, 19px);
-  line-height: 1.4;
-  color: var(--text-2);
-  text-decoration: none;
-  opacity: calc(1 - var(--strike) * 0.55);
-}
-
-/* Tachado propio: una línea que se dibuja de izquierda a derecha */
-.contrast-old::after {
-  content: '';
-  position: absolute;
-  left: -2px;
-  right: -2px;
-  top: 54%;
-  height: 1px;
-  background: var(--text-2);
-  transform-origin: left center;
-  transform: scaleX(var(--strike));
-}
-
-.contrast-new {
-  font-size: clamp(22px, 2.1vw, 32px);
-  line-height: 1.2;
-  letter-spacing: -0.025em;
-  /* Se escribe de izquierda a derecha: una máscara de borde suave avanza con --focus */
-  --edge: calc(var(--focus) * 140% - 20%);
-  -webkit-mask-image: linear-gradient(90deg, #000 calc(var(--edge) - 20%), transparent calc(var(--edge) + 20%));
-  mask-image: linear-gradient(90deg, #000 calc(var(--edge) - 20%), transparent calc(var(--edge) + 20%));
-  transform: translateX(calc((1 - var(--focus)) * -14px));
-}
-
-/* Un brillo recorre la frase mientras se enfoca y la deja en blanco */
-.contrast-ink {
-  background: linear-gradient(100deg, #fff 0%, #fff 42%, var(--accent) 50%, #fff 58%, #fff 100%) no-repeat;
-  background-size: 260% 100%;
-  background-position: calc(100% - var(--focus) * 100%) 0;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -883,12 +720,6 @@ button:focus-visible {
   white-space: nowrap;
 }
 
-.solution-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  gap: clamp(40px, 7vw, 120px);
-  align-items: start;
-}
 
 .block-title {
   padding-bottom: 20px;
@@ -899,81 +730,9 @@ button:focus-visible {
   letter-spacing: -0.015em;
 }
 
-.solution-copy {
-  position: sticky;
-  top: calc(var(--header-h) + 64px);
-}
-
-.solution-eyebrow {
-  font-size: 14px;
-  color: var(--accent);
-}
-
-.solution-statement {
-  margin-top: 20px;
-  font-size: clamp(30px, 3vw, 44px);
-  font-weight: 400;
-  line-height: 1.12;
-  letter-spacing: -0.03em;
-  text-wrap: balance;
-}
-
-.solution-statement span {
-  color: var(--text-3);
-}
-
-.solution-copy p:not(.solution-eyebrow) {
-  margin-top: 28px;
-  max-width: 440px;
-  font-size: 17px;
-  line-height: 1.7;
-  color: var(--text-2);
-}
-
-.capability-list {
-  list-style: none;
-}
-
-/* --c (0 → 1) lo mueve el scroll en capabilityScrub. Sin JS queda encendido. */
-.capability {
-  --c: 1;
-  padding: clamp(10px, 1vw, 16px) 0;
-  font-size: clamp(26px, 2.7vw, 42px);
-  font-weight: 400;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
-  color: var(--text);
-  opacity: calc(0.16 + var(--c) * 0.84);
-  transform: translateX(calc((1 - var(--c)) * 12px));
-}
-
 /* ==================== CASOS DE USO ==================== */
 /* Sin caja exterior: solo las líneas entre casos. Cada card dibuja su borde derecho
    e inferior, y se quitan en la última columna y en la última fila. */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 @keyframes accordion-down {
   from { height: 0; opacity: 0; }
@@ -1313,8 +1072,6 @@ button:focus-visible {
 /* ==================== RESPONSIVE ==================== */
 @media (max-width: 1100px) {
 
-
-
 }
 
 @media (max-width: 960px) {
@@ -1328,7 +1085,6 @@ button:focus-visible {
     margin-top: 24px;
   }
 
-  .solution-grid,
   .contact-panel {
     grid-template-columns: 1fr;
   }
@@ -1383,10 +1139,6 @@ button:focus-visible {
     padding: 0 22px;
   }
 
-
-
-
-
   /* Secciones */
   .section {
     padding: calc(var(--section-pad) / 2) 0;
@@ -1405,22 +1157,10 @@ button:focus-visible {
     font-size: 15.5px;
   }
 
-
-
-
-
-
-  .solution-grid {
-    gap: 56px;
-  }
-
   .block-title {
     font-size: 20px;
   }
 
-  .solution-copy p {
-    font-size: 15.5px;
-  }
 
   .services-layout {
     grid-template-columns: 1fr;
@@ -1435,31 +1175,6 @@ button:focus-visible {
     grid-template-columns: 1fr;
     row-gap: 4px;
     padding: 18px 0;
-  }
-
-  .contrast-legend {
-    display: none;
-  }
-
-  .contrast-row {
-    grid-template-columns: 1fr;
-    row-gap: 8px;
-  }
-
-  .contrast-row > span[aria-hidden] {
-    display: none;
-  }
-
-  .contrast-new {
-    font-size: 22px;
-  }
-
-  .solution-copy {
-    position: static;
-  }
-
-  .capability {
-    font-size: 26px;
   }
 
   /* Cómo funciona: órbita arriba y paso activo debajo */
