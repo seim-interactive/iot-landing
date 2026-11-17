@@ -73,10 +73,15 @@ export function createPlatformTour({ frame, cursor, mode, cut = true }) {
     await d.wait(600)
   }
 
-  // Vuelve al login sin que se vea el cambio de pantalla (el iframe ya está fundido).
+  // Vuelve al login. Ya con el login en pantalla, la app pasa al tablero por debajo: al
+  // volver a entrar, la app sigue en la última página que tenía abierta (IA) y la vuelta
+  // siguiente arrancaría distinta de la primera (el guion espera Mediciones).
   async function reset(d) {
     d.win().__demo?.signOut()
     await d.until(() => d.find('#login-email'))
+    const router = d.doc().querySelector('#app')?.__vue_app__?.config.globalProperties.$router
+    await router?.replace('/dashboard')
+    await d.wait(300)
   }
 
   return createDriver({ frame, cursor, script, reset, touch: mobile, cut })
