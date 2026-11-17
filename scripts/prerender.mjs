@@ -97,24 +97,36 @@ async function main() {
   // queda grabado en el HTML y se dispara en cada visita con los datos de este momento.
   const origin = `http://127.0.0.1:${port}`
   await page.setRequestInterception(true)
+  // Los pedidos que siguen abiertos (para decir cuáles, si la red no se aquieta)
+  const pending = new Set()
   page.on('request', (req) => {
     const url = req.url()
+    pending.add(req)
     if (url.startsWith(origin + '/') || url.startsWith('data:') || url.startsWith('blob:')) req.continue()
     else req.abort('blockedbyclient')
   })
+  for (const event of ['requestfinished', 'requestfailed']) page.on(event, (req) => pending.delete(req))
 
   // Prerenderiza una ruta: espera a que Vue la dibuje y limpia lo que no tiene que quedar
   async function render(route) {
-    await page.goto(`http://127.0.0.1:${port}${route}`, { waitUntil: 'networkidle0', timeout: 30000 })
+    // No se espera a que la red quede quieta: en el CI de GitHub algún pedido queda abierto
+    // y networkidle0 no llegaba nunca (el build fallaba por tiempo). Lo que importa es que
+    // la página esté dibujada
+    await page.goto(`http://127.0.0.1:${port}${route}`, { waitUntil: 'domcontentloaded', timeout: 60000 })
 
-    // Wait until Vue has rendered actual content into #app
+    // Vue ya dibujó la página en #app
     await page.waitForFunction(
       () => {
         const app = document.querySelector('#app')
         return app && app.innerText && app.innerText.trim().length > 200
       },
-      { timeout: 15000 }
+      { timeout: 30000 }
     )
+    // La red quieta, como extra y con tope: si no llega, se dice qué quedó abierto
+    await page.waitForNetworkIdle({ idleTime: 500, timeout: 8000 }).catch(() => {
+      console.warn(`[prerender] ${route}: la red no se aquietó; quedaron abiertos:`, [...pending].map((r) => r.url()).slice(0, 8).join(', ') || 'ninguno')
+    })
+    await new Promise((resolve) => setTimeout(resolve, 400))
 
     // Snapshot the full document
     return page.evaluate((templateHtml) => {
