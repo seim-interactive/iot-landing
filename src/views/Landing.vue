@@ -4,6 +4,8 @@
 
     <!-- ==================== HERO ==================== -->
     <main id="top" class="hero">
+      <!-- De fondo, la red de sensores: los pulsos llegan al filo del marco de la plataforma -->
+      <SensorField />
       <div class="hero-content">
         <h1 class="hero-kicker">
           Plataforma IoT industrial a medida
@@ -78,6 +80,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import Navbar from '@/components/Navbar.vue'
 import PlatformStage from '@/components/PlatformStage.vue'
+import SensorField from '@/components/SensorField.vue'
 import PlatformPieces from '@/components/PlatformPieces.vue'
 import PlatformFit from '@/components/PlatformFit.vue'
 import HowItWorks from '@/components/HowItWorks.vue'
