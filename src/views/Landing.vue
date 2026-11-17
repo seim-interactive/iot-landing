@@ -271,7 +271,11 @@ button:focus-visible {
   font-size: clamp(38px, 5vw, 66px);
   font-weight: 400;
   line-height: 1.08;
-  margin-bottom: 36px;
+  /* El degradado (background-clip: text) solo pinta dentro de la caja: con este
+     line-height la cola de la g quedaba afuera y se cortaba. El padding le da lugar
+     y el margen lo descuenta, así la distancia al botón no cambia. */
+  padding-bottom: 0.12em;
+  margin-bottom: calc(36px - 0.12em);
   letter-spacing: -0.03em;
   background: linear-gradient(180deg, #fff 35%, rgba(255, 255, 255, 0.66) 100%);
   -webkit-background-clip: text;
@@ -376,7 +380,7 @@ button:focus-visible {
 
   .hero-title {
     font-size: clamp(32px, 10vw, 48px);
-    margin-bottom: 24px;
+    margin-bottom: calc(24px - 0.12em);
     line-height: 1.15;
   }
 

@@ -138,8 +138,11 @@ onMounted(() => {
     context = gsap.context(() => {
       // Fondo del header apenas se scrollea. Se decide por la posición (y no por
       // isActive) para que siga activo también en el último píxel de la página.
+      // Con histéresis (prende > 8px, apaga < 2px): el rebote del trackpad no lo hace titilar.
       const updateScrolled = (self) => {
-        scrolled.value = self.scroll() > 8
+        const y = self.scroll()
+        if (y > 8) scrolled.value = true
+        else if (y < 2) scrolled.value = false
       }
       ScrollTrigger.create({
         start: 0,
@@ -211,6 +214,9 @@ onUnmounted(() => {
   opacity: 0;
   transition: opacity 0.45s var(--ease-out, ease);
   pointer-events: none;
+  /* Capa propia: el blur no se recompone al animar la opacidad */
+  will-change: opacity;
+  transform: translateZ(0);
 }
 
 .header.is-scrolled::before {

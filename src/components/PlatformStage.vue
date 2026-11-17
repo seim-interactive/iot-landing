@@ -104,6 +104,12 @@ onUnmounted(() => {
     ></canvas>
     <div class="stage-light" aria-hidden="true"></div>
     <div class="stage-shell">
+      <!-- El borde del marco y sus reflejos (ver .stage-rim) -->
+      <div class="stage-rim" aria-hidden="true">
+        <span class="rim-glint rim-glint--left"></span>
+        <span class="rim-glint rim-glint--right"></span>
+        <span class="rim-glint rim-glint--top"></span>
+      </div>
       <div ref="viewport" class="stage-viewport" :style="{ aspectRatio: `${screen.w} / ${screen.h}` }">
         <PlatformVideo class="stage-video" name="hero" mobile-query="(max-width: 720px)" priority />
       </div>
@@ -180,14 +186,14 @@ onUnmounted(() => {
   padding: 8px;
   border-radius: 24px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025) 18%, rgba(255, 255, 255, 0.012) 60%);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  /* Sin backdrop-filter: bajo el blur del header, un blur sobre otro hacía parpadear
+     el navbar al scrollear. Acá no se notaba (el marco es casi transparente sobre negro). */
   box-shadow: 0 70px 160px -50px rgba(0, 0, 0, 0.95);
 }
 
 /* El borde es un degradé: fuerte arriba, casi nada abajo. Encima, el reflejo que
    viaja con el scroll: por el borde de arriba y, al final, bajando por la derecha. */
-.stage-shell::before,
+.stage-rim,
 .stage-viewport::before {
   content: '';
   position: absolute;
@@ -201,12 +207,49 @@ onUnmounted(() => {
   -webkit-mask-composite: xor;
 }
 
-.stage-shell::before {
-  background:
-    radial-gradient(ellipse 30% 26% at var(--glint-x) 0%, rgba(255, 255, 255, 0.95), transparent 72%),
-    radial-gradient(ellipse 22% 34% at 100% calc(var(--glint) * 80% - 22%), rgba(255, 255, 255, 0.7), transparent 72%),
-    radial-gradient(ellipse 22% 30% at 0% calc(118% - var(--glint) * 70%), rgba(255, 255, 255, 0.32), transparent 72%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.08) 26%, rgba(255, 255, 255, 0.035) 70%);
+.stage-rim {
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.08) 26%, rgba(255, 255, 255, 0.035) 70%);
+}
+
+/* Los reflejos se pintan una sola vez y se desplazan con transform (en la GPU). Si su
+   posición dependiera de --glint dentro del degradé, Chrome repintaría la máscara del
+   borde en cada cuadro de scroll y el header parpadearía al pasar el marco por debajo.
+   Cada caja es la elipse del reflejo (2 radios de ancho y de alto, centrada donde está
+   con --glint en 0); el translate recorre lo mismo que recorría el centro del degradé. */
+.rim-glint {
+  position: absolute;
+  will-change: transform;
+}
+
+/* Arriba: elipse de 30% × 26% del marco; el centro va de x 26% a 82% */
+.rim-glint--top {
+  left: -4%;
+  top: -26%;
+  width: 60%;
+  height: 52%;
+  background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255, 255, 255, 0.95), transparent 72%);
+  transform: translateX(calc(var(--glint) * 93.3333%)); /* 56% del marco / 60% */
+}
+
+/* Derecha: elipse de 22% × 34%; el centro baja de y -22% a 58% */
+.rim-glint--right {
+  left: 78%;
+  top: -56%;
+  width: 44%;
+  height: 68%;
+  background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255, 255, 255, 0.7), transparent 72%);
+  transform: translateY(calc(var(--glint) * 117.6471%)); /* 80% del marco / 68% */
+}
+
+/* Izquierda: elipse de 22% × 30%; el centro sube de y 118% a 48% */
+.rim-glint--left {
+  left: -22%;
+  top: 88%;
+  width: 44%;
+  height: 60%;
+  background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255, 255, 255, 0.32), transparent 72%);
+  transform: translateY(calc(var(--glint) * -116.6667%)); /* 70% del marco / 60% */
 }
 
 .stage-viewport {
@@ -238,5 +281,12 @@ onUnmounted(() => {
 
 .stage--mobile .stage-light::before {
   height: 110px;
+}
+
+/* La línea del filo arranca después de la curva de la esquina (radio de 32px): con el
+   3% de escritorio, en el celular sobresalía por fuera del redondeo */
+.stage--mobile .stage-light::after {
+  left: 14%;
+  right: 14%;
 }
 </style>
