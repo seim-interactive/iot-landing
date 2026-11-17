@@ -41,113 +41,17 @@
       </div>
     </section>
 
-    <!-- ==================== CÓMO FUNCIONA ==================== -->
-    <section id="technology" class="flow" aria-labelledby="flow-title">
-      <div ref="flowTrack" class="flow-track" :style="{ '--steps': flowSteps.length }">
-        <div class="flow-sticky">
-          <div class="flow-beam" aria-hidden="true"></div>
-
-          <div class="container flow-layout">
-            <header class="flow-head">
-              <h2 id="flow-title" class="section-title">Cómo funciona</h2>
-              <p class="section-lead">El flujo de datos desde la planta hasta la inteligencia operativa.</p>
-            </header>
-
-            <!-- Paso activo (visual). El contenido completo para lectores de pantalla
-                 y buscadores está en la lista .flow-all. -->
-            <div class="flow-detail" aria-hidden="true">
-              <article
-                v-for="(step, index) in flowSteps"
-                :key="step.title"
-                class="flow-step"
-                :class="{ 'is-active': activeStep === index, 'is-past': index < activeStep }"
-              >
-                <h3 class="flow-step-title">{{ step.title }}</h3>
-                <p class="flow-step-desc">{{ step.description }}</p>
-              </article>
-            </div>
-
-            <!-- Esquema: el dato recorre los seis módulos de la arquitectura -->
-            <div class="flow-visual" aria-hidden="true">
-              <FlowSchematic ref="schematic" :steps="flowSteps" :active="activeStep" @select="scrollToStep" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <ol class="flow-all">
-        <li v-for="step in flowSteps" :key="step.title">
-          <h3 class="flow-step-title">{{ step.title }}</h3>
-          <p class="flow-step-desc">{{ step.description }}</p>
-        </li>
-      </ol>
-    </section>
-
-    <!-- ==================== SERVICIOS ==================== -->
-    <section id="services" class="section services">
+    <!-- ==================== CÓMO FUNCIONA (con los servicios) ==================== -->
+    <section id="technology" class="section journey-section" aria-label="Cómo funciona">
       <div class="container">
-        <div class="services-layout">
-          <header class="services-head" data-reveal>
-            <h2 class="services-title">
-              Ingeniería de punta a punta.
-              <span class="muted">Del PLC a la IA.</span>
-            </h2>
-            <p class="services-lead">Un solo equipo responsable de toda la cadena.</p>
-          </header>
-
-          <ul class="service-index">
-            <li v-for="service in services" :key="service.name" class="service-row" data-reveal>
-              <h3 class="service-title">{{ service.title }}</h3>
-              <p class="service-desc">{{ service.summary }}</p>
-            </li>
-          </ul>
-        </div>
+        <DataJourney />
       </div>
     </section>
 
     <!-- ==================== CONTACTO ==================== -->
-    <section id="contact" class="section contact">
+    <section id="contact" class="section contact-section">
       <div class="container">
-        <div class="contact-panel" data-reveal>
-          <div class="contact-glow" aria-hidden="true"></div>
-
-          <div class="contact-main">
-            <h2 class="contact-title">Trabajemos juntos.</h2>
-            <p class="section-lead">
-              Conectá con nuestro equipo para explorar cómo podemos transformar tu operación industrial.
-            </p>
-
-            <div class="contact-actions">
-              <a href="https://wa.me/5493413551507" target="_blank" rel="noopener" class="btn btn-primary">
-                <i class="pi pi-whatsapp" aria-hidden="true"></i>
-                Escribinos por WhatsApp
-              </a>
-              <a href="mailto:hello@seiminteractive.io" class="btn btn-ghost">
-                <i class="pi pi-envelope" aria-hidden="true"></i>
-                Envianos un email
-              </a>
-            </div>
-          </div>
-
-          <dl class="contact-meta">
-            <div>
-              <dt>Email</dt>
-              <dd><a href="mailto:hello@seiminteractive.io">hello@seiminteractive.io</a></dd>
-            </div>
-            <div>
-              <dt>WhatsApp</dt>
-              <dd><a href="https://wa.me/5493413551507" target="_blank" rel="noopener">+54 9 341 355-1507</a></dd>
-            </div>
-            <div>
-              <dt>Respuesta</dt>
-              <dd>Respondemos en menos de 24 horas</dd>
-            </div>
-            <div>
-              <dt>Cobertura</dt>
-              <dd>Toda Argentina, on-site y remoto</dd>
-            </div>
-          </dl>
-        </div>
+        <ContactAsk />
       </div>
     </section>
 
@@ -167,18 +71,18 @@
           <nav class="footer-column" aria-label="Servicios">
             <h4 class="footer-title">Servicios</h4>
             <ul class="footer-links">
-              <li><a href="#services">Integración Industrial</a></li>
-              <li><a href="#services">Arquitectura Cloud</a></li>
-              <li><a href="#services">Visualización</a></li>
-              <li><a href="#services">Inteligencia Artificial</a></li>
+              <li><a href="#technology">Integración industrial</a></li>
+              <li><a href="#technology">Arquitectura cloud</a></li>
+              <li><a href="#technology">Dashboards</a></li>
+              <li><a href="#technology">Inteligencia artificial</a></li>
             </ul>
           </nav>
 
           <nav class="footer-column" aria-label="Secciones">
             <h4 class="footer-title">Secciones</h4>
             <ul class="footer-links">
-              <li><a href="#solution">Solución</a></li>
-              <li><a href="#partes">Funciones</a></li>
+              <li><a href="#partes">Plataforma</a></li>
+              <li><a href="#solution">A tu medida</a></li>
               <li><a href="#technology">Cómo funciona</a></li>
               <li><a href="#contact">Contacto</a></li>
             </ul>
@@ -221,96 +125,16 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import Navbar from '@/components/Navbar.vue'
-import FlowSchematic from '@/components/FlowSchematic.vue'
 import PlatformStage from '@/components/PlatformStage.vue'
 import PlatformPieces from '@/components/PlatformPieces.vue'
 import PlatformFit from '@/components/PlatformFit.vue'
+import DataJourney from '@/components/DataJourney.vue'
+import ContactAsk from '@/components/ContactAsk.vue'
 import { useLandingMotion } from '@/composables/useLandingMotion'
-import { useFlowScroll } from '@/composables/useFlowScroll'
 
 const rootEl = ref(null)
-const flowTrack = ref(null)
-
-const services = [
-  {
-    name: 'Integración Industrial',
-    title: 'Integración Industrial',
-    summary: 'Conectamos PLCs y sistemas existentes sin detener la planta.',
-  },
-  {
-    name: 'Arquitectura Cloud',
-    title: 'Arquitectura Cloud Industrial',
-    summary: 'Infraestructura privada, segura y preparada para crecer.',
-  },
-  {
-    name: 'Visualización',
-    title: 'Dashboards y Visualización',
-    summary: 'KPIs y OEE en tiempo real, pensados para cada rol.',
-  },
-  {
-    name: 'Inteligencia Artificial',
-    title: 'Inteligencia Artificial Aplicada',
-    summary: 'Detección de anomalías y mantenimiento predictivo.',
-  },
-  {
-    name: 'Seguridad',
-    title: 'Ciberseguridad OT',
-    summary: 'Protegemos tu planta y tus datos de punta a punta.',
-  },
-  {
-    name: 'Soporte y Operación',
-    title: 'Soporte y Operación 24/7',
-    summary: 'Monitoreamos y operamos la plataforma de forma continua.',
-  },
-  {
-    name: 'Consultoría y Evolución',
-    title: 'Consultoría Industria 4.0',
-    summary: 'Una hoja de ruta para la madurez digital de tu planta.',
-  },
-]
-
-const flowSteps = [
-  {
-    short: 'PLCs',
-    title: 'PLCs y Sistemas Industriales',
-    description: 'Los datos nacen en los PLCs y sistemas de control que gobiernan la operación industrial.',
-  },
-  {
-    short: 'Gateway',
-    title: 'Gateway Industrial',
-    description: 'Un gateway industrial captura la información en planta y la envía de forma segura hacia la nube.',
-  },
-  {
-    short: 'Nube',
-    title: 'Nube Industrial',
-    description: 'La información se procesa, organiza y almacena en una infraestructura cloud privada y escalable.',
-  },
-  {
-    short: 'Datos',
-    title: 'Plataforma de Datos',
-    description: 'Los datos se transforman en métricas claras y estados operativos accesibles en tiempo real.',
-  },
-  {
-    short: 'Dashboards',
-    title: 'Dashboards Operativos',
-    description: 'Visualizaciones diseñadas a medida permiten entender el estado de la operación de un vistazo.',
-  },
-  {
-    short: 'IA',
-    title: 'Inteligencia Artificial',
-    description: 'La inteligencia artificial analiza patrones y comportamientos para generar insights relevantes.',
-  },
-]
-
-const schematic = ref(null)
-const activeStep = ref(0)
 
 useLandingMotion(rootEl)
-const { scrollToStep } = useFlowScroll(flowTrack, {
-  steps: flowSteps.length,
-  activeStep,
-  onRender: (pos) => schematic.value?.render(pos),
-})
 
 // ---------- Alto de viewport estable en mobile ----------
 let removeViewportHeightListeners = null
@@ -447,99 +271,6 @@ button:focus-visible {
   border-radius: 6px;
 }
 
-/* ==================== PRIMITIVAS ==================== */
-.section-head {
-  max-width: 820px;
-  margin-bottom: clamp(56px, 7vw, 96px);
-}
-
-.section-title {
-  font-size: clamp(34px, 4.4vw, 60px);
-  font-weight: 400;
-  line-height: 1.06;
-  letter-spacing: -0.03em;
-  color: var(--text);
-  text-wrap: balance;
-}
-
-.section-title .muted {
-  color: var(--text-4);
-}
-
-.section-lead {
-  margin-top: 24px;
-  max-width: 580px;
-  font-size: clamp(16px, 1.25vw, 18px);
-  line-height: 1.65;
-  color: var(--text-2);
-  text-wrap: pretty;
-}
-
-.section-head--center {
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-}
-
-.section-head--center .section-lead {
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.section-head--split {
-  max-width: none;
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-  align-items: end;
-  gap: 48px;
-}
-
-.section-head--split .section-lead {
-  justify-self: end;
-  margin-top: 0;
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  height: 50px;
-  padding: 0 24px;
-  border-radius: 8px;
-  font-family: var(--font);
-  font-size: 15px;
-  font-weight: 400;
-  text-decoration: none;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease;
-}
-
-.btn .pi {
-  font-size: 15px;
-}
-
-.btn-primary {
-  background: #fff;
-  color: #000;
-}
-
-.btn-primary:hover {
-  background: var(--accent);
-}
-
-.btn-ghost {
-  border: 1px solid var(--line-strong);
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text);
-}
-
-.btn-ghost:hover {
-  border-color: rgba(255, 255, 255, 0.32);
-  background: rgba(255, 255, 255, 0.07);
-}
-
 /* ==================== HERO ==================== */
 
 .hero {
@@ -622,343 +353,10 @@ button:focus-visible {
   transform: scale(0.97);
 }
 
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(8px);
-  }
-}
-
-/* ==================== SERVICIOS ==================== */
-.services-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
-  gap: clamp(40px, 6vw, 96px);
-  align-items: start;
-}
-
-.services-head {
-  position: sticky;
-  top: calc(var(--header-h) + 48px);
-}
-
-.services-title {
-  font-size: clamp(30px, 3vw, 44px);
-  font-weight: 400;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  text-wrap: balance;
-}
-
-.services-title .muted {
-  color: var(--text-4);
-}
-
-.services-lead {
-  margin-top: 20px;
-  font-size: 16px;
-  color: var(--text-3);
-}
-
-.service-index {
-  list-style: none;
-  border-bottom: 1px solid var(--line);
-}
-
-.service-row {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
-  gap: 24px;
-  align-items: baseline;
-  padding: 20px 0;
-  border-top: 1px solid var(--line);
-}
-
-.service-title {
-  font-size: 17px;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  color: var(--text);
-}
-
-.service-desc {
-  font-size: 15px;
-  line-height: 1.5;
-  color: var(--text-3);
-  transition: color 0.4s ease;
-}
-
-/* Hover: la fila apuntada queda nítida y el resto de la lista se atenúa. Se atenúa
-   el contenido y no la fila, porque la fila lleva la opacidad inline de su entrada. */
-.service-row > * {
-  transition: opacity 0.45s ease, color 0.45s ease;
-}
-
-@media (hover: hover) {
-  .service-index:hover .service-row > * {
-    opacity: 0.32;
-  }
-
-  .service-index .service-row:hover > * {
-    opacity: 1;
-  }
-
-  .service-row:hover .service-desc {
-    color: var(--text-2);
-  }
-}
-
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-
-.block-title {
-  padding-bottom: 20px;
-  margin-bottom: 24px;
-  border-bottom: 1px solid var(--line);
-  font-size: 22px;
-  font-weight: 400;
-  letter-spacing: -0.015em;
-}
-
-/* ==================== CASOS DE USO ==================== */
-/* Sin caja exterior: solo las líneas entre casos. Cada card dibuja su borde derecho
-   e inferior, y se quitan en la última columna y en la última fila. */
-
-@keyframes accordion-down {
-  from { height: 0; opacity: 0; }
-  to { height: var(--reka-accordion-content-height); opacity: 1; }
-}
-
-@keyframes accordion-up {
-  from { height: var(--reka-accordion-content-height); opacity: 1; }
-  to { height: 0; opacity: 0; }
-}
-
-
-/* ==================== CÓMO FUNCIONA ==================== */
-.flow {
-  position: relative;
-  z-index: 2;
-  /* mitad del ritmo, como cualquier .section (arriba ya la da el padding del sticky) */
-  padding-bottom: calc(var(--section-pad) / 2);
-}
-
 /* La pista define cuánto scroll dura el recorrido; el contenido queda fijo. */
 .flow-track {
   position: relative;
   height: calc(100vh + var(--steps) * 62vh);
-}
-
-.flow-sticky {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  overflow: clip;
-}
-
-/* Haz de luz desde la derecha, el mismo lenguaje que el hero */
-.flow-beam {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 70%;
-  height: 100%;
-  background: radial-gradient(ellipse 60% 55% at 100% 50%, rgba(175, 227, 232, 0.16), transparent 70%);
-  pointer-events: none;
-}
-
-.flow-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-  grid-template-areas:
-    'head visual'
-    'detail visual';
-  grid-template-rows: auto 1fr;
-  column-gap: clamp(40px, 6vw, 112px);
-  height: 100%;
-  padding-top: calc(var(--header-h) + clamp(32px, 7vh, 80px));
-  padding-bottom: clamp(32px, 7vh, 80px);
-}
-
-.flow-head {
-  grid-area: head;
-}
-
-.flow-detail {
-  grid-area: detail;
-  display: grid;
-  align-content: center;
-}
-
-.flow-step {
-  grid-area: 1 / 1;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(20px);
-  transition: opacity 0.35s ease, transform 0.6s var(--ease-out), visibility 0s linear 0.6s;
-}
-
-.flow-step.is-past {
-  transform: translateY(-20px);
-}
-
-.flow-step.is-active {
-  opacity: 1;
-  visibility: visible;
-  transform: none;
-  transition: opacity 0.5s ease 0.08s, transform 0.75s var(--ease-out) 0.08s, visibility 0s;
-}
-
-.flow-step-title {
-  font-size: clamp(28px, 2.8vw, 40px);
-  font-weight: 400;
-  line-height: 1.1;
-  letter-spacing: -0.025em;
-}
-
-.flow-step-desc {
-  margin-top: 18px;
-  max-width: 460px;
-  font-size: 17px;
-  line-height: 1.65;
-  color: var(--text-2);
-}
-
-.flow-visual {
-  grid-area: visual;
-  align-self: center;
-  justify-self: center;
-  container-type: inline-size;
-  /* el esquema es 520×600: el ancho sale del alto disponible */
-  width: min(100%, (100vh - var(--header-h) - 120px) * 520 / 600);
-}
-
-/* Contenido completo de los pasos: oculto a la vista, disponible para lectores de
-   pantalla y buscadores (y visible si el navegador no soporta la versión fija). */
-.flow-all {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-@supports not (overflow: clip) {
-  .flow-track {
-    height: auto;
-  }
-
-  .flow-sticky {
-    position: relative;
-    height: auto;
-    padding: var(--section-pad) 0 0;
-  }
-
-  .flow-detail {
-    display: none;
-  }
-
-  .flow-all {
-    position: static;
-    width: auto;
-    height: auto;
-    overflow: visible;
-    clip-path: none;
-    white-space: normal;
-    list-style: none;
-    max-width: var(--container);
-    margin: 0 auto;
-    padding: 48px var(--gutter) var(--section-pad);
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 40px;
-  }
-}
-
-/* ==================== CONTACTO ==================== */
-.contact-panel {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-  gap: clamp(40px, 6vw, 96px);
-  align-items: end;
-  padding: clamp(40px, 6vw, 88px);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: #040506;
-  overflow: hidden;
-  isolation: isolate;
-}
-
-.contact-glow {
-  position: absolute;
-  z-index: -1;
-  right: -20%;
-  top: -60%;
-  width: 80%;
-  height: 160%;
-  background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(175, 227, 232, 0.16), transparent 70%);
-  pointer-events: none;
-}
-
-.contact-title {
-  font-size: clamp(44px, 6vw, 88px);
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: -0.04em;
-}
-
-.contact-actions {
-  margin-top: 40px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.contact-meta {
-  display: grid;
-  border-top: 1px solid var(--line);
-}
-
-.contact-meta > div {
-  display: grid;
-  gap: 4px;
-  padding: 18px 0;
-  border-bottom: 1px solid var(--line);
-}
-
-.contact-meta dt {
-  font-size: 13px;
-  color: var(--text-3);
-}
-
-.contact-meta dd {
-  font-size: 16px;
-  font-weight: 400;
-  color: var(--text);
-}
-
-.contact-meta a {
-  color: inherit;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-.contact-meta a:hover {
-  color: var(--accent);
 }
 
 /* ==================== FOOTER ==================== */
@@ -1069,25 +467,7 @@ button:focus-visible {
   color: var(--accent);
 }
 
-/* ==================== RESPONSIVE ==================== */
-@media (max-width: 1100px) {
-
-}
-
 @media (max-width: 960px) {
-  .section-head--split {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-
-  .section-head--split .section-lead {
-    justify-self: start;
-    margin-top: 24px;
-  }
-
-  .contact-panel {
-    grid-template-columns: 1fr;
-  }
 
   .footer-grid {
     grid-template-columns: 1fr 1fr 1fr;
@@ -1095,13 +475,6 @@ button:focus-visible {
 
   .footer-brand {
     grid-column: 1 / -1;
-  }
-}
-
-/* Laptops bajas: compactar "Cómo funciona" para que entre en un viewport */
-@media (min-width: 769px) and (max-height: 780px) {
-  .flow-head .section-lead {
-    display: none;
   }
 }
 
@@ -1144,106 +517,6 @@ button:focus-visible {
     padding: calc(var(--section-pad) / 2) 0;
   }
 
-  .section-head {
-    margin-bottom: 48px;
-  }
-
-  .section-title {
-    font-size: clamp(30px, 8.6vw, 40px);
-  }
-
-  .section-lead {
-    margin-top: 18px;
-    font-size: 15.5px;
-  }
-
-  .block-title {
-    font-size: 20px;
-  }
-
-
-  .services-layout {
-    grid-template-columns: 1fr;
-    gap: 32px;
-  }
-
-  .services-head {
-    position: static;
-  }
-
-  .service-row {
-    grid-template-columns: 1fr;
-    row-gap: 4px;
-    padding: 18px 0;
-  }
-
-  /* Cómo funciona: órbita arriba y paso activo debajo */
-  .flow-track {
-    height: calc(100svh + var(--steps) * 55svh);
-  }
-
-  .flow-sticky {
-    height: 100svh;
-    align-items: stretch;
-  }
-
-  .flow-beam {
-    width: 100%;
-    background: radial-gradient(ellipse 80% 40% at 50% 45%, rgba(175, 227, 232, 0.12), transparent 70%);
-  }
-
-  .flow-layout {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      'head'
-      'visual'
-      'detail';
-    grid-template-rows: auto auto 1fr;
-    row-gap: 16px;
-    padding-top: calc(var(--header-h) + 28px);
-    padding-bottom: 24px;
-  }
-
-  .flow-head .section-lead {
-    display: none;
-  }
-
-  .flow-visual {
-    width: 100%;
-    max-width: 420px;
-  }
-
-  .flow-detail {
-    align-content: start;
-  }
-
-  .flow-step-title {
-    font-size: 26px;
-  }
-
-  .flow-step-desc {
-    margin-top: 12px;
-    font-size: 15.5px;
-  }
-
-  /* Contacto */
-  .contact-panel {
-    padding: 40px 24px;
-    gap: 40px;
-  }
-
-  .contact-title {
-    font-size: clamp(42px, 12vw, 56px);
-  }
-
-  .contact-actions {
-    flex-direction: column;
-  }
-
-  .contact-actions .btn {
-    width: 100%;
-  }
-
   /* Footer */
   .footer-grid {
     grid-template-columns: 1fr 1fr;
@@ -1272,23 +545,5 @@ button:focus-visible {
   .footer-bottom-links {
     gap: 20px;
   }
-}
-
-@keyframes bounce-centered {
-  0%, 100% {
-    transform: translateX(-50%) translateY(0);
-  }
-  50% {
-    transform: translateX(-50%) translateY(8px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .flow-step,
-  .flow-step.is-active {
-    transition: none;
-    transform: none;
-  }
-
 }
 </style>

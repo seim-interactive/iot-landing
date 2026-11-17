@@ -84,10 +84,9 @@ import { afterNextPaint, isPrerendering } from '../composables/animationUtils'
 gsap.registerPlugin(ScrollTrigger)
 
 const menuItems = [
-  { id: 'solution', label: 'Solución' },
-  { id: 'partes', label: 'Funciones' },
+  { id: 'partes', label: 'Plataforma' },
+  { id: 'solution', label: 'A tu medida' },
   { id: 'technology', label: 'Cómo funciona' },
-  { id: 'services', label: 'Servicios' },
   { id: 'contact', label: 'Contacto' },
 ]
 
