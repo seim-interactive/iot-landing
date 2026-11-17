@@ -1,7 +1,7 @@
 <template>
   <header class="header" :class="{ 'is-scrolled': scrolled, 'is-open': menuOpen }">
     <div class="header-inner">
-      <a href="#top" class="logo" aria-label="Seim Interactive, ir al inicio" @click="closeMenu">
+      <a :href="home || '#top'" class="logo" aria-label="Seim Interactive, ir al inicio" @click="closeMenu">
         <img src="../assets/MARCA-14.png" alt="Seim Interactive" class="logo-img" />
       </a>
 
@@ -9,7 +9,7 @@
         <a
           v-for="item in menuItems"
           :key="item.id"
-          :href="`#${item.id}`"
+          :href="hrefOf(item.id)"
           class="nav-link"
           :class="{ 'is-active': activeId === item.id }"
           :aria-current="activeId === item.id ? 'location' : undefined"
@@ -47,7 +47,7 @@
             <a
               v-for="(item, index) in menuItems"
               :key="item.id"
-              :href="`#${item.id}`"
+              :href="hrefOf(item.id)"
               class="mobile-nav-link"
               :class="{ 'is-active': activeId === item.id }"
               :aria-current="activeId === item.id ? 'location' : undefined"
@@ -91,6 +91,11 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { afterNextPaint, isPrerendering } from '../composables/animationUtils'
 
 gsap.registerPlugin(ScrollTrigger)
+
+// `home`: dónde está la landing ('' en ella misma, '/' en las páginas por tema). El
+// contacto está en todas las páginas, así que va siempre a la sección de esa página.
+const props = defineProps({ home: { type: String, default: '' } })
+const hrefOf = (id) => (id === 'contact' ? '#contact' : `${props.home}#${id}`)
 
 const menuItems = [
   { id: 'partes', label: 'Plataforma' },

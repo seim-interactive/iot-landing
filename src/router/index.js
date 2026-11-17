@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { TEMAS } from '@/content/temas'
 
 const routes = [
   {
@@ -6,6 +7,13 @@ const routes = [
     name: 'landing',
     component: () => import('@/views/Landing.vue'),
   },
+  // Páginas por tema (src/content/temas.js): /monitoreo-de-produccion/, /argus/…
+  ...TEMAS.map((tema) => ({
+    path: `/${tema.slug}/`,
+    name: `tema-${tema.slug}`,
+    component: () => import('@/views/TopicPage.vue'),
+    props: { slug: tema.slug },
+  })),
   // Zona cliente ------------------------------------------------------------
   {
     path: '/brief',
