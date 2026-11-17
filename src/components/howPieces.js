@@ -58,7 +58,7 @@ const cardPad = () => (mobile() ? 20 : 24)
 
 export const HOW_PIECES = {
   // «Lo ves en vivo»: un fragmento del tablero. Arriba los cuatro indicadores; abajo,
-  // los dos gráficos uno sobre otro, a todo el ancho del grupo. Más chico que el real.
+  // los dos gráficos uno sobre otro, a todo el ancho del grupo. Nunca más grande que el real.
   widget: {
     key: 'widget',
     route: '/dashboard',
@@ -94,10 +94,9 @@ export const HOW_PIECES = {
       await d.wait(600)
       const { w, h } = stageOf(d)
       const box = union(kept)
-      // En escritorio, con aire alrededor y siempre más chico que el tamaño real. En el
-      // celular la caja tiene la proporción del fragmento: lo llena, sin vacíos.
-      const fill = small ? 1 : 0.86
-      const s = Math.min(0.92, (w * fill) / box.width, (h * fill) / box.height)
+      // La caja tiene la proporción del fragmento (HowItWorks.vue): lo llena de borde
+      // a borde, con 1 px de cada lado para que no se corten los bordes de las tarjetas
+      const s = Math.min(0.92, (w - 2) / box.width, (h - 2) / box.height)
       await d.frameOn(box, { pad: 0, max: s, duration: 0 })
       d.fade(1)
       await d.wait(14000)

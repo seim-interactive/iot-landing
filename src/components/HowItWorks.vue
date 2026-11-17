@@ -1,8 +1,13 @@
 <!--
   «Cómo funciona», en tres pasos contados como beneficio: conectamos las máquinas,
-  lo ves en vivo, te avisa y te dice qué hacer. Cada paso tiene su visual en la
-  misma caja (mismo ancho y alto): el render 3D real de los equipos y, después, los
-  componentes reales de la plataforma flotando (howPieces.js).
+  lo ves en vivo, te avisa y te dice qué hacer. Cada paso tiene su visual: el render
+  3D real de los equipos y, después, los componentes reales de la plataforma
+  flotando (howPieces.js).
+
+  Una sola grilla para los tres: texto 5 y visual 6, con el mismo gap, alternando
+  lados. El visual llena su columna, así su borde de afuera cae exacto en el margen
+  del contenedor (como el logo y «Hablemos» en el header). El alto de cada visual es
+  el de su contenido, sin aire de más.
 -->
 <script setup>
 import PlatformPiece from './PlatformPiece.vue'
@@ -43,8 +48,7 @@ const STEPS = [
           <p class="how-service"><span>Lo que hacemos</span>{{ step.service }}</p>
         </div>
 
-        <!-- En escritorio, los dos primeros visuales en la misma caja; en el celular,
-             cada caja mide lo que su contenido, sin vacíos arriba ni abajo -->
+        <!-- Cada caja mide lo que su contenido, sin vacíos arriba ni abajo -->
         <div class="how-visual" :class="`how-visual--${step.key}`" data-reveal aria-hidden="true">
           <video
             v-if="step.key === 'conectar'"
@@ -99,22 +103,23 @@ const STEPS = [
 
 .how-step {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 740px);
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
   align-items: center;
-  gap: clamp(40px, 5vw, 96px);
+  gap: clamp(48px, 6vw, 112px);
 }
 
 /* El visual se alterna de lado: el orden lo da la secuencia, sin numeritos */
 .how-step.is-flipped {
-  grid-template-columns: minmax(0, 740px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
 }
 
 .how-step.is-flipped .how-copy {
   order: 2;
 }
 
+/* El texto ocupa su columna entera, igual en los tres pasos */
 .how-copy {
-  max-width: 480px;
+  min-width: 0;
 }
 
 .how-step-title {
@@ -148,11 +153,17 @@ const STEPS = [
   color: rgba(255, 255, 255, 0.42);
 }
 
-/* La caja de los visuales: la misma en los dos primeros pasos */
+/* El render 3D es 4:3 sobre negro: el contenido ocupa la franja del medio y va de
+   borde a borde. Los demás visuales tienen la proporción de su contenido. */
 .how-visual {
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
+}
+
+/* El fragmento del tablero: 964 × 781 en la app, a todo el ancho de la columna */
+.how-visual--ver {
+  aspect-ratio: 964 / 781;
 }
 
 /* Argus: la caja mide lo que las dos piezas */
@@ -184,9 +195,8 @@ const STEPS = [
   container-type: inline-size;
   display: flex;
   flex-direction: column;
-  gap: 28px;
-  width: 82%;
-  margin: 0 auto;
+  gap: 24px;
+  width: 100%;
 }
 
 /* El reporte, en una tarjeta como las de la plataforma. Adentro, un hallazgo a todo
@@ -209,6 +219,11 @@ const STEPS = [
   .how-pair > .how-report {
     --report-pad: 20px;
     --report-k: 1.4719;
+  }
+
+  /* El fragmento del tablero, en 2 × 2 con un gráfico: 620 × 616 en la app */
+  .how-visual--ver {
+    aspect-ratio: 620 / 616;
   }
 }
 
@@ -236,11 +251,6 @@ const STEPS = [
   .how-visual--conectar .how-video {
     object-fit: cover;
     object-position: 50% 53%;
-  }
-
-  /* El fragmento del tablero mide 620 × 616 en la app y llena el ancho */
-  .how-visual--ver {
-    aspect-ratio: 620 / 616;
   }
 
   .how-pair {
