@@ -8,7 +8,6 @@ import { PIECES } from './platformPieces'
   <div class="pieces">
     <header class="pieces-head" data-reveal>
       <h2 class="pieces-title">Todo lo que pasa en tu planta,<br><span>a la vista.</span></h2>
-      <p class="pieces-lead">No son capturas: son partes de la plataforma, funcionando.</p>
     </header>
 
     <ul class="pieces-grid">
@@ -31,10 +30,6 @@ import { PIECES } from './platformPieces'
 }
 
 .pieces-head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 40px;
   padding: clamp(28px, 3.4vw, 48px);
   border-bottom: 1px solid var(--rule);
 }
@@ -50,12 +45,6 @@ import { PIECES } from './platformPieces'
   color: rgba(255, 255, 255, 0.45);
 }
 
-.pieces-lead {
-  max-width: 300px;
-  font-size: 16px;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.62);
-}
 
 .pieces-grid {
   display: grid;
@@ -63,8 +52,14 @@ import { PIECES } from './platformPieces'
   list-style: none;
 }
 
-.piece + .piece {
-  border-left: 1px solid var(--rule);
+/* Líneas finas entre cuadrados: a la derecha salvo el último de cada fila, y arriba
+   desde la segunda fila */
+.piece:not(:nth-child(3n)) {
+  border-right: 1px solid var(--rule);
+}
+
+.piece:nth-child(n + 4) {
+  border-top: 1px solid var(--rule);
 }
 
 .piece-copy {
@@ -95,8 +90,11 @@ import { PIECES } from './platformPieces'
     grid-template-columns: 1fr;
   }
 
+  .piece:not(:nth-child(3n)) {
+    border-right: 0;
+  }
+
   .piece + .piece {
-    border-left: 0;
     border-top: 1px solid var(--rule);
   }
 }

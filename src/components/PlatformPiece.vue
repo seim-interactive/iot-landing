@@ -83,8 +83,10 @@ onUnmounted(() => {
   aspect-ratio: 1 / 0.92;
   overflow: hidden;
   /* El componente se pierde hacia los bordes: no hay marco que lo corte */
-  -webkit-mask-image: linear-gradient(180deg, transparent, #000 9%, #000 86%, transparent);
-  mask-image: linear-gradient(180deg, transparent, #000 9%, #000 86%, transparent);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 12%, #000 86%, transparent), linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(180deg, transparent, #000 12%, #000 86%, transparent), linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+  mask-composite: intersect;
 }
 
 .piece-frame {
