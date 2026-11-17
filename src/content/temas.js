@@ -4,13 +4,15 @@
 // Todo lo que dicen sale de lo que ya afirma la landing (la grilla, «Cómo funciona»,
 // «A tu medida», el partner y el contacto): no prometen nada nuevo ni suman cifras.
 //
+// `title`: el título de la pestaña y del resultado de Google. Va sin «| Seim Interactive»:
+// Google ya muestra el nombre del sitio arriba de cada resultado, con el ícono.
 // `video`: la clave del video en platformVideos.json. `link`: otra página por tema.
 
 export const TEMAS = [
   {
     slug: 'monitoreo-de-produccion',
     nav: 'Monitoreo de producción',
-    title: 'Monitoreo de producción en tiempo real | Seim Interactive',
+    title: 'Monitoreo de producción en tiempo real',
     description:
       'Mirá en vivo qué produce cada equipo, a qué velocidad y cuánto consume, desde la compu, la tablet o el celular. Con tableros armados para tu proceso.',
     eyebrow: 'Monitoreo de producción',
@@ -57,7 +59,7 @@ export const TEMAS = [
   {
     slug: 'paradas-y-alarmas',
     nav: 'Paradas y alarmas',
-    title: 'Registro de paradas y alarmas de máquinas | Seim Interactive',
+    title: 'Registro de paradas y alarmas de máquinas',
     description:
       'La plataforma detecta cada parada y cada desvío de tus equipos en tiempo real. Marcás el motivo con un toque y ves dónde se va el tiempo.',
     eyebrow: 'Paradas y alarmas',
@@ -104,7 +106,7 @@ export const TEMAS = [
   {
     slug: 'argus',
     nav: 'Argus, la IA',
-    title: 'Argus: IA para analizar tu operación | Seim Interactive',
+    title: 'Argus: IA para analizar tu operación',
     description:
       'Argus revisa todos los datos de tus equipos, encuentra lo que se sale de lo normal, te explica por qué pasa y te propone qué hacer. Y le podés preguntar.',
     eyebrow: 'Argus, nuestra IA',
@@ -147,12 +149,12 @@ export const TEMAS = [
   {
     slug: 'conectar-plc',
     nav: 'Conectar PLC y máquinas',
-    title: 'Conectar PLC y máquinas a la nube | Seim Interactive',
+    title: 'Conectar PLC a la nube: Siemens, Allen-Bradley y más',
     description:
-      'Nos conectamos a los equipos que ya tenés, sin importar la marca ni la edad, y sin frenar la producción. Los datos salen cifrados.',
+      'Nos conectamos a los PLC y máquinas que ya tenés, de Siemens, Allen-Bradley, Schneider o cualquier otra marca, sin frenar la producción.',
     eyebrow: 'Conexión de equipos',
     h1: 'Tus PLC y tus máquinas, conectados a la nube.',
-    lede: 'No importa la marca ni la edad del equipo. Nos conectamos a lo que ya tenés y los datos empiezan a salir, cifrados, sin tocar cómo trabaja la línea.',
+    lede: 'Siemens, Allen-Bradley, Schneider o la marca que sea, nuevo o con años: nos conectamos a lo que ya tenés y los datos empiezan a salir, cifrados, sin tocar cómo trabaja la línea.',
     video: 'conectar',
     sections: [
       {
@@ -174,7 +176,7 @@ export const TEMAS = [
     faq: [
       {
         q: '¿Qué equipos se pueden conectar?',
-        a: 'Los que ya tenés, sin importar la marca ni la edad. Relevamos cada uno en tu planta y vemos cómo sacarle los datos.',
+        a: 'Los de cualquier marca conocida, como Siemens, Allen-Bradley o Schneider, sin importar la edad. Relevamos cada uno en tu planta y vemos cómo sacarle los datos.',
       },
       {
         q: '¿Hay que parar la producción?',
