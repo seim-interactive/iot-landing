@@ -274,14 +274,16 @@ function encode(framesDir, base) {
     h264: `${base}.h264.mp4`,
     poster: `${base}-poster.webp`,
   }
+  // Calidad «transparente»: no se distingue del original (VMAF ~97,4), con menos de la
+  // mitad del peso de un ajuste casi sin pérdida (que se pasaba de lo que el ojo ve).
   // AV1 10 bits: los degradés oscuros sin bandas
-  ff([...input, '-vf', toYuv('yuv420p10le'), '-c:v', 'libsvtav1', '-preset', '3', '-crf', '18',
+  ff([...input, '-vf', toYuv('yuv420p10le'), '-c:v', 'libsvtav1', '-preset', '4', '-crf', '34',
     '-svtav1-params', 'tune=0:enable-qm=1:qm-min=0', ...gop, ...COLOR, '-an', '-movflags', '+faststart', outs.av1])
   // HEVC Main10 con tag hvc1, que es lo que Safari reproduce
-  ff([...input, '-vf', toYuv('yuv420p10le'), '-c:v', 'libx265', '-preset', 'slow', '-crf', '14', '-profile:v', 'main10',
+  ff([...input, '-vf', toYuv('yuv420p10le'), '-c:v', 'libx265', '-preset', 'slow', '-crf', '23', '-profile:v', 'main10',
     '-x265-params', `aq-mode=3:keyint=${FPS * 4}:log-level=error`, '-tag:v', 'hvc1', ...COLOR, '-an', '-movflags', '+faststart', outs.hevc])
   // H.264 de 8 bits: solo si el navegador no tiene ninguno de los anteriores
-  ff([...input, '-vf', toYuv('yuv420p'), '-c:v', 'libx264', '-preset', 'slow', '-crf', '14', '-profile:v', 'high',
+  ff([...input, '-vf', toYuv('yuv420p'), '-c:v', 'libx264', '-preset', 'slow', '-crf', '21', '-profile:v', 'high',
     '-x264-params', 'aq-mode=3', ...gop, ...COLOR, '-an', '-movflags', '+faststart', outs.h264])
   return outs
 }
@@ -333,6 +335,12 @@ async function finish(entry, framesDir, base) {
   const outs = encode(framesDir, base)
   for (const [fmt, file] of Object.entries(outs)) {
     if (fmt === 'poster') continue
+    // La calidad se mide en AV1 (lo que reciben casi todas las visitas); --medir-todo, en los tres
+    if (fmt !== 'av1' && !process.argv.includes('--medir-todo')) {
+      entry[fmt] = { file: path.relative(ROOT, file), size: await sizeOf(file) }
+      console.log(`  ${fmt.padEnd(5)} ${entry[fmt].size.padStart(8)}`)
+      continue
+    }
     const q = quality(path.join(framesDir, '%05d.png'), file, fmt === 'h264' ? 'yuv420p' : 'yuv420p10le')
     entry[fmt] = { file: path.relative(ROOT, file), size: await sizeOf(file), ...q }
     console.log(`  ${fmt.padEnd(5)} ${entry[fmt].size.padStart(8)}  SSIM ${q.ssim}  PSNR ${q.psnr} dB  VMAF ${q.vmaf ?? '—'}`)

@@ -57,7 +57,9 @@ Además:
   - `v`, que cambia con cada grabación y va en la URL como `?v=`, así nginx les da caché de un año;
   - el `codecs` exacto de cada archivo, para que el navegador elija uno que pueda reproducir;
   - las marcas: en «A tu medida», qué equipo muestra el selector en cada momento, para la pestaña de arriba.
-- **`scripts/grabar-plataforma/grabacion.json`:** el detalle de cada grabación, con el peso y la calidad medida contra los cuadros originales (SSIM, PSNR y VMAF). El objetivo es VMAF ≥ 97 o SSIM ≥ 0,995. No se publica.
+- **`scripts/grabar-plataforma/grabacion.json`:** el detalle de cada grabación, con el peso y la calidad medida contra los cuadros originales (SSIM, PSNR y VMAF). No se publica.
+
+La calidad es «transparente»: AV1 con CRF 34, HEVC con CRF 23 y H.264 con CRF 21. A la vista no se distingue del original (VMAF ~97,4) y pesa menos de la mitad que un ajuste casi sin pérdida, que se pasaba de lo que el ojo ve. La calidad se mide solo en AV1, que es lo que reciben casi todas las visitas; `--medir-todo` la mide en los tres formatos.
 
 Los videos no van dentro de la imagen de Docker: el deploy los sube aparte con rsync (solo los que cambiaron) y el contenedor los monta (ver `.github/workflows/deploy.yml`). La demo, `public/plataforma`, tampoco se publica.
 
