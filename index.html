@@ -5,30 +5,18 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-  <!-- Google Tag Manager -->
-  <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-MR942JM7"></script>
+  <!-- Google Ads -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18565933587"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-  </script>
-  <script>
-    // Conversión de Google Ads al tocar un link a WhatsApp, al calendario o a Instagram.
+    gtag('config', 'AW-18565933587');
+
+    // Conversión "Contacto": clic en cualquier botón de WhatsApp
     document.addEventListener('click', function (e) {
-      var a = e.target.closest && e.target.closest('a[href]');
-      if (!a || typeof gtag !== 'function') return;
-      var h = a.href;
-      if (h.indexOf('wa.me') !== -1 ||
-          h.indexOf('whatsapp') !== -1 ||
-          h.indexOf('calendar.app.google') !== -1 ||
-          h.indexOf('ig.me') !== -1) {
-        gtag('event', 'conversion', {
-          'send_to': 'AW-18565933587/y8PSCLjUqLUdEJPU9pRF',
-          'value': 1.0,
-          'currency': 'ARS',
-          'transport_type': 'beacon'
-        });
-      }
+      var a = e.target.closest('a[href*="wa.me"], a[href*="whatsapp"]');
+      if (a) gtag('event', 'conversion', { send_to: 'AW-18565933587/y8PSCLjUqLUdEJPU9pRF' });
     }, true);
   </script>
 

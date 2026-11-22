@@ -62,9 +62,9 @@ function startStaticServer(root) {
 
 // Lo que tiene que quedar en el HTML exactamente una vez, como está escrito en index.html.
 const ONCE = [
-  'googletagmanager.com/gtm.js?id=GTM-MR942JM7',
+  'googletagmanager.com/gtag/js?id=AW-18565933587',
   "gtag('js', new Date());",
-  "'send_to': 'AW-18565933587/",
+  "send_to: 'AW-18565933587/",
 ]
 // Lo que nunca puede quedar grabado: hits de terceros con random y timestamp fijos, iframes.
 const NEVER = ['doubleclick.net', 'google-analytics.com/g/collect', 'facebook.net', 'facebook.com/tr', '<iframe']
